@@ -4,7 +4,7 @@
     <string name="app_name">Tilab Msn</string>
     <string name="msn_service_desc_name">android-msn-service</string>
     <string name="msn_service_desc_type">android-msn</string>
-    <string name="contacts_update_time">1000</string>
+    <string name="contacts_update_time">5000</string>
     
     <!-- UI SPECIFIC PARAMETERS -->
    	<string name="toast_duration">2000</string>

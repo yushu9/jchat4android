@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.app.Activity;
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.os.SystemProperties;
@@ -71,11 +72,6 @@ public class ContactListActivity extends ListActivity implements ConnectionListe
  		return strList;
 	}
 	
-	public void refreshContactList() {
-		List<String> strList = contactsToString();
-		ArrayAdapter<String> aa = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,strList);
-		setListAdapter(aa);
-	}
 	
 		
 	@Override
@@ -148,6 +144,7 @@ public class ContactListActivity extends ListActivity implements ConnectionListe
 				ContactsUpdaterBehaviour updateBh = new ContactsUpdaterBehaviour(getString(R.string.msn_service_desc_name), 
 																				 getString(R.string.msn_service_desc_type), 
 																				 Long.parseLong(getString(R.string.contacts_update_time)));
+				updateBh.setContactsUpdater(new ContactListUpdater(this));
 				gateway.execute(updateBh);
 				
 			
@@ -166,6 +163,23 @@ public class ContactListActivity extends ListActivity implements ConnectionListe
 	}
 
 
-    
-    
+	private class ContactListUpdater extends ContactsUIUpdater{
+
+		public ContactListUpdater(ContactListActivity act) {
+			super(act);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		protected void handleUpdate() {
+			// TODO Auto-generated method stub
+			List<String> strList = contactsToString();
+			ArrayAdapter<String> aa = new ArrayAdapter<String>(ContactListActivity.this,android.R.layout.simple_list_item_1,strList);
+			//FIXME: find if there's a way to avoid this cast...
+			ListActivity act = (ListActivity) activity;
+			act.setListAdapter(aa);
+		}
+		
+	}
+	  
 }

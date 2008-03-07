@@ -24,11 +24,18 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 	private String msnDescName;
 	private String msnDescType;
 	private long msnUpdateTime;
+	private ContactsUIUpdater updater;
 	
 	public ContactsUpdaterBehaviour(String descName, String descType, long updateTime){
 		msnDescName = descName;
 		msnDescType = descType;
 		msnUpdateTime = updateTime;
+	}
+	
+	public void setContactsUpdater(ContactsUIUpdater up) {
+		synchronized (this) {
+			updater = up;
+		}
 	}
 	
 	@Override
@@ -65,13 +72,16 @@ private class DFUpdaterBehaviour extends TickerBehaviour {
 			String propertyName = p.getName();
 			
 			if (propertyName.equals(PROPERTY_NAME_LOCATION_ALT)){
-				double altitude = ((Double)p.getValue()).doubleValue();
+				double altitude = Double.parseDouble((String) p.getValue());		
+				myLogger.log(Logger.FINEST, "retrieved an altitude of value: " + altitude);
 				loc.setAltitude(altitude);
 			} else if (propertyName.equals(PROPERTY_NAME_LOCATION_LAT)){
-				double latitude = ((Double)p.getValue()).doubleValue();
+				double latitude = Double.parseDouble((String) p.getValue());		
+				myLogger.log(Logger.FINEST, "retrieved a latitude of value: " + latitude);
 				loc.setLatitude(latitude);
 			} else if (propertyName.equals(PROPERTY_NAME_LOCATION_LONG)){
-				double longitude = ((Double)p.getValue()).doubleValue();
+				double longitude = Double.parseDouble((String) p.getValue());		
+				myLogger.log(Logger.FINEST, "retrieved a longitude of value: " + longitude);
 				loc.setLongitude(longitude);
 			} 
 		}
@@ -168,6 +178,13 @@ private class DFUpdaterBehaviour extends TickerBehaviour {
 			List<Contact> newContactList = extractOtherContactsList(descriptions);
 			//update contact list
 			ContactManager.getInstance().updateOtherContactList(newContactList);
+			
+			synchronized (ContactsUpdaterBehaviour.this) {
+				if (updater != null){
+					updater.postUIUpdate();
+				}
+			}
+			
 			
 		} catch (FIPAException e) {
 			// TODO Auto-generated catch block
