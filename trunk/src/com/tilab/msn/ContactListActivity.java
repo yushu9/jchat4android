@@ -18,12 +18,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import android.app.Activity;
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemProperties;
 import android.telephony.TelephonyProperties;
+import android.view.Menu;
+import android.view.Menu.Item;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -31,6 +33,10 @@ public class ContactListActivity extends ListActivity implements ConnectionListe
    
 	private JadeGateway gateway;
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
+	
+	//MENUITEM CONSTANTS
+	private final int MENUITEM_ID_MAPMODE=Menu.FIRST;
+	private final int MENUITEM_ID_EXIT=Menu.FIRST+1;
 	
 	@Override
     public void onCreate(Bundle icicle) {
@@ -162,6 +168,37 @@ public class ContactListActivity extends ListActivity implements ConnectionListe
 		
 	}
 
+	
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		menu.add(0, MENUITEM_ID_MAPMODE, R.string.menuitem_mapview);
+		menu.add(0, MENUITEM_ID_EXIT, R.string.menuitem_exit);
+		return true;
+	}
+	
+	public boolean onMenuItemSelected(int featureId, Item item) {
+		super.onMenuItemSelected(featureId, item);
+		
+		switch(item.getId()) {
+			case MENUITEM_ID_EXIT:
+				finish();
+			break;
+			
+			case MENUITEM_ID_MAPMODE:
+				Intent mapIntent = new Intent();
+				mapIntent.setClass(this, ContactsPositionActivity.class);
+				startActivity(mapIntent);
+			break;
+		}
+		return true;
+	}
+
+	
+	/**
+	 * This class perform the GUI update
+	 * @author s.semeria
+	 *
+	 */
 
 	private class ContactListUpdater extends ContactsUIUpdater{
 

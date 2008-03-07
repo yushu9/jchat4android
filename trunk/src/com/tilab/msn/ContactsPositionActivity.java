@@ -13,7 +13,7 @@ public class ContactsPositionActivity extends MapActivity {
 		
 		MapView mv = new MapView(this);
 
-		
+		addContentView(mv, null);
 	}
 	
 }
