@@ -8,13 +8,17 @@
     
     <!-- UI SPECIFIC PARAMETERS -->
    	<string name="toast_duration">2000</string>
+   	
+   	<!-- MENU ITEM PARAMETERS -->
+   	<string name="menuitem_mapview">Map mode</string>
+   	<string name="menuitem_listview">List mode</string>
+   	<string name="menuitem_exit">Exit</string>
    
     
 	<!-- JADE PLATFORM CONNECTION PARAMETERS -->    
     <string name="jade_platform_host">163.162.244.25</string>
 	<string name="jade_platform_port">1099</string>
-	<string name="android_agent_name">msn-android</string>
-	<string name="jade_agent_name">msn-jade</string>
+	
 
     <!-- ERROR MESSAGES -->
     <string name="error_msg_jadegw_connection">Error connecting to Jade Gateway</string>
