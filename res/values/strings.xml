@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- APPLICATION SPECIFIC PARAMETERS -->
+    <string name="app_name">Tilab Msn</string>
+    <string name="msn_service_desc_name">android-msn-service</string>
+    <string name="msn_service_desc_type">android-msn</string>
+    <string name="contacts_update_time">1000</string>
+    
+    <!-- UI SPECIFIC PARAMETERS -->
+   	<string name="toast_duration">2000</string>
+   
+    
+	<!-- JADE PLATFORM CONNECTION PARAMETERS -->    
+    <string name="jade_platform_host">163.162.244.25</string>
+	<string name="jade_platform_port">1099</string>
+	<string name="android_agent_name">msn-android</string>
+	<string name="jade_agent_name">msn-jade</string>
+
+    <!-- ERROR MESSAGES -->
+    <string name="error_msg_jadegw_connection">Error connecting to Jade Gateway</string>
+
+</resources>
