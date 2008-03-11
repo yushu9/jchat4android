@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import android.app.Activity;
+import android.app.Application;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,10 +39,17 @@ public class ContactListActivity extends ListActivity implements ConnectionListe
 	private final int MENUITEM_ID_MAPMODE=Menu.FIRST;
 	private final int MENUITEM_ID_EXIT=Menu.FIRST+1;
 	
+	private ContactsUpdaterBehaviour updateBh;
+	
+	
+	public  ContactsUpdaterBehaviour getUpdateBehaviour(){
+		return updateBh;
+	}
+	
+	
 	@Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-
         
         //fill Jade connection properties
         Properties jadeProperties = new Properties(); 
@@ -133,7 +141,8 @@ public class ContactListActivity extends ListActivity implements ConnectionListe
 		
 		//FIXME: there is probably a better way to get agent's AID!!!!
 		GetAIDCommandBehaviour cmd = new GetAIDCommandBehaviour();
-	
+		
+		
 		try {
 			gateway.execute(cmd);
 			if (!cmd.isSuccess()){
@@ -147,11 +156,10 @@ public class ContactListActivity extends ListActivity implements ConnectionListe
 				GeoNavigator.startLocationUpdate(this);
 			        
 				
-				ContactsUpdaterBehaviour updateBh = new ContactsUpdaterBehaviour(getString(R.string.msn_service_desc_name), 
-																				 getString(R.string.msn_service_desc_type), 
-																				 Long.parseLong(getString(R.string.contacts_update_time)));
-				updateBh.setContactsUpdater(new ContactListUpdater(this));
-				gateway.execute(updateBh);
+				
+				TilabMsnApplication myApp =  (TilabMsnApplication) getApplication();
+				myApp.myBehaviour.setContactsUpdater(new ContactListUpdater(this));
+				gateway.execute(myApp.myBehaviour);
 				
 			
 			}
@@ -187,7 +195,7 @@ public class ContactListActivity extends ListActivity implements ConnectionListe
 			case MENUITEM_ID_MAPMODE:
 				Intent mapIntent = new Intent();
 				mapIntent.setClass(this, ContactsPositionActivity.class);
-				startActivity(mapIntent);
+				startSubActivity(mapIntent, 1);
 			break;
 		}
 		return true;

@@ -14,9 +14,11 @@
    	<string name="menuitem_listview">List mode</string>
    	<string name="menuitem_exit">Exit</string>
    
+    <string name="menuitem_zoom">Zoom Dialog</string>
+    
     
 	<!-- JADE PLATFORM CONNECTION PARAMETERS -->    
-    <string name="jade_platform_host">163.162.244.25</string>
+    <string name="jade_platform_host">10.0.2.2</string>
 	<string name="jade_platform_port">1099</string>
 	
 
