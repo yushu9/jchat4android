@@ -20,7 +20,7 @@ import jade.util.Logger;
 import jade.util.leap.Iterator;
 
 public class ContactsUpdaterBehaviour extends OneShotBehaviour {
-
+	
 	private String msnDescName;
 	private String msnDescType;
 	private long msnUpdateTime;
