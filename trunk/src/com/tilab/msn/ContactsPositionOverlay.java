@@ -38,8 +38,9 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		
 		canvas.drawCircle(point[0], point[1], 5, myPaint);
-		canvas.drawText("Me", point[0], point[1], myPaint);
+		canvas.drawText(myCont.getAID().getLocalName(), point[0], point[1], myPaint);
 		
+		drawOtherContacts(canvas, calculator);
 	}
 	
 	private int[] locationToPoint(PixelCalculator pixelCalc, Location loc){
@@ -54,10 +55,14 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		List<Contact> otherContactList = ContactManager.getInstance().getOtherContactList();
 		Paint myPaint = new Paint();
+		myPaint.setARGB(100,0, 255, 0);
 		
 		for (Contact c : otherContactList){
 			Location loc = c.getLocation();	
 			//get the x and y of the point on the map
+			int [] point = locationToPoint(calculator, loc);
+			canvas.drawCircle(point[0], point[1], 5, myPaint);
+			canvas.drawText(c.getAID().getLocalName(), point[0], point[1], myPaint);
 			
 		}
 	}
