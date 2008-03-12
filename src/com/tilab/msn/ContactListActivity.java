@@ -57,7 +57,7 @@ public class ContactListActivity extends ListActivity implements ConnectionListe
         jadeProperties.setProperty(Profile.MAIN_PORT, getString(R.string.jade_platform_port));
         
     
-        GeoNavigator.setLocationProvider("gps");
+        GeoNavigator.setLocationProvider("mygps");
      
         //try to get a JadeGateway
         try {
