@@ -1,5 +1,7 @@
 package com.tilab.msn;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -14,11 +16,10 @@ public class ContactsPositionOverlay extends Overlay {
 	
 	private Bitmap positionPin;
 	private Activity myActivity;
-	private Paint myPaint;
 	
 	public ContactsPositionOverlay(ContactsPositionActivity activity){
 		myActivity = activity;
-		myPaint = new Paint();
+		
 	}
 	
 	@Override
@@ -30,17 +31,35 @@ public class ContactsPositionOverlay extends Overlay {
 		Location loc = myCont.getLocation();
 		
 		//get the x and y of the point on the map
-		int[] point = new int[2];
+		int[] point = locationToPoint(calculator, loc);
 		
-		int latitudeE6 = (int)(loc.getLatitude() * 1E6);
-		int longitudeE6 = (int) (loc.getLongitude() * 1E6);
-		
+		Paint myPaint = new Paint();
 		myPaint.setARGB(100,255, 0, 0);
 		
-		//convert position into on screen pixel position
-		calculator.getPointXY(new Point(latitudeE6,longitudeE6), point);
 		
 		canvas.drawCircle(point[0], point[1], 5, myPaint);
+		canvas.drawText("Me", point[0], point[1], myPaint);
+		
+	}
+	
+	private int[] locationToPoint(PixelCalculator pixelCalc, Location loc){
+		int[] point = new int[2];
+		int latitudeE6 = (int)(loc.getLatitude() * 1E6);
+		int longitudeE6 = (int) (loc.getLongitude() * 1E6);
+		pixelCalc.getPointXY(new Point(latitudeE6,longitudeE6), point);
+		return point;
+	}	
+		
+	private void drawOtherContacts(Canvas canvas , PixelCalculator calculator){
+		
+		List<Contact> otherContactList = ContactManager.getInstance().getOtherContactList();
+		Paint myPaint = new Paint();
+		
+		for (Contact c : otherContactList){
+			Location loc = c.getLocation();	
+			//get the x and y of the point on the map
+			
+		}
 	}
 
 }
