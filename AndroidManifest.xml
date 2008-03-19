@@ -3,6 +3,7 @@
     package="com.tilab.msn">
  
     <uses-permission android:name="android.permission.ACCESS_LOCATION"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
 	<uses-permission android:name="android.permission.ACCESS_GPS"/>
 	<uses-permission android:name="android.permission.ACCESS_ASSISTED_GPS"/>
  
