@@ -1,7 +1,5 @@
 package com.tilab.msn;
 
-import com.google.android.maps.MyLocationOverlay;
-
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
 import jade.util.Logger;

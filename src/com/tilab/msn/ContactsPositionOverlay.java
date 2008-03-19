@@ -2,24 +2,18 @@ package com.tilab.msn;
 
 import java.util.List;
 
-import android.app.Activity;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.location.Location;
 
 import com.google.android.maps.Overlay;
 import com.google.android.maps.Point;
-import com.google.android.maps.Overlay.PixelCalculator;
 
 public class ContactsPositionOverlay extends Overlay {
 	
-	private Bitmap positionPin;
-	private Activity myActivity;
 	
-	public ContactsPositionOverlay(ContactsPositionActivity activity){
-		myActivity = activity;
-		
+	public ContactsPositionOverlay(){
+
 	}
 	
 	@Override
@@ -29,6 +23,7 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		Contact myCont = ContactManager.getInstance().getMyContact();
 		Location loc = myCont.getLocation();
+		List<Contact> contacts = ContactManager.getInstance().getOtherContactList();
 		
 		//get the x and y of the point on the map
 		int[] point = locationToPoint(calculator, loc);
@@ -38,9 +33,9 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		
 		canvas.drawCircle(point[0], point[1], 5, myPaint);
-		canvas.drawText(myCont.getAID().getLocalName(), point[0], point[1], myPaint);
+		canvas.drawText(myCont.getName(), point[0], point[1]-7, myPaint);
 		
-		drawOtherContacts(canvas, calculator);
+		drawOtherContacts(canvas, calculator, contacts);
 	}
 	
 	private int[] locationToPoint(PixelCalculator pixelCalc, Location loc){
@@ -51,19 +46,20 @@ public class ContactsPositionOverlay extends Overlay {
 		return point;
 	}	
 		
-	private void drawOtherContacts(Canvas canvas , PixelCalculator calculator){
+	private void drawOtherContacts(Canvas canvas , PixelCalculator calculator, List<Contact> otherContactList){
 		
-		List<Contact> otherContactList = ContactManager.getInstance().getOtherContactList();
+	
 		Paint myPaint = new Paint();
 		myPaint.setARGB(100,0, 255, 0);
 		
 		for (Contact c : otherContactList){
-			Location loc = c.getLocation();	
-			//get the x and y of the point on the map
-			int [] point = locationToPoint(calculator, loc);
-			canvas.drawCircle(point[0], point[1], 5, myPaint);
-			canvas.drawText(c.getAID().getLocalName(), point[0], point[1], myPaint);
-			
+			if (c.isOnline()){
+				Location loc = c.getLocation();	
+				//get the x and y of the point on the map
+				int [] point = locationToPoint(calculator, loc);
+				canvas.drawCircle(point[0], point[1], 5, myPaint);
+				canvas.drawText(c.getName(), point[0], point[1]-7, myPaint);
+			}
 		}
 	}
 

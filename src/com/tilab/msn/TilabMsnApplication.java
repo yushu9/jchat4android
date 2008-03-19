@@ -10,9 +10,7 @@ public class TilabMsnApplication extends Application {
 	public void onCreate() {
 		// TODO Auto-generated method stub
 		super.onCreate();
-		myBehaviour = new ContactsUpdaterBehaviour(getString(R.string.msn_service_desc_name), 
-				 getString(R.string.msn_service_desc_type), 
-				 Long.parseLong(getString(R.string.contacts_update_time)));
+		myBehaviour = new ContactsUpdaterBehaviour(Long.parseLong(getString(R.string.contacts_update_time)));
 	}
 	
 	
