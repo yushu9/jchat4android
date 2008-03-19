@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?> 
+
+<resources> 
+   <color name="online_contact_color">#FF00FF00</color> 
+   <color name="offline_contact_color">#FFFF0000</color>
+</resources>
+    

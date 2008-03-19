@@ -9,6 +9,10 @@
     <!-- UI SPECIFIC PARAMETERS -->
    	<string name="toast_duration">2000</string>
    	
+   	<!-- TAB NAMES -->
+   	<string name="contacts_tab_name"> Contacts</string>
+   	<string name="mapview_tab_name"> Map</string>
+   	
    	<!-- MENU ITEM PARAMETERS -->
    	<string name="menuitem_mapview">Map mode</string>
    	<string name="menuitem_listview">List mode</string>
