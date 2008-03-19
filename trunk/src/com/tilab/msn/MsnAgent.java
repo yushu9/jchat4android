@@ -1,15 +1,6 @@
 package com.tilab.msn;
 
-import java.util.ArrayList;
-
 import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.CyclicBehaviour;
-import jade.domain.DFService;
-import jade.domain.FIPAException;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
-import jade.lang.acl.ACLMessage;
-import jade.util.Logger;
 import jade.wrapper.gateway.GatewayAgent;
 
 
