@@ -88,7 +88,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		mapController = mapView.getController();
 		mapController.zoomTo(15);
 		overlayCtrl = mapView.createOverlayController();
-		overlayCtrl.add(new ContactsPositionOverlay(), false);
+		overlayCtrl.add(new ContactsPositionOverlay(mapController, getResources()),true);
 	
 		
 		//Create the updater array
@@ -124,12 +124,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 							
 						} else {
 							myApp.myBehaviour.setContactsUpdater(updaters.get(MAPVIEW_TAB_TAG));
-							Location loc = ContactManager.getInstance().getMyContact().getLocation();
-							int latitudeE6 = (int)(loc.getLatitude()*1E6);
-							int longitudeE6 = (int)(loc.getLongitude()*1E6);
-							Point p = new Point(latitudeE6,longitudeE6);
-							
-							mapController.centerMapTo(p, true);
 							
 						}
 					}        	
@@ -173,20 +167,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
     
     }
 
-
-	public List<String> contactsToString(){
-
-		List<String> strList = new ArrayList<String>();
-		
-		List<Contact> contactsList = ContactManager.getInstance().getOtherContactList();
-		
- 		for (Contact aid : contactsList){
-			strList.add(aid.toString());
-		}
- 		
- 		return strList;
-	}
-	
 	
 		
 	@Override
@@ -228,8 +208,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			gateway.disconnect(this);
+		
 		}
 		
 		
@@ -312,13 +291,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		@Override
 		protected void handleUpdate() {
 			// TODO Auto-generated method stub
-		//	List<String> strList = contactsToString();
-		//	ArrayAdapter<String> aa = new ArrayAdapter<String>(ContactListActivity.this,android.R.layout.simple_list_item_1,strList);
-			
-			contactsAdapter.updateAdapter(ContactManager.getInstance().getMyContact().getLocation(), ContactManager.getInstance().getOtherContactList());
-			contactsListView.setAdapter(contactsAdapter);
-		//	ListView lv = (ListView) activity.findViewById(R.id.contactsList);
-		//	lv.setAdapter(aa);
+					
+			refreshContactList();
+		
 		}
 		
 	}
@@ -331,10 +306,13 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			// TODO Auto-generated constructor stub
 		}
 
-		protected void handleUpdate() {
-			// TODO Auto-generated method stub
-			MapView mapView = (MapView) activity.findViewById(R.id.myMapView);
-			mapView.invalidate();
-		}
+			
+			@Override
+			protected void handleUpdate() {
+				// TODO Auto-generated method stub
+				MapView mapView = (MapView) activity.findViewById(R.id.myMapView);
+				mapView.invalidate();
+			}
+			
 	}
 }

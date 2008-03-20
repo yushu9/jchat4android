@@ -11,8 +11,10 @@ public final class R {
     public static final class attr {
     }
     public static final class color {
+        public static final int my_contact_map_color=0x7f040002;
         public static final int offline_contact_color=0x7f040001;
         public static final int online_contact_color=0x7f040000;
+        public static final int other_contact_map_color=0x7f040003;
     }
     public static final class drawable {
         public static final int icon=0x7f020000;
