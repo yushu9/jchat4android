@@ -99,7 +99,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	     //Set the handler for the click on the tab host
 		mainTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
 
-					@Override
+					
 					public void onTabChanged(String arg0) {
 						
 						TilabMsnApplication myApp =  (TilabMsnApplication) getApplication();
@@ -162,7 +162,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 
 	
 		
-	@Override
 	protected void onDestroy() {
 		
 		super.onDestroy();
@@ -231,7 +230,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 
 
-	@Override
 	protected void onResume() {
 		super.onResume();
 		myLogger.log(Logger.INFO, "onResume was called, registering intent receiver...");
@@ -239,14 +237,13 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 
 	
-	@Override
+	
 	protected void onPause() {
 		super.onPause();
 		myLogger.log(Logger.INFO, "onPause was called, unregistering intent receiver...");
 		GeoNavigator.getInstance(this).pauseLocationUpdate();
 	}
 
-	@Override
 	public void onDisconnected() {
 		// TODO Auto-generated method stub
 		
@@ -289,7 +286,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			// TODO Auto-generated constructor stub
 		}
 
-		@Override
 		protected void handleUpdate() {
 			// TODO Auto-generated method stub
 					
@@ -308,7 +304,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		}
 
 			
-			@Override
+			
 			protected void handleUpdate() {
 				// TODO Auto-generated method stub
 				MapView mapView = (MapView) activity.findViewById(R.id.myMapView);
