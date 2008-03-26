@@ -20,6 +20,8 @@
    
     <string name="menuitem_zoom">Zoom Dialog</string>
     
+    <!-- LOCATION PROVIDER NAME -->
+    <string name="location_provider_name"> mygps </string>
     
 	<!-- JADE PLATFORM CONNECTION PARAMETERS -->    
     <string name="jade_platform_host">10.0.2.2</string>

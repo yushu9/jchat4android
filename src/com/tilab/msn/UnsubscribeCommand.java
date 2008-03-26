@@ -1,48 +1,34 @@
 package com.tilab.msn;
 
+import jade.core.behaviours.Behaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 
 public class UnsubscribeCommand extends SynchCommandBehaviour {
 
+	private Behaviour behaviourToRemove;
+	
+	public UnsubscribeCommand(Behaviour bh){
+		behaviourToRemove = bh;
+	}
 	
 	@Override
 	protected void executeCommand() {
-		cancelSubscription();
-		deregisterMsnService();
-	}
-	
-	
-	private void cancelSubscription(){
-		//we rebuild the subscription message here
-		//TODO: Try to find a better way to perform this cancel
-		DFAgentDescription myDescription = new DFAgentDescription();
-		myDescription.setName(myAgent.getAID());
-		//fill a msn service description
-		ServiceDescription msnServiceDescription = new ServiceDescription();
-		msnServiceDescription.setName(ContactsUpdaterBehaviour.msnDescName);
-		msnServiceDescription.setType(ContactsUpdaterBehaviour.msnDescType);
-		myDescription.addServices(msnServiceDescription);
-		
-		ACLMessage subcribeMsg = DFService.createSubscriptionMessage(myAgent, myAgent.getDefaultDF(), myDescription, null);
-		ACLMessage unsubcribeMsg = DFService.createCancelMessage(myAgent, myAgent.getDefaultDF(), subcribeMsg);
+		myAgent.removeBehaviour(behaviourToRemove);
+		MsnAgent agent = (MsnAgent) myAgent;
+		ACLMessage unsubcribeMsg = DFService.createCancelMessage(myAgent, myAgent.getDefaultDF(), agent.getSubscriptionMessage() );
 		myAgent.send(unsubcribeMsg);
-	}
-	
-	private void deregisterMsnService()  {
-		
-		
+
 		try {
 			DFService.deregister(myAgent);
 		} catch (FIPAException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-			isSuccess = false;
-			exThrown = true;
-			ex = e;
+			e.printStackTrace(); 
 		}
+		
 	}
+	
+	
+	
 }

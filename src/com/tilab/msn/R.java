@@ -40,11 +40,14 @@ public final class R {
         public static final int contacts_update_time=0x7f050003;
         /**  ERROR MESSAGES 
          */
-        public static final int error_msg_jadegw_connection=0x7f05000d;
+        public static final int error_msg_jadegw_connection=0x7f05000e;
         /**  JADE PLATFORM CONNECTION PARAMETERS 
          */
-        public static final int jade_platform_host=0x7f05000b;
-        public static final int jade_platform_port=0x7f05000c;
+        public static final int jade_platform_host=0x7f05000c;
+        public static final int jade_platform_port=0x7f05000d;
+        /**  LOCATION PROVIDER NAME 
+         */
+        public static final int location_provider_name=0x7f05000b;
         public static final int mapview_tab_name=0x7f050006;
         public static final int menuitem_exit=0x7f050009;
         public static final int menuitem_listview=0x7f050008;

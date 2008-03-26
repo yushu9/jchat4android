@@ -54,7 +54,8 @@ android:layout_height="fill_parent"
 >
 
 <view class="com.google.android.maps.MapView" 
-          android:id="@+id/myMapView" 
+          android:id="@+id/myMapView"
+          android:focusable="false" 
           android:layout_width="fill_parent" 
           android:layout_height="fill_parent"/>   	
 </LinearLayout>
