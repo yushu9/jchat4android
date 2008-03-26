@@ -246,6 +246,7 @@ public class ContactsPositionOverlay extends Overlay {
 		minLong = (int)(myContactLoc.getLongitude() * 1E6);
 		minLat = (int)(myContactLoc.getLatitude() * 1E6);
 		ContactLayoutData myPointData = new ContactLayoutData(myContact.getName(),myContactLoc ,calc );
+		myPointData.isMyContact = true;
 		
 		//Compute mid x and y
 		midPointX += myPointData.positionOnScreen[0];
