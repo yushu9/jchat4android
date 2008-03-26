@@ -18,7 +18,7 @@ public abstract class ContactsUIUpdater {
 	
 	private class MyRunnable implements Runnable {
 
-		@Override
+	
 		public void run() {
 			// TODO Auto-generated method stub
 			ContactsUIUpdater.this.handleUpdate();
