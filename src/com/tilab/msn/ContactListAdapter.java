@@ -25,19 +25,19 @@ public class ContactListAdapter extends BaseAdapter {
 		myLocation = ContactManager.getInstance().getMyContact().getLocation();
 	}
 	
-	@Override
+	
 	public int getCount() {
 		// TODO Auto-generated method stub
 		return otherContactList.size();
 	}
 
-	@Override
+	
 	public Object getItem(int arg0) {
 		// TODO Auto-generated method stub
 		return otherContactList.get(arg0);
 	}
 
-	@Override
+	
 	public long getItemId(int position) {
 		// TODO Auto-generated method stub
 		return position;
@@ -48,7 +48,7 @@ public class ContactListAdapter extends BaseAdapter {
 		otherContactList = newList;
 	}
 	
-	@Override
+	
 	public View getView(int position, View convertView, ViewGroup parent) {
 		
 		ContactListViewItem item;
