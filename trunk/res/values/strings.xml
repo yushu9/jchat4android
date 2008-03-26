@@ -14,14 +14,18 @@
    	<string name="mapview_tab_name"> Map</string>
    	
    	<!-- MENU ITEM PARAMETERS -->
-   	<string name="menuitem_mapview">Map mode</string>
    	<string name="menuitem_listview">List mode</string>
    	<string name="menuitem_exit">Exit</string>
+   	
+   	<!--  CONTEXT MENU CONTACT LIST -->
+   	<string name="menu_item_chat">Chat</string>
+   	<string name="menu_item_call">Call</string>
+   	<string name="menu_item_sms">SMS</string>
    
     <string name="menuitem_zoom">Zoom Dialog</string>
     
     <!-- LOCATION PROVIDER NAME -->
-    <string name="location_provider_name"> mygps </string>
+    <string name="location_provider_name"> gps </string>
     
 	<!-- JADE PLATFORM CONNECTION PARAMETERS -->    
     <string name="jade_platform_host">10.0.2.2</string>

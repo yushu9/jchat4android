@@ -17,18 +17,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.View;
 import android.view.Menu.Item;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.Toast;
+import android.widget.AdapterView.ContextMenuInfo;
 import android.widget.TabHost.TabSpec;
 
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayController;
+
 
 public class ContactListActivity extends MapActivity implements ConnectionListener {
    
@@ -42,9 +47,13 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	//Adapter for the contacts list
 	private ContactListAdapter contactsAdapter;
 	
-	//MENUITEM CONSTANTS
-	private final int MENUITEM_ID_MAPMODE=Menu.FIRST;
-	private final int MENUITEM_ID_EXIT=Menu.FIRST+1;
+	//MENUITEM CONSTANT
+	private final int MENUITEM_ID_EXIT=Menu.FIRST;
+	
+	//Menu entries
+	private final int CONTEXT_MENU_ITEM_CHAT = Menu.FIRST;
+	private final int CONTEXT_MENU_ITEM_CALL = Menu.FIRST+1;
+	private final int CONTEXT_MENU_ITEM_SMS = Menu.FIRST+2;
 	
 	//NEEDED TAGS FOR THE TABHOST (to address them)
 	private final String CONTACTS_TAB_TAG="ContactsTab";
@@ -122,6 +131,21 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		});
 
 		contactsListView = (ListView) findViewById(R.id.contactsList);
+		//added ContextMenu
+		contactsListView.setOnPopulateContextMenuListener(
+				new View.OnPopulateContextMenuListener(){
+					public void  onPopulateContextMenu(ContextMenu menu, View v, Object menuInfo) {
+						ListView myLv = (ListView) v;
+						ContextMenuInfo info = (ContextMenuInfo) menuInfo;
+						myLv.setSelection(info.position);
+
+						menu.add(0, CONTEXT_MENU_ITEM_CHAT, R.string.menu_item_chat);
+						menu.add(0, CONTEXT_MENU_ITEM_CALL, R.string.menu_item_call);
+						menu.add(0, CONTEXT_MENU_ITEM_SMS, R.string.menu_item_sms);
+					}
+				}
+		);		
+	
 		contactsAdapter = new ContactListAdapter(this);
 		ContactManager.getInstance().readPhoneContacts(this);
 		contactsAdapter.updateAdapter(ContactManager.getInstance().getMyContact().getLocation(), ContactManager.getInstance().getOtherContactList());
@@ -165,7 +189,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	protected void onDestroy() {
 		
 		super.onDestroy();
-		
+		myLogger.log(Logger.INFO, "onDestroy called ...");
 		GeoNavigator.getInstance(this).stopLocationUpdate();
 		
 		TilabMsnApplication myApp = (TilabMsnApplication) getApplication(); 
@@ -193,12 +217,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
 			gateway.disconnect(this);
-		
 		}
-		
-		
 	}
 	
 	public void onConnected(JadeGateway arg0) {
@@ -240,7 +260,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	
 	protected void onPause() {
 		super.onPause();
-		myLogger.log(Logger.INFO, "onPause was called, unregistering intent receiver...");
+		myLogger.log(Logger.INFO, "onPause was called, unregistering intent receiver...:" + isFinishing());
+	
 		GeoNavigator.getInstance(this).pauseLocationUpdate();
 	}
 
@@ -250,6 +271,16 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 
 	
+
+	protected void onFreeze(Bundle outState) {
+		// TODO Auto-generated method stub
+		myLogger.log(Logger.INFO, "onFreeze was called");
+		super.onFreeze(outState);
+	}
+
+
+
+
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, MENUITEM_ID_EXIT, R.string.menuitem_exit);
@@ -267,6 +298,23 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		return true;
 	}
 
+	public boolean onContextItemSelected(Item item) {
+		
+		switch(item.getId()) {
+			case CONTEXT_MENU_ITEM_CALL:
+				break;
+			case CONTEXT_MENU_ITEM_CHAT:
+				((TilabMsnApplication)getApplication()).myBehaviour.setContactsUpdater(null);
+				Intent it = new Intent();
+				it.setClass(this,ChatActivity.class);
+				startSubActivity(it, 0);
+				break;
+			case CONTEXT_MENU_ITEM_SMS:
+				break;
+			default:
+		}
+		return false;
+	}
 	
 	private void refreshContactList(){
 		contactsAdapter.updateAdapter(ContactManager.getInstance().getMyContact().getLocation(), ContactManager.getInstance().getOtherContactList());
