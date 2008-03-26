@@ -20,15 +20,21 @@ public final class R {
         public static final int icon=0x7f020000;
     }
     public static final class id {
-        public static final int contactsList=0x7f060003;
-        public static final int content1=0x7f060001;
-        public static final int content2=0x7f060004;
-        public static final int main_tabhost=0x7f060000;
-        public static final int myMapView=0x7f060005;
-        public static final int senderTxtView=0x7f060002;
+        public static final int contactsList=0x7f060008;
+        public static final int content1=0x7f060006;
+        public static final int content2=0x7f060009;
+        public static final int edit=0x7f060004;
+        public static final int main_tabhost=0x7f060005;
+        public static final int msgs=0x7f060002;
+        public static final int myMapView=0x7f06000a;
+        public static final int parts=0x7f060000;
+        public static final int partsList=0x7f060001;
+        public static final int senderTxtView=0x7f060007;
+        public static final int sentMsg=0x7f060003;
     }
     public static final class layout {
-        public static final int main=0x7f030000;
+        public static final int chat=0x7f030000;
+        public static final int main=0x7f030001;
     }
     public static final class string {
         /**  APPLICATION SPECIFIC PARAMETERS 
@@ -40,21 +46,25 @@ public final class R {
         public static final int contacts_update_time=0x7f050003;
         /**  ERROR MESSAGES 
          */
-        public static final int error_msg_jadegw_connection=0x7f05000e;
+        public static final int error_msg_jadegw_connection=0x7f050010;
         /**  JADE PLATFORM CONNECTION PARAMETERS 
          */
-        public static final int jade_platform_host=0x7f05000c;
-        public static final int jade_platform_port=0x7f05000d;
+        public static final int jade_platform_host=0x7f05000e;
+        public static final int jade_platform_port=0x7f05000f;
         /**  LOCATION PROVIDER NAME 
          */
-        public static final int location_provider_name=0x7f05000b;
+        public static final int location_provider_name=0x7f05000d;
         public static final int mapview_tab_name=0x7f050006;
-        public static final int menuitem_exit=0x7f050009;
-        public static final int menuitem_listview=0x7f050008;
+        public static final int menu_item_call=0x7f05000a;
+        /**   CONTEXT MENU CONTACT LIST 
+         */
+        public static final int menu_item_chat=0x7f050009;
+        public static final int menu_item_sms=0x7f05000b;
+        public static final int menuitem_exit=0x7f050008;
         /**  MENU ITEM PARAMETERS 
          */
-        public static final int menuitem_mapview=0x7f050007;
-        public static final int menuitem_zoom=0x7f05000a;
+        public static final int menuitem_listview=0x7f050007;
+        public static final int menuitem_zoom=0x7f05000c;
         public static final int msn_service_desc_name=0x7f050001;
         public static final int msn_service_desc_type=0x7f050002;
         /**  UI SPECIFIC PARAMETERS 

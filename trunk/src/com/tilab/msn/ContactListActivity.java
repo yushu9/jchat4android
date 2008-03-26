@@ -51,9 +51,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	private final int MENUITEM_ID_EXIT=Menu.FIRST;
 	
 	//Menu entries
-	private final int CONTEXT_MENU_ITEM_CHAT = Menu.FIRST;
-	private final int CONTEXT_MENU_ITEM_CALL = Menu.FIRST+1;
-	private final int CONTEXT_MENU_ITEM_SMS = Menu.FIRST+2;
+	private final int CONTEXT_MENU_ITEM_CHAT = Menu.FIRST+1;
+	private final int CONTEXT_MENU_ITEM_CALL = Menu.FIRST+2;
+	private final int CONTEXT_MENU_ITEM_SMS = Menu.FIRST+3;
 	
 	//NEEDED TAGS FOR THE TABHOST (to address them)
 	private final String CONTACTS_TAB_TAG="ContactsTab";
