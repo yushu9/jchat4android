@@ -125,7 +125,7 @@ public class Contact {
 			}
 		}
 		
-		StringBuffer buf = new StringBuffer("Position of contact " + this.agentContact.getLocalName() + " was ");
+		StringBuffer buf = new StringBuffer("Position of contact " + name + " was ");
 		buf.append( (updated)? "updated" : "not updated");
 		myLogger.log(Logger.INFO,  buf.toString());
 	}

@@ -1,5 +1,6 @@
 package com.tilab.msn;
 
+import jade.lang.acl.ACLMessage;
 import android.app.Application;
 
 public class TilabMsnApplication extends Application {

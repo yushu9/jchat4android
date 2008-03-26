@@ -13,13 +13,10 @@ import jade.wrapper.ControllerException;
 import jade.wrapper.StaleProxyException;
 
 import java.net.ConnectException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
-import android.location.Location;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.Menu.Item;
@@ -32,7 +29,6 @@ import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayController;
-import com.google.android.maps.Point;
 
 public class ContactListActivity extends MapActivity implements ConnectionListener {
    
@@ -53,16 +49,12 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	//NEEDED TAGS FOR THE TABHOST (to address them)
 	private final String CONTACTS_TAB_TAG="ContactsTab";
 	private final String MAPVIEW_TAB_TAG="MapViewTab";
-	
-	
-	private ContactsUpdaterBehaviour updateBh;
+
 	
 	//Array of updaters
 	private Map<String, ContactsUIUpdater> updaters;
 	
-	public  ContactsUpdaterBehaviour getUpdateBehaviour(){
-		return updateBh;
-	}
+	
 	
 	private void initUI(){
 		//Setup the main tabhost
@@ -86,9 +78,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		//init the map view
 		MapView mapView = (MapView) findViewById(R.id.myMapView);
 		mapController = mapView.getController();
-		mapController.zoomTo(15);
+		
 		overlayCtrl = mapView.createOverlayController();
-		overlayCtrl.add(new ContactsPositionOverlay(mapController, getResources()),true);
+		overlayCtrl.add(new ContactsPositionOverlay(mapView,getResources()),true);
 	
 		
 		//Create the updater array
@@ -137,7 +129,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}		
     
 	
-	@Override
+	
+	
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         
@@ -152,8 +145,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         String telNum = ContactManager.getInstance().getMyContact().getNumTel();
         jadeProperties.setProperty(JICPProtocol.MSISDN_KEY, telNum);
         
-        GeoNavigator.setLocationProvider("mygps");
-     
+        GeoNavigator.setLocationProviderName(getText(R.string.location_provider_name).toString());
+        
         //try to get a JadeGateway
         try {
 			JadeGateway.connect(MsnAgent.class.getName(), jadeProperties, this, this);
@@ -174,12 +167,20 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		
 		super.onDestroy();
 		
-		GeoNavigator.stopLocationUpdate(this);
+		GeoNavigator.getInstance(this).stopLocationUpdate();
+		
+		TilabMsnApplication myApp = (TilabMsnApplication) getApplication(); 
+		
+		UnsubscribeCommand unsubscribe = new UnsubscribeCommand(myApp.myBehaviour);
 		
 		if (gateway != null) {
-			UnsubscribeCommand cmd = new UnsubscribeCommand();
+			
 			try {
-				gateway.execute(cmd);
+				gateway.execute(unsubscribe);
+				gateway.shutdownJADE();
+			} catch (ConnectException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			} catch (StaleProxyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -194,20 +195,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				e.printStackTrace();
 			}
 			
-			if (!cmd.isSuccess()){
-				Toast.makeText(this, 
-						   cmd.getException().toString(), 
-						   Integer.parseInt(getString(R.string.toast_duration))
-						   ).show();
-			}
-			
-			
-			try {
-				gateway.shutdownJADE();
-			} catch (ConnectException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			gateway.disconnect(this);
 		
 		}
 		
@@ -229,7 +217,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				if (getAIDBh.isSuccess()){
 					//put my contact online
 					ContactManager.getInstance().getMyContact().setOnline((AID) getAIDBh.getCommandResult());
-					GeoNavigator.startLocationUpdate(this);        	
 					TilabMsnApplication myApp =  (TilabMsnApplication) getApplication();
 					gateway.execute(myApp.myBehaviour);
 				} else {
@@ -244,6 +231,20 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+		myLogger.log(Logger.INFO, "onResume was called, registering intent receiver...");
+		GeoNavigator.getInstance(this).startLocationUpdate();
+	}
+
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		myLogger.log(Logger.INFO, "onPause was called, unregistering intent receiver...");
+		GeoNavigator.getInstance(this).pauseLocationUpdate();
+	}
 
 	@Override
 	public void onDisconnected() {

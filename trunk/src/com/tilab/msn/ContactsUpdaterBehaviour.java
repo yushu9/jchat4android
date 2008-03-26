@@ -17,8 +17,6 @@ import android.location.Location;
 
 public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 	
-	public static final String msnDescName = "android-msn-service";
-	public static final String msnDescType = "android-msn";
 	
 	private long msnUpdateTime;
 	private ContactsUIUpdater updater;
@@ -42,8 +40,8 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		DFAgentDescription myDescription = new DFAgentDescription();
 		//fill a msn service description
 		ServiceDescription msnServiceDescription = new ServiceDescription();
-		msnServiceDescription.setName(msnDescName);
-		msnServiceDescription.setType(msnDescType);
+		msnServiceDescription.setName(MsnAgent.msnDescName);
+		msnServiceDescription.setType(MsnAgent.msnDescType);
 		myDescription.addServices(msnServiceDescription);
 		
 		try {
@@ -63,11 +61,9 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		}
 		
 		
-		DFUpdaterBehaviour updater = new DFUpdaterBehaviour(myAgent,myDescription, msnUpdateTime);
-		
-		//subscribe to DF
-		ACLMessage subscriptMsg = DFService.createSubscriptionMessage(myAgent, myAgent.getDefaultDF(), myDescription, null);
-		DFSubscriptionBehaviour subBh = new DFSubscriptionBehaviour(myAgent,subscriptMsg);
+		DFUpdaterBehaviour updater = new DFUpdaterBehaviour(myAgent,msnUpdateTime);
+		MsnAgent agent = (MsnAgent) myAgent;
+		DFSubscriptionBehaviour subBh = new DFSubscriptionBehaviour(myAgent,agent.getSubscriptionMessage());
 		
 		myAgent.addBehaviour(updater);
 		myAgent.addBehaviour(subBh);
@@ -190,17 +186,10 @@ private class DFUpdaterBehaviour extends TickerBehaviour {
 	public static final String PROPERTY_NAME_LOCATION_LAT="Latitude";
 	public static final String PROPERTY_NAME_LOCATION_LONG="Longitude";
 	public static final String PROPERTY_NAME_LOCATION_ALT="Altitude";
-
-	private boolean isFirstTime;
-	private DFAgentDescription agentDescription;
-	private ServiceDescription serviceDescription;
 	
-	public DFUpdaterBehaviour(Agent a, DFAgentDescription desc, long period) {
+	
+	public DFUpdaterBehaviour(Agent a, long period) {
 		super(a, period);
-		// TODO Auto-generated constructor stub
-		isFirstTime=true;
-		agentDescription = desc;
-		serviceDescription = (ServiceDescription) agentDescription.getAllServices().next();
 	}
 
 	
@@ -210,35 +199,31 @@ private class DFUpdaterBehaviour extends TickerBehaviour {
 	@Override
 	protected void onTick() {
 		
+		MsnAgent agent = (MsnAgent) myAgent;
+		DFAgentDescription description = agent.getAgentDescription();
+		
 		//retrieve current location
 		Contact myContact = ContactManager.getInstance().getMyContact();
-		
-			agentDescription.setName(myAgent.getAID());
-		
-			Location curLoc = myContact.getLocation();
+		Location curLoc = myContact.getLocation();
 			
-			Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curLoc.getLatitude()));
-			serviceDescription.addProperties(p);
-			p = new Property(PROPERTY_NAME_LOCATION_LONG,new Double(curLoc.getLongitude()));
-			serviceDescription.addProperties(p);
-			p= new Property(PROPERTY_NAME_LOCATION_ALT,new Double(curLoc.getAltitude()));
-			serviceDescription.addProperties(p);
+		ServiceDescription serviceDescription = (ServiceDescription) description.getAllServices().next();
+		serviceDescription.clearAllProperties();
+		
+		Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curLoc.getLatitude()));
+		serviceDescription.addProperties(p);
+		p = new Property(PROPERTY_NAME_LOCATION_LONG,new Double(curLoc.getLongitude()));
+		serviceDescription.addProperties(p);
+		p= new Property(PROPERTY_NAME_LOCATION_ALT,new Double(curLoc.getAltitude()));
+		serviceDescription.addProperties(p);
 			
 			
 			try {
-				//register with DF
+				//update df entry
 				//FIXME: what happens if registration goes bad and an exception is thrown??
 				//Must find a way to notify to the application!!! 
-				if (isFirstTime) {
-					DFService.register(myAgent, agentDescription);
-					isFirstTime=false;
-				} else {
-					if (myContact.hasMoved()) {
-						DFService.modify(myAgent, agentDescription);
-					}
+				if (myContact.hasMoved()) {
+						DFService.modify(myAgent, description);
 				}
-			
-				
 				
 			} catch (FIPAException e) {
 				// TODO Auto-generated catch block
