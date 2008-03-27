@@ -12,6 +12,7 @@ import android.location.Location;
 public class LocationReceiver extends IntentReceiver {
 
 	private Logger myLogger = Logger.getMyLogger(LocationReceiver.class.getName());
+
 	
 	@Override
 	public void onReceiveIntent(Context context, Intent intent) {
@@ -19,6 +20,8 @@ public class LocationReceiver extends IntentReceiver {
 			Location loc = (Location) intent.getParcelableExtra("location");
 			Contact myContact = ContactManager.getInstance().getMyContact();
 			myContact.setLocation(loc);
+			ContactManager.getInstance().setOngoingUpdate();
+			
 			myLogger.log(Logger.ALL, "Position of MyContact was updated");
 		}
 	}

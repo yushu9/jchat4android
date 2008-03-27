@@ -23,9 +23,19 @@ public class ContactManager {
 	private String myContactKey;
 	private Contact myContact;
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
+	private boolean updateOngoing = false;
 	
+	
+	public boolean updateIsOngoing(){
+		return updateOngoing;
+	}
+	
+	public void setOngoingUpdate() {
+		updateOngoing = true;
+	}
 	
 	private ContactManager() {
+		updateOngoing = false; 
 		otherContactsMap = new HashMap <String, Contact>();
 		
 		String numtel = SystemProperties.get("numtel");
