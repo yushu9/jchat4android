@@ -192,22 +192,19 @@ private class DFUpdaterBehaviour extends TickerBehaviour {
 		super(a, period);
 	}
 
-	
-
-	
-	
 	@Override
 	protected void onTick() {
 		
 		MsnAgent agent = (MsnAgent) myAgent;
 		DFAgentDescription description = agent.getAgentDescription();
-		
-		//retrieve current location
-		Contact myContact = ContactManager.getInstance().getMyContact();
-		Location curLoc = myContact.getLocation();
 			
 		ServiceDescription serviceDescription = (ServiceDescription) description.getAllServices().next();
 		serviceDescription.clearAllProperties();
+
+		//retrieve current location
+		Contact myContact = ContactManager.getInstance().getMyContact();
+		Location curLoc = myContact.getLocation();
+
 		
 		Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curLoc.getLatitude()));
 		serviceDescription.addProperties(p);
@@ -216,7 +213,7 @@ private class DFUpdaterBehaviour extends TickerBehaviour {
 		p= new Property(PROPERTY_NAME_LOCATION_ALT,new Double(curLoc.getAltitude()));
 		serviceDescription.addProperties(p);
 			
-			
+		
 			try {
 				//update df entry
 				//FIXME: what happens if registration goes bad and an exception is thrown??

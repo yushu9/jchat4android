@@ -1,5 +1,6 @@
 package com.tilab.msn;
 
+import jade.util.Logger;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -15,12 +16,16 @@ public class GeoNavigator {
 	private final long MINIMUM_DISTANCECHANGE_FOR_UPDATE = 0; // in Meters 
     private final long MINIMUM_TIME_BETWEEN_UPDATE = 0; // in Milliseconds 
 
+    private static final Logger myLogger = Logger.getMyLogger(GeoNavigator.class.getName());
+    private Intent updateIntent;
     private IntentFilter filter;
 	private static final String DEFAULT_PROVIDER_NAME="gps";
 	private static String locProviderName = DEFAULT_PROVIDER_NAME;
 	private IntentReceiver locationReceiver;
 	private static GeoNavigator navigator = null;
 	private Context myContext;
+	private LocationManager manager;
+	private LocationProvider provider;
 	
 	public static GeoNavigator getInstance(Context c){
 		if (navigator == null)
@@ -31,11 +36,10 @@ public class GeoNavigator {
 	
 	private GeoNavigator(Context c){
 		locationReceiver = new LocationReceiver();
-		
-		LocationManager manager = (LocationManager)c.getSystemService(Context.LOCATION_SERVICE);
-		Intent i = new Intent(LOCATION_UPDATE_ACTION);
+		manager = (LocationManager)c.getSystemService(Context.LOCATION_SERVICE);
+		updateIntent = new Intent(LOCATION_UPDATE_ACTION);
 		filter = new IntentFilter(LOCATION_UPDATE_ACTION);
-		LocationProvider provider;
+		myContext = c;
 		
 		if (locProviderName != null){
 			provider = manager.getProvider(locProviderName);
@@ -43,8 +47,13 @@ public class GeoNavigator {
 			provider = manager.getProvider(DEFAULT_PROVIDER_NAME);
 		}
 		
-		manager.requestUpdates(provider, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE, i);
-		myContext = c;
+		
+	}
+	
+	public void startLocationUpdate(){
+		manager.requestUpdates(provider, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE, updateIntent);
+		myLogger.log(Logger.INFO, "Registering the intent receiver");	
+		myContext.registerReceiver(locationReceiver, filter);
 	}
 	
 	public static void setLocationProviderName(String provName) {
@@ -52,18 +61,13 @@ public class GeoNavigator {
 			locProviderName = provName;
 	}
 	
-	public void startLocationUpdate() {
-			myContext.registerReceiver(locationReceiver, filter);
-	}
-	
-	public void pauseLocationUpdate(){
-			myContext.unregisterReceiver(locationReceiver);
-	}
-	
+		
+		
 	public void stopLocationUpdate(){
+		myLogger.log(Logger.INFO, "Unregistering the intent receiver");
+		myContext.unregisterReceiver(locationReceiver);
 		LocationManager manager = (LocationManager)myContext.getSystemService(Context.LOCATION_SERVICE);
-		Intent i = new Intent(LOCATION_UPDATE_ACTION);
-		manager.removeUpdates(i);
+		manager.removeUpdates(updateIntent);
 	}
 	
 }

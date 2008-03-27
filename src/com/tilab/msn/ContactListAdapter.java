@@ -97,7 +97,9 @@ public class ContactListAdapter extends BaseAdapter {
 			contactNameTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, CONTACT_NAME_SIZE);
 			contactNameTextView.setText(c.getName());
 			
-			if (c.isOnline()) {
+			//The condition for showing distances is that the update of myContact location is started
+			//and the contact is online
+			if ( c.isOnline()) {
 				Location contactLoc = c.getLocation();
 				float distKm = myContactLocation.distanceTo(contactLoc) /1000.0f;
 				contactDistanceTextView.setText(String.valueOf(distKm) + " km");

@@ -170,6 +170,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         jadeProperties.setProperty(JICPProtocol.MSISDN_KEY, telNum);
         
         GeoNavigator.setLocationProviderName(getText(R.string.location_provider_name).toString());
+        GeoNavigator.getInstance(this).startLocationUpdate();
         
         //try to get a JadeGateway
         try {
@@ -232,6 +233,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				GetAIDCommandBehaviour getAIDBh = new GetAIDCommandBehaviour();
 				gateway.execute(getAIDBh);
 				
+				
 				//If agent is up
 				if (getAIDBh.isSuccess()){
 					//put my contact online
@@ -252,17 +254,17 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 
 	protected void onResume() {
 		super.onResume();
-		myLogger.log(Logger.INFO, "onResume was called, registering intent receiver...");
-		GeoNavigator.getInstance(this).startLocationUpdate();
+		myLogger.log(Logger.INFO, "onResume was called");
+	
 	}
 
 	
 	
 	protected void onPause() {
 		super.onPause();
-		myLogger.log(Logger.INFO, "onPause was called, unregistering intent receiver...:" + isFinishing());
+		myLogger.log(Logger.INFO, "onPause was called");
 	
-		GeoNavigator.getInstance(this).pauseLocationUpdate();
+	//	GeoNavigator.getInstance(this).pauseLocationUpdate();
 	}
 
 	public void onDisconnected() {
@@ -317,8 +319,10 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 	
 	private void refreshContactList(){
-		contactsAdapter.updateAdapter(ContactManager.getInstance().getMyContact().getLocation(), ContactManager.getInstance().getOtherContactList());
-		contactsListView.setAdapter(contactsAdapter);
+		if (ContactManager.getInstance().updateIsOngoing()) {
+			contactsAdapter.updateAdapter(ContactManager.getInstance().getMyContact().getLocation(), ContactManager.getInstance().getOtherContactList());
+			contactsListView.setAdapter(contactsAdapter);
+		}
 	}
 	
 	/**
@@ -355,8 +359,10 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			
 			protected void handleUpdate() {
 				// TODO Auto-generated method stub
-				MapView mapView = (MapView) activity.findViewById(R.id.myMapView);
-				mapView.invalidate();
+				if (ContactManager.getInstance().updateIsOngoing()){
+					MapView mapView = (MapView) activity.findViewById(R.id.myMapView);
+					mapView.invalidate();
+				}
 			}
 			
 	}

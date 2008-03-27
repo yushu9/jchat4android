@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -27,8 +28,6 @@ public class ContactsPositionOverlay extends Overlay {
 	
 	private int UPPER_THRESHOLD = 0;
 	private  int LOWER_THRESHOLD = 0;
-	
-	private int oldNumberOfPoints;
 	
 	private MapController mapController; 
 	private Paint myPaint;
@@ -57,7 +56,10 @@ public class ContactsPositionOverlay extends Overlay {
 	private int SQUARED_WIDTH=-1; 
 	private int WIDTH=-1;
 	private int HEIGHT=-1;
-	private Point midPointLocationE6;
+	
+	private final int ZOOM_MAX=0;
+	private final int RECOMPUTE_ZOOM=1;
+	private final int NO_ZOOM=2;
 	
 	private Rect scrollingArea;
 	
@@ -67,7 +69,6 @@ public class ContactsPositionOverlay extends Overlay {
 		myPaint = new Paint();
 		this.myMapView = myMapView;
 		scrollingArea= new Rect();
-		oldNumberOfPoints =0;
 	}
 	
 	
@@ -86,16 +87,15 @@ public class ContactsPositionOverlay extends Overlay {
 		
 	}
 	
-	private boolean zoomChangeIsNeeded(PointClusterParams params){
+	private int zoomChangeIsNeeded(PointClusterParams params){
 		
-		boolean retval = false;
+		int retval = NO_ZOOM;
 		
 		int currentNumberOfPoints = params.contactPoints.size();
 		
-		//If we have just one point left, we need to rezoom
-		if (currentNumberOfPoints == 1 &&  oldNumberOfPoints>1){
-			oldNumberOfPoints = currentNumberOfPoints;
-			retval = true;
+		//If we have just one point left, we need to zoom to max level
+		if (currentNumberOfPoints == 1 &&  myMapView.getZoomLevel() < 21){
+			retval = ZOOM_MAX;
 		} else if (currentNumberOfPoints > 1){
 		 
 			//If we have many points compute the max squared distance from the midpoint
@@ -105,7 +105,7 @@ public class ContactsPositionOverlay extends Overlay {
 				if (maxDistSquared > 0){
 					//if we are in the too far or too near range
 					if (maxDistSquared < LOWER_THRESHOLD || maxDistSquared > UPPER_THRESHOLD){
-						retval = true;
+						retval = RECOMPUTE_ZOOM;
 					}
 				}
 					
@@ -117,10 +117,10 @@ public class ContactsPositionOverlay extends Overlay {
 		mapController.animateTo(params.midpointOnMap);
 	}
 	
-	private void doZoom(PointClusterParams params){
-		if (params.coordMaxSpan[0]==-1)
+	private void doZoom(PointClusterParams params, int howToZoom){
+		if (howToZoom == ZOOM_MAX)
 			mapController.zoomTo(21);
-		else
+		if (howToZoom == RECOMPUTE_ZOOM)
 			mapController.zoomToSpan(params.coordMaxSpan[0],params.coordMaxSpan[1]);
 	}
 	
@@ -181,7 +181,8 @@ public class ContactsPositionOverlay extends Overlay {
 			tmpThresh = (int) (WIDTH * LOWER_THRESHOLD_RATIO);
 			LOWER_THRESHOLD = tmpThresh * tmpThresh;
 			doScrolling(params);
-			doZoom(params);
+			int howToZoom = zoomChangeIsNeeded(params);
+			doZoom(params, howToZoom);
 		
 		} else {
 		
@@ -193,8 +194,10 @@ public class ContactsPositionOverlay extends Overlay {
 				doScrolling(params);
 			}
 			
-			if (zoomChangeIsNeeded(params))	{
-				doZoom(params);
+			int howToZoom = zoomChangeIsNeeded(params);
+			
+			if (howToZoom != NO_ZOOM)	{
+				doZoom(params,howToZoom);
 			}
 		}
 	
