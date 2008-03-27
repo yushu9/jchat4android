@@ -16,7 +16,7 @@ android:layout_height="fill_parent"
 <ListView
 	android:id="@+id/partsList"
 	android:layout_width="fill_parent"
-	android:layout_height="10px"
+	android:layout_height="30px"
 	android:listSelector="@android:drawable/list_highlight_background_blue"/>
 	
 <TextView
@@ -43,6 +43,14 @@ android:layout_height="fill_parent"
 	android:layout_width="fill_parent"
 	android:padding="5px"
 	android:layout_height="wrap_content"/>
+	
+<Button
+	android:id="@+id/sendBtn"
+	android:layout_width="wrap_content"
+	android:background="@android:drawable/button_background"
+	android:layout_height="wrap_content"
+	android:padding="10px"
+	android:text="Send"/>
 	
 </LinearLayout>
 

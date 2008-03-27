@@ -38,16 +38,10 @@ public class ContactManager {
 		updateOngoing = false; 
 		otherContactsMap = new HashMap <String, Contact>();
 		
-		String numtel = SystemProperties.get("numtel");
 		
-		//if number is not available
-		if (numtel.equals("")){
-			myLogger.log(Logger.WARNING, "Cannot access the numtel! A random number shall be used!!!");
-			numtel = getRandomNumber();
-		}
 		
 		//FIXME: Try a better way to retrieve MyContact name
-		myContact = new Contact("Me",numtel);
+		myContact = new Contact("Me",true);
 		
 	}
 
@@ -69,18 +63,14 @@ public class ContactManager {
 				
 				myLogger.log(Logger.INFO, "Found contact "+ name + " with numtel " + numTel);
 				
-				Contact cont = new Contact(name, numTel);
+				Contact cont = new Contact(name, true);
 				otherContactsMap.put(numTel, cont);
 				
 			} while(c.next());
 		}
 	}
 	
-	private String getRandomNumber(){
-		Random rnd = new Random();
-		int randInt  = rnd.nextInt();
-		return "RND" + String.valueOf(randInt);
-	}
+	
 	
 	//This methods adds or updates a contact 
 	public void addOnlineContact(AID agentAid, Location loc){
@@ -90,16 +80,10 @@ public class ContactManager {
 			Contact cont = otherContactsMap.get(agentAid.getLocalName());
 			//If not create a new one
 			if (cont == null){
-				cont = new Contact(agentAid);
-				otherContactsMap.put(agentAid.getLocalName(), cont);
-			} else {
-				//if so check if it is online already or not
-				//If the contact is offline, bring it online
-				if (!cont.isOnline()){
-					cont.setOnline(agentAid);
-				}
-			}
-			//In any case update its loction
+				cont = new Contact(agentAid.getLocalName(), false);
+				otherContactsMap.put(agentAid.getName(), cont);
+			} 
+			cont.setAgentContact(agentAid.getName());
 			cont.setLocation(loc);
 		}	
 	}
@@ -113,7 +97,7 @@ public class ContactManager {
 			if (c.isLocal()){
 				c.setOffline();
 			} else {
-				otherContactsMap.remove(c.getAID().getLocalName());
+				otherContactsMap.remove(c.getAgentContact());
 			}
 		}
 	}
