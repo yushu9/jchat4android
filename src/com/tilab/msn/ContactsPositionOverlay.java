@@ -201,7 +201,7 @@ public class ContactsPositionOverlay extends Overlay {
 			}
 		}
 	
-		int oldColor = myPaint.getColor();
+	/*	int oldColor = myPaint.getColor();
 		myPaint.setARGB(80, 255, 0, 0);
 		Style oldStyle = myPaint.getStyle();
 		myPaint.setStyle(Style.FILL);
@@ -217,7 +217,7 @@ public class ContactsPositionOverlay extends Overlay {
 		canvas.drawCircle(params.midpointOnScreen[0], params.midpointOnScreen[1], 10, myPaint);
 		
 		myPaint.setColor(oldColor);
-		myPaint.setStyle(oldStyle);
+		myPaint.setStyle(oldStyle);*/
 		
 	
 		
