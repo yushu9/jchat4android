@@ -1,8 +1,10 @@
 package com.tilab.msn;
 
-import jade.core.AID;
+
 import jade.util.Logger;
 import android.location.Location;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * This class represents a generic contact that can be onlin or offline
@@ -13,55 +15,41 @@ import android.location.Location;
  *
  */
 
-public class Contact {
+public class Contact implements Parcelable {
 
-	private AID agentContact;
-	private String name;
-	private String numTel;
-	private boolean isLocal;
+	private static final long serialVersionUID = 1274339729698023648L;
+	
+	private String agentContact; //nome globale dell'agente corrisponde a numTel@platformID
+	private String name; //nome come appare sulla rubrica (se non è presente è il numTel)
+	private boolean isLocal; //distingue quelli che sono nella lista dei contatti
 	private Location currentLocation;
 	private Location lastPosition;
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	
-	//This constructor builds an online contact whose name is not known.
-	//Its default name shall be the agent name
-	public Contact(AID contact){
-		agentContact = contact;
-		name = agentContact.getLocalName();
-		numTel = name;
-		currentLocation = new Location();
-		lastPosition = new Location();
-		isLocal = false;
-	}
-	
-	
-	//This is an online contact that is also in contacts on the phone
-	public Contact(AID contact, String name){
-		agentContact = contact;
+	public static final android.os.Parcelable.Creator CREATOR = new myContactFactory();
+
+	public Contact(String name, boolean isLocal){
 		this.name = name;
-		this.numTel = agentContact.getLocalName();
 		currentLocation = new Location();
 		lastPosition = new Location();
-		isLocal = true;
+		this.isLocal = isLocal;
 	}
 	
-	//This builds an offline contact whose name is known (from phone contacts)
-	public Contact(String name, String numTel){
-		this.name= name;
-		this.numTel = numTel;
-		currentLocation = new Location();
-		lastPosition = new Location();
-		isLocal=true;
+	
+	public String getPhoneNumber(){
+		String phoneNbr = null;
+		if(agentContact != null){
+			int atPos = agentContact.lastIndexOf('@');
+			if(atPos == -1)
+				phoneNbr = agentContact;
+			else
+				phoneNbr = agentContact.substring(0, atPos);
+		}
+		return phoneNbr;
 	}
 	
 	public boolean isOnline(){
-		boolean online;
-		
-		synchronized (this) {
-			online = (agentContact != null);
-		}
-		
-		return  online;
+		return (agentContact != null);
 	}
 	
 	public boolean isLocal(){
@@ -69,32 +57,19 @@ public class Contact {
 	}
 	
 	
-	public void setOnline(AID agentAID){
-		agentContact = agentAID;
-		numTel = agentAID.getLocalName();
+	public void setAgentContact(String agentContact){
+		this.agentContact = agentContact;
+		
+	}
+	public String getAgentContact(){
+		return this.agentContact;
 	}
 	
 	public void setOffline(){
 		agentContact = null;
 		currentLocation = new Location();
 		lastPosition = currentLocation;
-		
 	}
-	
-	//Contact copy constructor
-	public Contact(Contact c){
-		if (c.agentContact != null)
-			this.agentContact = new AID(c.agentContact.getName(),AID.ISGUID);
-		else 
-			this.agentContact = null;
-		
-		this.currentLocation = new Location(c.currentLocation);
-		this.lastPosition = new Location(c.lastPosition);
-		this.name = new String(c.name);
-		this.numTel = new String(c.numTel);
-	}
-	
-	
 	
 	public boolean hasMoved(){
 		boolean moved = false;
@@ -127,33 +102,26 @@ public class Contact {
 		
 		StringBuffer buf = new StringBuffer("Position of contact " + name + " was ");
 		buf.append( (updated)? "updated" : "not updated");
-		myLogger.log(Logger.INFO,  buf.toString());
+		//myLogger.log(Logger.INFO,  buf.toString());
 	}
 	
-	public AID getAID() {
-		return agentContact;
-	}
-	
+
 	public String getName() {
 		return name;
 	}
 	
-	public String getNumTel(){
-		return numTel;
-	}
-	
-	@Override
+
 	public String toString() {
 		return ("Contact " + 
 				name + 
 				" agent " + 
-				((agentContact == null)? "NULL ": agentContact.getLocalName()) +  
+				((agentContact == null)? "NULL ": agentContact) +  
 				"(" + currentLocation.getLatitude() + 
 				";" + currentLocation.getLongitude() +
 				")");  
 	}
 	
-	@Override
+	
 	public boolean equals(Object o) {
 		if (o instanceof Contact) {
 			Contact other = (Contact) o;
@@ -166,4 +134,30 @@ public class Contact {
 			return false;
 		}
 	}
+
+
+	public void writeToParcel(Parcel dest) {
+		dest.writeString(agentContact);
+		dest.writeString(name);
+		boolean[] b = {isLocal};
+		dest.writeBooleanArray(b);
+	}
+	
+	static class myContactFactory implements android.os.Parcelable.Creator{
+		
+		public Contact createFromParcel(Parcel arg){
+			String agentContact = arg.readString();
+			String name = arg.readString();
+			boolean[] b = new boolean[1];
+			arg.readBooleanArray(b);
+			Contact cc = new Contact(name, b[0]);
+			cc.setAgentContact(agentContact);
+			return cc;
+		}
+
+		public Contact[] newArray(int arg0) {
+			return new Contact[arg0];
+		}
+	}
+	
 }

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentReceiver;
 import android.location.Location;
+import android.util.Log;
 
 public class LocationReceiver extends IntentReceiver {
 

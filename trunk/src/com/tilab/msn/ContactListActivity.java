@@ -13,12 +13,16 @@ import jade.wrapper.ControllerException;
 import jade.wrapper.StaleProxyException;
 
 import java.net.ConnectException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemProperties;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.View;
@@ -63,7 +67,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	//Array of updaters
 	private Map<String, ContactsUIUpdater> updaters;
 	
-	
+	public static final String OTHER_PARTICIPANTS = "com.tilab.msn.Prova";
 	
 	private void initUI(){
 		//Setup the main tabhost
@@ -153,7 +157,11 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}		
     
 	
-	
+	private String getRandomNumber(){
+		Random rnd = new Random();
+		int randInt  = rnd.nextInt();
+		return "RND" + String.valueOf(randInt);
+	}
 	
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -166,8 +174,15 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         jadeProperties.setProperty(Profile.MAIN_HOST, getString(R.string.jade_platform_host));
         jadeProperties.setProperty(Profile.MAIN_PORT, getString(R.string.jade_platform_port));
         //Get the phone number of my contact
-        String telNum = ContactManager.getInstance().getMyContact().getNumTel();
-        jadeProperties.setProperty(JICPProtocol.MSISDN_KEY, telNum);
+        String numtel = SystemProperties.get("numtel");
+		
+		//if number is not available
+		if (numtel.equals("")){
+			myLogger.log(Logger.WARNING, "Cannot access the numtel! A random number shall be used!!!");
+			numtel = getRandomNumber();
+		}
+       
+        jadeProperties.setProperty(JICPProtocol.MSISDN_KEY, numtel);
         
         GeoNavigator.setLocationProviderName(getText(R.string.location_provider_name).toString());
         GeoNavigator.getInstance(this).startLocationUpdate();
@@ -237,7 +252,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				//If agent is up
 				if (getAIDBh.isSuccess()){
 					//put my contact online
-					ContactManager.getInstance().getMyContact().setOnline((AID) getAIDBh.getCommandResult());
+					ContactManager.getInstance().getMyContact().setAgentContact(((AID) getAIDBh.getCommandResult()).getName());
 					TilabMsnApplication myApp =  (TilabMsnApplication) getApplication();
 					gateway.execute(myApp.myBehaviour);
 				} else {
@@ -306,10 +321,14 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			case CONTEXT_MENU_ITEM_CALL:
 				break;
 			case CONTEXT_MENU_ITEM_CHAT:
+				Contact ct = (Contact) contactsListView.getSelectedItem();
+				ArrayList parts = new ArrayList();
+				parts.add(ct);
 				((TilabMsnApplication)getApplication()).myBehaviour.setContactsUpdater(null);
 				Intent it = new Intent();
-				it.setClass(this,ChatActivity.class);
-				startSubActivity(it, 0);
+				it.putExtra(OTHER_PARTICIPANTS, parts);
+				it.setClass(this, ChatActivity.class);
+				startActivity(it);
 				break;
 			case CONTEXT_MENU_ITEM_SMS:
 				break;
