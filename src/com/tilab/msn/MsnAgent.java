@@ -4,12 +4,15 @@ import android.location.Location;
 
 
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.Property;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.util.Logger;
 import jade.wrapper.gateway.GatewayAgent;
 
 
@@ -22,10 +25,12 @@ public class MsnAgent extends GatewayAgent {
 	public static final String PROPERTY_NAME_LOCATION_LONG="Longitude";
 	public static final String PROPERTY_NAME_LOCATION_ALT="Altitude";
 
+	public static final String CHAT_ONTOLOGY= "chat_ontology";
 	
 	private DFAgentDescription myDescription;
 	private ACLMessage subscriptionMessage;
 	
+	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	
 	//In this method we shall register to df and subscribe
 	protected void setup() {
@@ -41,7 +46,6 @@ public class MsnAgent extends GatewayAgent {
 		//subscribe to DF
 		subscriptionMessage = DFService.createSubscriptionMessage(this, this.getDefaultDF(), myDescription, null);
 
-		
 		Location curLoc = ContactManager.getInstance().getMyContact().getLocation();
 		
 		Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curLoc.getLatitude()));
@@ -52,14 +56,15 @@ public class MsnAgent extends GatewayAgent {
 		msnServiceDescription.addProperties(p);		
 		myDescription.setName(this.getAID());
 		
-	
 		try {
 			DFService.register(this, myDescription);
 		} catch (FIPAException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
+		//added behaviour to dispatch chat messages
+		addBehaviour(new MessageReceiverBehaviour());
 	}
 	
 	public ACLMessage getSubscriptionMessage(){
@@ -88,5 +93,17 @@ public class MsnAgent extends GatewayAgent {
 		}
 	}
 	
+	private class MessageReceiverBehaviour extends CyclicBehaviour{
+
+		public void action() {
+			MessageTemplate mt = MessageTemplate.MatchOntology(CHAT_ONTOLOGY);
+			ACLMessage msg = myAgent.receive(mt);
+			if(msg != null){
+				myLogger.log(Logger.INFO, msg.toString());
+			}else{
+				block();
+			}
+		}
+	}
 }
 
