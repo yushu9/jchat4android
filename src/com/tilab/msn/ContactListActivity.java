@@ -102,8 +102,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         updaters.put(MAPVIEW_TAB_TAG, new MapUpdater(this));
 	
         //set the default updater
-		TilabMsnApplication myApp =  (TilabMsnApplication) getApplication();
-		myApp.myBehaviour.setContactsUpdater(updaters.get(CONTACTS_TAB_TAG));
+		//TilabMsnApplication myApp =  (TilabMsnApplication) getApplication();
+		//myApp.myBehaviour.setContactsUpdater(updaters.get(CONTACTS_TAB_TAG));
 	
 		//Select default tab
 		mainTabHost.setCurrentTabByTag(CONTACTS_TAB_TAG);
@@ -115,21 +115,26 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 					
 					public void onTabChanged(String arg0) {
 						
-						TilabMsnApplication myApp =  (TilabMsnApplication) getApplication();
 						myLogger.log(Logger.FINER, "Tab was switched! Current tab is "+ arg0 + " Changing the updater...");
 						
 						//FIXME: THIS LOOKS LIKE AN ANDROID BUG!!!!
 						//We should investigate!!!!!
 						if (arg0 == null){
-							// TODO Auto-generated method stub	
-							myApp.myBehaviour.setContactsUpdater(updaters.get(CONTACTS_TAB_TAG));
+							try{
+								gateway.execute(updaters.get(CONTACTS_TAB_TAG));
+							}catch(Exception e){
+								myLogger.log(Logger.SEVERE, e.getMessage());
+							}
 							//This forced update could be dangerous!!!
 							contactsAdapter.updateAdapter(ContactManager.getInstance().getMyContact().getLocation(), ContactManager.getInstance().getOtherContactList());
 							contactsListView.setAdapter(contactsAdapter);
 							
 						} else {
-							myApp.myBehaviour.setContactsUpdater(updaters.get(MAPVIEW_TAB_TAG));
-							
+							try{
+								gateway.execute(updaters.get(MAPVIEW_TAB_TAG));
+							}catch(Exception e){
+								myLogger.log(Logger.SEVERE, e.getMessage());
+							}
 						}
 					}        	
 		});
@@ -177,7 +182,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         
         //try to get a JadeGateway
         try {
-			JadeGateway.connect(MsnAgent.class.getName(), jadeProperties, this, this);
+			JadeGateway.connect(MsnAgent.class.getName(), new String[]{getText(R.string.contacts_update_time).toString()}, jadeProperties, this, this);
 		} catch (Exception e) {
 			//troubles during connection
 			Toast.makeText(this, 
@@ -187,9 +192,11 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		}
     }
 
+    private static Properties jadeProperties;
+    
 	public static Properties getJadeProperties(Activity act){
 		 //fill Jade connection properties
-        Properties jadeProperties = new Properties(); 
+        jadeProperties = new Properties(); 
         jadeProperties.setProperty(Profile.MAIN_HOST, act.getString(R.string.jade_platform_host));
         jadeProperties.setProperty(Profile.MAIN_PORT, act.getString(R.string.jade_platform_port));
         //Get the phone number of my contact
@@ -211,25 +218,35 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		myLogger.log(Logger.INFO, "onDestroy called ...");
 		GeoNavigator.getInstance(this).stopLocationUpdate();
 		
-		TilabMsnApplication myApp = (TilabMsnApplication) getApplication(); 
+		//TilabMsnApplication myApp = (TilabMsnApplication) getApplication(); 
+		//UnsubscribeCommand unsubscribe = new UnsubscribeCommand(myApp.myBehaviour);
 		
-		UnsubscribeCommand unsubscribe = new UnsubscribeCommand(myApp.myBehaviour);
-		
-		if (gateway != null) {
+		/*if (gateway != null) {
 			
 			try {
-				gateway.execute(unsubscribe);
+				//gateway.execute(unsubscribe);
 				gateway.shutdownJADE();
 			} catch (ConnectException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (StaleProxyException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (ControllerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InterruptedException e) {
+			}
+			
+		
+			gateway.disconnect(this);
+		}*/
+	}
+	
+	
+
+	protected void onStop() {
+		super.onStop();
+		if (gateway != null) {
+			try {
+				gateway.shutdownJADE();
+			} catch (ConnectException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (Exception e) {
@@ -237,15 +254,18 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				e.printStackTrace();
 			}
 			gateway.disconnect(this);
+			
 		}
 	}
-	
+
+
 	public void onConnected(JadeGateway arg0) {
 		this.gateway = arg0;
 	
 		myLogger.log(Logger.INFO, "onConnected(): SUCCESS!");
 
 		try {
+			gateway.execute(updaters.get(CONTACTS_TAB_TAG));
 				//FIXME: this code is needed to start JADE and to put online MyContact.
 				//I cannot find another way to be sure that the agent is up!!!
 				GetAIDCommandBehaviour getAIDBh = new GetAIDCommandBehaviour();
@@ -255,8 +275,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				if (getAIDBh.isSuccess()){
 					//put my contact online
 					ContactManager.getInstance().getMyContact().setAgentContact(((AID) getAIDBh.getCommandResult()).getName());
-					TilabMsnApplication myApp =  (TilabMsnApplication) getApplication();
-					gateway.execute(myApp.myBehaviour);
 				} else {
 					Toast.makeText(this, "Error during agent startup", 2000);
 				}			
@@ -323,7 +341,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				Contact ct = (Contact) contactsListView.getSelectedItem();
 				ArrayList parts = new ArrayList();
 				parts.add(ct);
-				((TilabMsnApplication)getApplication()).myBehaviour.setContactsUpdater(null);
+				//FIXME: da verificare cosa accade se non si setta
+				//((TilabMsnApplication)getApplication()).myBehaviour.setContactsUpdater(null);
 				Intent it = new Intent();
 				it.putExtra(OTHER_PARTICIPANTS, parts);
 				it.setClass(this, ChatActivity.class);

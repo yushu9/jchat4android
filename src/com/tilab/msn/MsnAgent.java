@@ -2,7 +2,6 @@ package com.tilab.msn;
 
 import android.location.Location;
 
-
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
@@ -29,6 +28,7 @@ public class MsnAgent extends GatewayAgent {
 	
 	private DFAgentDescription myDescription;
 	private ACLMessage subscriptionMessage;
+	private ContactsUpdaterBehaviour contactsUpdaterB;
 	
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	
@@ -65,6 +65,10 @@ public class MsnAgent extends GatewayAgent {
 		
 		//added behaviour to dispatch chat messages
 		addBehaviour(new MessageReceiverBehaviour());
+		String[] args = (String[])getArguments();
+		myLogger.log(Logger.INFO, "UPDATE TIME: " + args[0]);
+		contactsUpdaterB = new ContactsUpdaterBehaviour(Long.parseLong(args[0]));
+		addBehaviour(contactsUpdaterB);
 	}
 	
 	public ACLMessage getSubscriptionMessage(){
@@ -78,8 +82,15 @@ public class MsnAgent extends GatewayAgent {
 	
 	//Here we will deregister and unsubscribe
 	protected void takeDown() {
-	
-		
+		ACLMessage unsubcribeMsg = DFService.createCancelMessage(this, getDefaultDF(), getSubscriptionMessage());
+		send(unsubcribeMsg);
+
+		try {
+			DFService.deregister(this, myDescription);
+		} catch (FIPAException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace(); 
+		}	
 	}
 	
 	//used to pass data to agent
@@ -89,6 +100,9 @@ public class MsnAgent extends GatewayAgent {
 			addBehaviour( (Behaviour) command);
 		}else if (command instanceof Behaviour){
 			addBehaviour( (Behaviour) command);
+			releaseCommand(command);
+		}else if(command instanceof ContactsUIUpdater){
+			contactsUpdaterB.setContactsUpdater((ContactsUIUpdater)command);
 			releaseCommand(command);
 		}
 	}
@@ -105,5 +119,7 @@ public class MsnAgent extends GatewayAgent {
 			}
 		}
 	}
+	
+	
 }
 
