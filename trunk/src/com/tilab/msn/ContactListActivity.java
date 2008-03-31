@@ -42,7 +42,7 @@ import com.google.android.maps.OverlayController;
 public class ContactListActivity extends MapActivity implements ConnectionListener {
    
 	private JadeGateway gateway;
-	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
+	private static final Logger myLogger = Logger.getMyLogger(ContactListActivity.class.getName());
 	private TabHost mainTabHost;
 	private ListView contactsListView;
 	private MapController mapController;
@@ -157,7 +157,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}		
     
 	
-	private String getRandomNumber(){
+	private static String getRandomNumber(){
 		Random rnd = new Random();
 		int randInt  = rnd.nextInt();
 		return "RND" + String.valueOf(randInt);
@@ -170,19 +170,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         initUI();
            
         //fill Jade connection properties
-        Properties jadeProperties = new Properties(); 
-        jadeProperties.setProperty(Profile.MAIN_HOST, getString(R.string.jade_platform_host));
-        jadeProperties.setProperty(Profile.MAIN_PORT, getString(R.string.jade_platform_port));
-        //Get the phone number of my contact
-        String numtel = SystemProperties.get("numtel");
-		
-		//if number is not available
-		if (numtel.equals("")){
-			myLogger.log(Logger.WARNING, "Cannot access the numtel! A random number shall be used!!!");
-			numtel = getRandomNumber();
-		}
-       
-        jadeProperties.setProperty(JICPProtocol.MSISDN_KEY, numtel);
+        Properties jadeProperties = getJadeProperties(this);
         
         GeoNavigator.setLocationProviderName(getText(R.string.location_provider_name).toString());
         GeoNavigator.getInstance(this).startLocationUpdate();
@@ -197,10 +185,25 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 						   Integer.parseInt(getString(R.string.toast_duration))
 						   ).show();
 		}
-    
     }
 
-	
+	public static Properties getJadeProperties(Activity act){
+		 //fill Jade connection properties
+        Properties jadeProperties = new Properties(); 
+        jadeProperties.setProperty(Profile.MAIN_HOST, act.getString(R.string.jade_platform_host));
+        jadeProperties.setProperty(Profile.MAIN_PORT, act.getString(R.string.jade_platform_port));
+        //Get the phone number of my contact
+        String numtel = SystemProperties.get("numtel");
+		
+		//if number is not available
+		if (numtel.equals("")){
+			myLogger.log(Logger.WARNING, "Cannot access the numtel! A random number shall be used!!!");
+			numtel = getRandomNumber();
+		}
+       
+        jadeProperties.setProperty(JICPProtocol.MSISDN_KEY, numtel);
+        return jadeProperties;
+	}
 		
 	protected void onDestroy() {
 		
@@ -247,8 +250,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				//I cannot find another way to be sure that the agent is up!!!
 				GetAIDCommandBehaviour getAIDBh = new GetAIDCommandBehaviour();
 				gateway.execute(getAIDBh);
-				
-				
+			
 				//If agent is up
 				if (getAIDBh.isSuccess()){
 					//put my contact online
@@ -257,10 +259,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 					gateway.execute(myApp.myBehaviour);
 				} else {
 					Toast.makeText(this, "Error during agent startup", 2000);
-				}
-			
-				
-						
+				}			
 		} catch(Exception e){
 			Toast.makeText(this, e.toString(), 1000).show();
 		}
