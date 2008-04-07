@@ -63,7 +63,13 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		messageToBeSent = (EditText)findViewById(R.id.edit);
 		
 		messagesSent = (EditText) findViewById(R.id.sentMsg);
-			
+
+		//Retrieve messages if the session already contains data
+		List<MsnSessionMessage> messages = session.getMessageList();
+		for (MsnSessionMessage msg : messages) {
+			messagesSent.append(msg.toString());
+		}
+		
 		sendButton = (Button) findViewById(R.id.sendBtn);
 		sendButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -97,6 +103,9 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		super.onDestroy();
 		
 		MsnSessionManager.getInstance().removeMsnSession(session.getSessionId());
+		IncomingNotificationUpdater updater = MsnSessionManager.getInstance().getNotificationUpdater();
+		
+		updater.removeSessionNotification(session.getSessionId());
 		
 		if (gateway != null){
 			gateway.disconnect(this);

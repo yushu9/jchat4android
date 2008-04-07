@@ -40,7 +40,11 @@ class IncomingNotificationUpdater {
 				activity.runOnUIThread(new PostNotificationRunnable(msg));
 				
 		}
-			
+		
+		public void removeSessionNotification(String sessionId){
+			manager.cancel(sessionId.hashCode());
+		}
+		
 		public void removeAllNotifications(){
 			
 			for (int i =0; i < notificationList.size(); i++) {
