@@ -7,6 +7,7 @@ import jade.android.JadeGateway;
 import jade.core.AID;
 import jade.core.Profile;
 import jade.imtp.leap.JICP.JICPProtocol;
+import jade.lang.acl.ACLMessage;
 import jade.util.Logger;
 import jade.util.leap.Properties;
 import jade.wrapper.ControllerException;
@@ -20,9 +21,16 @@ import java.util.Map;
 import java.util.Random;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.IServiceManager;
+import android.os.ServiceManagerNative;
 import android.os.SystemProperties;
+import android.telephony.IPhone;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.View;
@@ -45,7 +53,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	private static final Logger myLogger = Logger.getMyLogger(ContactListActivity.class.getName());
 	private TabHost mainTabHost;
 	private ListView contactsListView;
-	private MapController mapController;
 	private OverlayController overlayCtrl;
 
 	//Adapter for the contacts list
@@ -68,6 +75,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	private Map<String, ContactsUIUpdater> updaters;
 	
 	public static final String OTHER_PARTICIPANTS = "com.tilab.msn.Prova";
+	public static final String MESSAGE = "com.tilab.msn.Message";
 	
 	private void initUI(){
 		//Setup the main tabhost
@@ -90,7 +98,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         
 		//init the map view
 		MapView mapView = (MapView) findViewById(R.id.myMapView);
-		mapController = mapView.getController();
 		
 		overlayCtrl = mapView.createOverlayController();
 		overlayCtrl.add(new ContactsPositionOverlay(mapView,getResources()),true);
@@ -147,8 +154,12 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 						ListView myLv = (ListView) v;
 						ContextMenuInfo info = (ContextMenuInfo) menuInfo;
 						myLv.setSelection(info.position);
-
-						menu.add(0, CONTEXT_MENU_ITEM_CHAT, R.string.menu_item_chat);
+						
+						Contact selectedC = (Contact)myLv.getSelectedItem();
+						
+						if (selectedC.isOnline())
+							menu.add(0, CONTEXT_MENU_ITEM_CHAT, R.string.menu_item_chat);
+						
 						menu.add(0, CONTEXT_MENU_ITEM_CALL, R.string.menu_item_call);
 						menu.add(0, CONTEXT_MENU_ITEM_SMS, R.string.menu_item_sms);
 					}
@@ -218,31 +229,11 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		myLogger.log(Logger.INFO, "onDestroy called ...");
 		GeoNavigator.getInstance(this).stopLocationUpdate();
 		
-		//TilabMsnApplication myApp = (TilabMsnApplication) getApplication(); 
-		//UnsubscribeCommand unsubscribe = new UnsubscribeCommand(myApp.myBehaviour);
+		IncomingNotificationUpdater notifUpd = MsnSessionManager.getInstance().getNotificationUpdater();
 		
-		/*if (gateway != null) {
-			
-			try {
-				//gateway.execute(unsubscribe);
-				gateway.shutdownJADE();
-			} catch (ConnectException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
+		if (notifUpd != null)	
+			notifUpd.removeAllNotifications();
 		
-			gateway.disconnect(this);
-		}*/
-	}
-	
-	
-
-	protected void onStop() {
-		super.onStop();
 		if (gateway != null) {
 			try {
 				gateway.shutdownJADE();
@@ -256,6 +247,14 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			gateway.disconnect(this);
 			
 		}
+		
+	}
+	
+	
+
+	protected void onStop() {
+		super.onStop();
+		myLogger.log(Logger.INFO, "onStop called ...");
 	}
 
 
@@ -263,7 +262,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		this.gateway = arg0;
 	
 		myLogger.log(Logger.INFO, "onConnected(): SUCCESS!");
-
+		MsnSessionManager.getInstance().registerNotificationUpdater(new IncomingNotificationUpdater(this));
+		
 		try {
 			gateway.execute(updaters.get(CONTACTS_TAB_TAG));
 				//FIXME: this code is needed to start JADE and to put online MyContact.
@@ -275,6 +275,10 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				if (getAIDBh.isSuccess()){
 					//put my contact online
 					ContactManager.getInstance().getMyContact().setAgentContact(((AID) getAIDBh.getCommandResult()).getName());
+					
+			
+			
+					
 				} else {
 					Toast.makeText(this, "Error during agent startup", 2000);
 				}			
@@ -286,7 +290,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 
 	protected void onResume() {
 		super.onResume();
-		myLogger.log(Logger.INFO, "onResume was called");
+		myLogger.log(Logger.INFO, "onResume called...");
 	
 	}
 
@@ -294,7 +298,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	
 	protected void onPause() {
 		super.onPause();
-		myLogger.log(Logger.INFO, "onPause was called");
+		myLogger.log(Logger.INFO, "onPause called...");
 	
 	//	GeoNavigator.getInstance(this).pauseLocationUpdate();
 	}
@@ -308,7 +312,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 
 	protected void onFreeze(Bundle outState) {
 		// TODO Auto-generated method stub
-		myLogger.log(Logger.INFO, "onFreeze was called");
+		myLogger.log(Logger.INFO, "onFreeze called...");
 		super.onFreeze(outState);
 	}
 
@@ -336,16 +340,32 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		
 		switch(item.getId()) {
 			case CONTEXT_MENU_ITEM_CALL:
+				IPhone phoneService = null; 
+		          try { 
+		               IServiceManager sm = ServiceManagerNative.getDefault(); 
+		               phoneService = IPhone.Stub.asInterface(sm.getService("phone")); 
+		          } catch (Exception e) { 
+		          } 
+		          ; 
+		           
+		          try { 
+		        	  Contact selectedC = (Contact) contactsListView.getSelectedItem();
+		              phoneService.call(selectedC.getPhoneNumber());
+		          } catch (Exception e) { 
+		          }
 				break;
 			case CONTEXT_MENU_ITEM_CHAT:
-				Contact ct = (Contact) contactsListView.getSelectedItem();
-				ArrayList parts = new ArrayList();
-				parts.add(ct);
-				//FIXME: da verificare cosa accade se non si setta
-				//((TilabMsnApplication)getApplication()).myBehaviour.setContactsUpdater(null);
-				Intent it = new Intent();
-				it.putExtra(OTHER_PARTICIPANTS, parts);
-				it.setClass(this, ChatActivity.class);
+				Contact selectedC = (Contact) contactsListView.getSelectedItem();
+				
+				MsnSession newSession = MsnSessionManager.getInstance().createNewMsnSession();
+				newSession.addParticipant(selectedC);
+		
+				//packet an intent. We'll try to add the session ID in the intent data in URI form
+				//We use intent resolution here, cause the ChatActivity should be selected cause matching ACTION and CATEGORY
+				Intent it = new Intent(Intent.VIEW_ACTION);
+				//set the data as an URI (content://sessionId#<sessionIdValue>)
+				it.setData(newSession.getSessionIdAsUri());
+				it.addCategory(Intent.DEFAULT_CATEGORY);
 				startActivity(it);
 				break;
 			case CONTEXT_MENU_ITEM_SMS:
@@ -356,9 +376,13 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 	
 	private void refreshContactList(){
+		
+		int selectedPos = contactsListView.getSelectedItemPosition();
+		
 		if (ContactManager.getInstance().updateIsOngoing()) {
 			contactsAdapter.updateAdapter(ContactManager.getInstance().getMyContact().getLocation(), ContactManager.getInstance().getOtherContactList());
 			contactsListView.setAdapter(contactsAdapter);
+			contactsListView.setSelection(selectedPos);
 		}
 	}
 	
@@ -375,7 +399,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			// TODO Auto-generated constructor stub
 		}
 
-		protected void handleUpdate() {
+		protected void handleUpdate(Object parameter) {
 			// TODO Auto-generated method stub
 					
 			refreshContactList();
@@ -394,7 +418,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 
 			
 			
-			protected void handleUpdate() {
+			protected void handleUpdate(Object parameter) {
 				// TODO Auto-generated method stub
 				if (ContactManager.getInstance().updateIsOngoing()){
 					MapView mapView = (MapView) activity.findViewById(R.id.myMapView);
@@ -403,4 +427,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			}
 			
 	}
+	
+	
 }

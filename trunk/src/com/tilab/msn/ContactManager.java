@@ -19,6 +19,7 @@ public class ContactManager {
 
 	
 	private static ContactManager manager = null;
+	//The key of this map is the local name (phone number)
 	private Map<String, Contact> otherContactsMap; 
 	private String myContactKey;
 	private Contact myContact;
@@ -78,11 +79,13 @@ public class ContactManager {
 		synchronized (otherContactsMap) {
 			//Is the contact already there?
 			Contact cont = otherContactsMap.get(agentAid.getLocalName());
+			
 			//If not create a new one
 			if (cont == null){
 				cont = new Contact(agentAid.getLocalName(), false);
 				otherContactsMap.put(agentAid.getName(), cont);
 			} 
+			
 			cont.setAgentContact(agentAid.getName());
 			cont.setLocation(loc);
 		}	
@@ -97,13 +100,24 @@ public class ContactManager {
 			if (c.isLocal()){
 				c.setOffline();
 			} else {
-				otherContactsMap.remove(c.getAgentContact());
+				otherContactsMap.remove(agentId.getLocalName());
 			}
 		}
 	}
 	
 	
 	
+	//Agent Id is the AID.getLocalName()
+	public Contact getContactByAgentId(String agentId){
+		
+		Contact c;
+		
+		synchronized (otherContactsMap) {
+			c= otherContactsMap.get(agentId);
+		}
+		
+		return c;
+	}
 	
 	public Contact getMyContact() {
 		return myContact;

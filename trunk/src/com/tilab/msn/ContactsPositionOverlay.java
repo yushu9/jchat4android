@@ -45,6 +45,7 @@ public class ContactsPositionOverlay extends Overlay {
 	private final float LOWER_THRESHOLD_RATIO = 0.2f;
 	
 	
+	
 	private int SCROLL_AREA_WIDTH=-1;
 	private int SCROLL_AREA_HEIGHT=-1;
 	
@@ -114,7 +115,12 @@ public class ContactsPositionOverlay extends Overlay {
 	}
 	
 	private void doScrolling(PointClusterParams params){
-		mapController.animateTo(params.midpointOnMap);
+/*		mapController.zoomTo(18);
+		int longSpan = myMapView.getLongitudeSpan();
+		int latSpan = myMapView.getLatitudeSpan();
+		Point center = myMapView.getMapCenter();
+		Point newCenter = pixelToMap(params.midpointOnScreen, WIDTH, HEIGHT, latSpan, longSpan, center);
+*/		mapController.animateTo(params.midpointOnMap);
 	}
 	
 	private void doZoom(PointClusterParams params, int howToZoom){
@@ -141,14 +147,16 @@ public class ContactsPositionOverlay extends Overlay {
 				p.setColor(appRes.getColor(R.color.other_contact_map_color));
 			}
 			
+			
 			c.drawCircle(cData.positionOnScreen[0], cData.positionOnScreen[1], CONTACT_LOC_POINT_RADIUS, p);
 			c.drawText(cData.name, cData.positionOnScreen[0], cData.positionOnScreen[1]-offset, p);
+	
 		}
 		
 		p.setColor(oldColor);
 	}
 
-	
+
 
 	
 	
