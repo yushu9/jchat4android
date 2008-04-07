@@ -23,6 +23,7 @@ import java.util.Random;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -55,6 +56,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	private ListView contactsListView;
 	private OverlayController overlayCtrl;
 
+	private static String numTel;
+	
 	//Adapter for the contacts list
 	private ContactListAdapter contactsAdapter;
 	
@@ -211,15 +214,15 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         jadeProperties.setProperty(Profile.MAIN_HOST, act.getString(R.string.jade_platform_host));
         jadeProperties.setProperty(Profile.MAIN_PORT, act.getString(R.string.jade_platform_port));
         //Get the phone number of my contact
-        String numtel = SystemProperties.get("numtel");
+        numTel = SystemProperties.get("numtel");
 		
 		//if number is not available
-		if (numtel.equals("")){
+		if (numTel.equals("")){
 			myLogger.log(Logger.WARNING, "Cannot access the numtel! A random number shall be used!!!");
-			numtel = getRandomNumber();
+			numTel = getRandomNumber();
 		}
        
-        jadeProperties.setProperty(JICPProtocol.MSISDN_KEY, numtel);
+        jadeProperties.setProperty(JICPProtocol.MSISDN_KEY, numTel);
         return jadeProperties;
 	}
 		
@@ -266,22 +269,10 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		
 		try {
 			gateway.execute(updaters.get(CONTACTS_TAB_TAG));
-				//FIXME: this code is needed to start JADE and to put online MyContact.
-				//I cannot find another way to be sure that the agent is up!!!
-				GetAIDCommandBehaviour getAIDBh = new GetAIDCommandBehaviour();
-				gateway.execute(getAIDBh);
-			
-				//If agent is up
-				if (getAIDBh.isSuccess()){
-					//put my contact online
-					ContactManager.getInstance().getMyContact().setAgentContact(((AID) getAIDBh.getCommandResult()).getName());
-					
-			
-			
-					
-				} else {
-					Toast.makeText(this, "Error during agent startup", 2000);
-				}			
+			//put my contact online
+			//FIXME: this should be the agent GUID
+			ContactManager.getInstance().getMyContact().setAgentContact(numTel);
+		
 		} catch(Exception e){
 			Toast.makeText(this, e.toString(), 1000).show();
 		}
@@ -353,6 +344,10 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		              phoneService.call(selectedC.getPhoneNumber());
 		          } catch (Exception e) { 
 		          }
+			/*	Contact selC = (Contact) contactsListView.getSelectedItem();
+				Intent i = new Intent(Intent.CALL_ACTION);
+				i.setData(ContentUris.withAppendedId(android.provider.Contacts.Phones.CONTENT_URI, Long.parseLong(selC.getPhoneNumber()))); 
+				this.startActivity(i);  */
 				break;
 			case CONTEXT_MENU_ITEM_CHAT:
 				Contact selectedC = (Contact) contactsListView.getSelectedItem();
