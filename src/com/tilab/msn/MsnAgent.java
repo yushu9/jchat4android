@@ -1,7 +1,14 @@
 package com.tilab.msn;
 
+import java.util.Calendar;
+import java.util.Iterator;
+
+import android.app.Activity;
+import android.app.Notification;
+import android.content.Context;
 import android.location.Location;
 
+import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
@@ -29,6 +36,8 @@ public class MsnAgent extends GatewayAgent {
 	private DFAgentDescription myDescription;
 	private ACLMessage subscriptionMessage;
 	private ContactsUpdaterBehaviour contactsUpdaterB;
+	private MessageReceiverBehaviour messageRecvB;
+	
 	
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	
@@ -64,7 +73,8 @@ public class MsnAgent extends GatewayAgent {
 		}
 		
 		//added behaviour to dispatch chat messages
-		addBehaviour(new MessageReceiverBehaviour());
+		messageRecvB = new MessageReceiverBehaviour(); 
+		addBehaviour(messageRecvB);
 		String[] args = (String[])getArguments();
 		myLogger.log(Logger.INFO, "UPDATE TIME: " + args[0]);
 		contactsUpdaterB = new ContactsUpdaterBehaviour(Long.parseLong(args[0]));
@@ -79,6 +89,7 @@ public class MsnAgent extends GatewayAgent {
 		return myDescription;
 	}
 	
+
 	
 	//Here we will deregister and unsubscribe
 	protected void takeDown() {
@@ -104,16 +115,55 @@ public class MsnAgent extends GatewayAgent {
 		}else if(command instanceof ContactsUIUpdater){
 			contactsUpdaterB.setContactsUpdater((ContactsUIUpdater)command);
 			releaseCommand(command);
-		}
+		} 
 	}
 	
 	private class MessageReceiverBehaviour extends CyclicBehaviour{
 
+	
+		
 		public void action() {
 			MessageTemplate mt = MessageTemplate.MatchOntology(CHAT_ONTOLOGY);
 			ACLMessage msg = myAgent.receive(mt);
+			//If a message is received
 			if(msg != null){
 				myLogger.log(Logger.INFO, msg.toString());
+		
+				
+				//retrieve the session id
+				String sessionId = msg.getConversationId();
+				
+				//check if there's an activity to update
+				ContactsUIUpdater updater = MsnSessionManager.getInstance().retrieveMsgReceivedUpdater(sessionId);
+				Contact sender = ContactManager.getInstance().getContactByAgentId(msg.getSender().getLocalName());
+				MsnSessionMessage sessionMessage = new MsnSessionMessage(msg.getContent(),sender.getName(),true);
+				
+				//If we have no activity we need to add a notification
+				if (updater == null) {
+					//Before adding the notification w have to add a new session
+					MsnSession session = MsnSessionManager.getInstance().createNewMsnSession(sessionId);
+					//Add all participants
+			
+					Contact myContact = ContactManager.getInstance().getMyContact();
+					session.addParticipant(sender);
+					for (jade.util.leap.Iterator it = msg.getAllReceiver(); it.hasNext();) {
+						 AID agentId = (AID) it.next();
+						 
+						 if (!agentId.getName().equals(myContact.getAgentContact())){
+							 Contact otherContact = ContactManager.getInstance().getContactByAgentId(agentId.getLocalName());
+							 session.addParticipant(otherContact);
+						 }
+					}
+					
+					session.addMessage(sessionMessage);
+					IncomingNotificationUpdater notificationUpdater = MsnSessionManager.getInstance().getNotificationUpdater();
+					notificationUpdater.postMessageNotification(msg);
+				} else {
+					MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
+					session.addMessage(sessionMessage);
+					updater.postUIUpdate(sessionMessage);
+				}
+				
 			}else{
 				block();
 			}

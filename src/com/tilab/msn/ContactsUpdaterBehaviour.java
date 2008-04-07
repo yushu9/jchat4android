@@ -51,7 +51,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		
 			synchronized (ContactsUpdaterBehaviour.this) {
 				if (updater != null){
-					updater.postUIUpdate();
+					updater.postUIUpdate(null);
 				}
 			}
 			
@@ -163,7 +163,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 					
 					synchronized (ContactsUpdaterBehaviour.this) {
 						if (updater != null){
-							updater.postUIUpdate();
+							updater.postUIUpdate(null);
 						}
 					}
 				}

@@ -61,6 +61,7 @@ public class Contact implements Parcelable {
 		this.agentContact = agentContact;
 		
 	}
+	
 	public String getAgentContact(){
 		return this.agentContact;
 	}
@@ -112,13 +113,7 @@ public class Contact implements Parcelable {
 	
 
 	public String toString() {
-		return ("Contact " + 
-				name + 
-				" agent " + 
-				((agentContact == null)? "NULL ": agentContact) +  
-				"(" + currentLocation.getLatitude() + 
-				";" + currentLocation.getLongitude() +
-				")");  
+		return name;
 	}
 	
 	

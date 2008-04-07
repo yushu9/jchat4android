@@ -4,6 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import android.util.DateUtils;
+
 /**
  * This class contains data exchanged during message session
  * For now only text, it could be interesting using a generic approach
@@ -12,29 +14,28 @@ import java.util.Locale;
  */
 
 public class MsnSessionMessage {
-	private Date timeReceived;
+	private long time;
+	private boolean received;
 	private String messageContent;
 	private String messageSenderName;
-	private SimpleDateFormat formatter; 
 	
-	private final String formatPattern = "HH.mm.ss ";
 	
 	//Stores the data and save the current date
-	public MsnSessionMessage(String message, String senderName){
-		this(message,senderName,new Date());
+	public MsnSessionMessage(String message, String senderName, boolean received){
+		this(message,senderName,System.currentTimeMillis(),received);
 	}
 	
 	
 	//
-	public MsnSessionMessage(String message, String senderName, Date timestamp ){
-		timeReceived = timestamp;
+	public MsnSessionMessage(String message, String senderName, long timestamp, boolean received){
+		time = timestamp;
 		messageContent = message;
 		messageSenderName = senderName;
-		formatter = new SimpleDateFormat(formatPattern, Locale.ITALIAN);
+	
 	}
 
-	public Date getTimeReceived() {
-		return timeReceived;
+	public long getTime() {
+		return time;
 	}
 
 	public String getMessageContent() {
@@ -51,12 +52,17 @@ public class MsnSessionMessage {
 			return false;
 		}
 		MsnSessionMessage msg = (MsnSessionMessage) o;
-		return (msg.messageContent.equals(messageContent));
+		return (msg.messageContent.equals(messageContent) && msg.messageSenderName.equals(messageSenderName));
 	} 
 	
 	public String getTimeReceivedAsString(){
-		return formatter.format(timeReceived);
+		return DateUtils.timeString(time).toString();
 	}
+
+	public String getRelativeTimeSpanAsString(){
+		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString();
+	}
+	
 	
 	@Override
 	public String toString(){
@@ -67,6 +73,7 @@ public class MsnSessionMessage {
 		buffer.append(messageSenderName);
 		buffer.append(" says: \n");
 		buffer.append(messageContent);
+		buffer.append("\n\n");
 		return buffer.toString();
 	}
 }

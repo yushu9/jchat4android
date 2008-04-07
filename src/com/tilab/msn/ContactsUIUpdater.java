@@ -10,18 +10,23 @@ public abstract class ContactsUIUpdater {
 		activity = act;
 	}
 	
-	public void postUIUpdate(){
-		activity.runOnUIThread(new MyRunnable());
+	public void postUIUpdate(Object obj){
+		activity.runOnUIThread(new MyRunnable(obj));
 	}
 	
-	protected abstract void handleUpdate();
+	protected abstract void handleUpdate(Object parameter);
 	
 	private class MyRunnable implements Runnable {
 
+		private Object parameter;
 	
+		public MyRunnable(Object obj){
+			parameter = obj;
+		}
+			
 		public void run() {
 			// TODO Auto-generated method stub
-			ContactsUIUpdater.this.handleUpdate();
+			ContactsUIUpdater.this.handleUpdate(parameter);
 		}
 		
 	}
