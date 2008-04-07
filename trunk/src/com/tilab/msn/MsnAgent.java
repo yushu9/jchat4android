@@ -149,7 +149,7 @@ public class MsnAgent extends GatewayAgent {
 					for (jade.util.leap.Iterator it = msg.getAllReceiver(); it.hasNext();) {
 						 AID agentId = (AID) it.next();
 						 
-						 if (!agentId.getName().equals(myContact.getAgentContact())){
+						 if (!agentId.getName().startsWith(myContact.getAgentContact())){
 							 Contact otherContact = ContactManager.getInstance().getContactByAgentId(agentId.getLocalName());
 							 session.addParticipant(otherContact);
 						 }
