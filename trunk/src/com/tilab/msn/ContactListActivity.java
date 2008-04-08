@@ -101,7 +101,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         
 		//init the map view
 		MapView mapView = (MapView) findViewById(R.id.myMapView);
-		
 		overlayCtrl = mapView.createOverlayController();
 		overlayCtrl.add(new ContactsPositionOverlay(mapView,getResources()),true);
 	
