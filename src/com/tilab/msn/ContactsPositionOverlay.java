@@ -101,14 +101,12 @@ public class ContactsPositionOverlay extends Overlay {
 		 
 			//If we have many points compute the max squared distance from the midpoint
 				int maxDistSquared = getMaxDistSquared(params.contactPoints, params.midpointOnScreen);
-				
-				//If we have separated points (no overlap)
-				if (maxDistSquared > 0){
-					//if we are in the too far or too near range
-					if (maxDistSquared < LOWER_THRESHOLD || maxDistSquared > UPPER_THRESHOLD){
-						retval = RECOMPUTE_ZOOM;
-					}
+					
+			//if we are in the too far or too near range
+				if (maxDistSquared < LOWER_THRESHOLD || maxDistSquared > UPPER_THRESHOLD){
+					retval = RECOMPUTE_ZOOM;
 				}
+				
 					
 		}
 		return retval;
@@ -194,8 +192,6 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		} else {
 		
-			
-			
 			//if any pixel is out our scrolling area
 			if (scrollingIsNeeded(params.contactPoints)){
 				//change map center

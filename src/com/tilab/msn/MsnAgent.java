@@ -128,8 +128,7 @@ public class MsnAgent extends GatewayAgent {
 			//If a message is received
 			if(msg != null){
 				myLogger.log(Logger.INFO, msg.toString());
-		
-				
+						
 				//retrieve the session id
 				String sessionId = msg.getConversationId();
 				
