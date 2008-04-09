@@ -1,6 +1,8 @@
 package com.tilab.msn;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MsnSessionManager {
@@ -101,6 +103,23 @@ public class MsnSessionManager {
 		}
 		
 		return session;
+	}
+	
+	public List<MsnSession> getAllSessionByParticipant(String participant){
+		
+		List<MsnSession> sessionList = new ArrayList<MsnSession>();
+		
+		synchronized (sessionMap) {
+			for (MsnSession session : sessionMap.values()) {
+				List<Contact> contacts = session.getAllParticipants();
+				for (Contact contact : contacts) {
+					if (participant.equals(contact.getAgentContact()))
+						sessionList.add(session);
+				}
+			}
+		}
+		
+		return sessionList;
 	}
 	
 	public ContactsUIUpdater retrieveMsgReceivedUpdater(String sessionId){

@@ -1,5 +1,7 @@
 package com.tilab.msn;
 
+import java.util.List;
+
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
@@ -156,7 +158,14 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 								
 								ContactManager.getInstance().addOnlineContact(contactAID, loc);
 							} else {
+								List<MsnSession> sessions = MsnSessionManager.getInstance().getAllSessionByParticipant(contactAID.getName());
+								for (MsnSession msnSession : sessions) {
+									Contact c = ContactManager.getInstance().getContactByAgentId(contactAID.getLocalName());
+									if (c != null)
+										MsnSessionManager.getInstance().retrieveMsgReceivedUpdater(msnSession.getSessionId()).postUIUpdate(c.getName());
+								}
 								ContactManager.getInstance().setOffline(contactAID);
+								
 							}
 						}
 					}
