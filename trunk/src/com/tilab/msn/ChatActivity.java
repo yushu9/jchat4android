@@ -130,10 +130,16 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		
 		//set all participants as receivers
 		List<Contact> contacts = session.getAllParticipants();
+		
 		for(int i=0; i<contacts.size(); i++){
-			String agentContact = ((Contact)contacts.get(i)).getAgentContact();
-			if(agentContact != null){
-				msg.addReceiver(new AID(agentContact, AID.ISGUID));
+			Contact c = ((Contact)contacts.get(i));
+			if (!c.isOnline()){
+				messagesSent.append("Contact " + c.getName() + " is no more available\n\n");
+			} else {
+				String agentContact = c.getAgentContact();
+				if(agentContact != null){
+					msg.addReceiver(new AID(agentContact, AID.ISGUID));
+				}
 			}
 		}		
 		
@@ -175,10 +181,20 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		//This method updates the GUI and receives the MsnSessionMessage object 
 		//that should be added
 		protected void handleUpdate(Object parameter) {
-			//retrieve the SessionMessage
-			MsnSessionMessage msg = (MsnSessionMessage) parameter;
-			messagesSent.append(msg.toString());
-			messageToBeSent.setText("");
+			
+			if (parameter instanceof MsnSessionMessage){
+				//retrieve the SessionMessage
+				MsnSessionMessage msg = (MsnSessionMessage) parameter;
+				messagesSent.append(msg.toString());
+				messageToBeSent.setText("");
+			} 
+			if (parameter instanceof String ){
+				String contactGoneName = (String) parameter;
+				Toast.makeText(ChatActivity.this, "Contact " +  contactGoneName + " went offline!", 3000).show();
+			}
+				
+				
+				
 		}
 		
 	}

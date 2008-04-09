@@ -18,6 +18,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.util.DateUtils;
+import android.widget.Toast;
 
 
 class IncomingNotificationUpdater {
@@ -73,8 +74,9 @@ class IncomingNotificationUpdater {
 				viewChatIntent.addCategory(Intent.DEFAULT_CATEGORY);
 				MsnSession session = MsnSessionManager.getInstance().retrieveSession(message.getConversationId());
 				viewChatIntent.setData(session.getSessionIdAsUri());
-				
 				Contact cont = ContactManager.getInstance().getContactByAgentId(message.getSender().getLocalName());
+				
+				Toast.makeText(activity, "New Message arrived from " + cont.getName() , 3000).show();
 				
 				Notification notif = new Notification(activity,
 							 R.drawable.incoming,
