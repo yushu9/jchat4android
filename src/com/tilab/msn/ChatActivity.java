@@ -102,8 +102,11 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		// TODO Auto-generated method stub
 		super.onDestroy();
 		
+		
 		MsnSessionManager.getInstance().removeMsnSession(session.getSessionId());
+		myLogger.log(Logger.INFO, "Removing session having sessionID  " + session.getSessionId());
 		IncomingNotificationUpdater updater = MsnSessionManager.getInstance().getNotificationUpdater();
+		
 		
 		updater.removeSessionNotification(session.getSessionId());
 		
@@ -166,6 +169,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		}
 		
 		public void action() {
+			myLogger.log(Logger.INFO, "Sending msg " +  theMsg.toString());
 			myAgent.send(theMsg);
 		}
 	}
@@ -184,11 +188,13 @@ public class ChatActivity extends Activity implements ConnectionListener{
 			
 			if (parameter instanceof MsnSessionMessage){
 				//retrieve the SessionMessage
+				myLogger.log(Logger.INFO, "Received an order of UI update: updating GUI with new message");
 				MsnSessionMessage msg = (MsnSessionMessage) parameter;
 				messagesSent.append(msg.toString());
 				messageToBeSent.setText("");
 			} 
 			if (parameter instanceof String ){
+				myLogger.log(Logger.INFO, "Received an order of UI update: adding Toast notification");
 				String contactGoneName = (String) parameter;
 				Toast.makeText(ChatActivity.this, "Contact " +  contactGoneName + " went offline!", 3000).show();
 			}

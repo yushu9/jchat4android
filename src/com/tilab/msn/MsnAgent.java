@@ -66,6 +66,7 @@ public class MsnAgent extends GatewayAgent {
 		myDescription.setName(this.getAID());
 		
 		try {
+			myLogger.log(Logger.INFO, "Registering to DF!");
 			DFService.register(this, myDescription);
 		} catch (FIPAException e) {
 			// TODO Auto-generated catch block
@@ -93,11 +94,16 @@ public class MsnAgent extends GatewayAgent {
 	
 	//Here we will deregister and unsubscribe
 	protected void takeDown() {
+		myLogger.log(Logger.INFO, "Starting agent takeDown() ");
+		
 		ACLMessage unsubcribeMsg = DFService.createCancelMessage(this, getDefaultDF(), getSubscriptionMessage());
 		send(unsubcribeMsg);
 
+		myLogger.log(Logger.INFO, "DS Subscription Canceling message was sent!");
+		
 		try {
 			DFService.deregister(this, myDescription);
+			myLogger.log(Logger.INFO, "Deregistering from DF!");
 		} catch (FIPAException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace(); 
@@ -131,6 +137,7 @@ public class MsnAgent extends GatewayAgent {
 						
 				//retrieve the session id
 				String sessionId = msg.getConversationId();
+				myLogger.log(Logger.INFO, "Received Message... session ID is " + sessionId);
 				
 				//check if there's an activity to update
 				ContactsUIUpdater updater = MsnSessionManager.getInstance().retrieveMsgReceivedUpdater(sessionId);
@@ -139,27 +146,35 @@ public class MsnAgent extends GatewayAgent {
 				
 				//If we have no activity we need to add a notification
 				if (updater == null) {
+					
+					myLogger.log(Logger.INFO, "Updater not found... creating a new session object");
+					
 					//Before adding the notification w have to add a new session
 					MsnSession session = MsnSessionManager.getInstance().createNewMsnSession(sessionId);
 					//Add all participants
 			
 					Contact myContact = ContactManager.getInstance().getMyContact();
+					myLogger.log(Logger.INFO, "Adding sender " + sender.getName() + "as a session participant");
 					session.addParticipant(sender);
 					for (jade.util.leap.Iterator it = msg.getAllReceiver(); it.hasNext();) {
 						 AID agentId = (AID) it.next();
 						 
 						 if (!agentId.getName().startsWith(myContact.getAgentContact())){
 							 Contact otherContact = ContactManager.getInstance().getContactByAgentId(agentId.getLocalName());
+							 myLogger.log(Logger.INFO, "Adding contact " + otherContact.getName() + "as a session participant");
 							 session.addParticipant(otherContact);
 						 }
 					}
 					
 					session.addMessage(sessionMessage);
 					IncomingNotificationUpdater notificationUpdater = MsnSessionManager.getInstance().getNotificationUpdater();
+					myLogger.log(Logger.INFO, "Calling notification updater to add a new notification on status bar");
 					notificationUpdater.postMessageNotification(msg);
 				} else {
+					myLogger.log(Logger.INFO, "Updater found... retrieving existing session");
 					MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
 					session.addMessage(sessionMessage);
+					myLogger.log(Logger.INFO, "Posting UI update on the retrieved updater");
 					updater.postUIUpdate(sessionMessage);
 				}
 				
