@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.location.Location;
 import android.provider.Contacts.People;
 
+
 public class ContactManager {
 
 
@@ -23,7 +24,10 @@ public class ContactManager {
 	private Contact myContact;
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	private boolean updateOngoing = false;
-
+	
+	//Adapter for the contacts list
+	private ContactListAdapter contactsAdapter;
+	
 
 	public boolean updateIsOngoing(){
 		return updateOngoing;
@@ -36,12 +40,18 @@ public class ContactManager {
 	private ContactManager() {
 		updateOngoing = false; 
 		otherContactsMap = new HashMap <String, Contact>();
+	
 
 
 
 		//FIXME: Try a better way to retrieve MyContact name
 		myContact = new Contact("Me",true);
 
+	}
+	
+	public  ContactListAdapter getAdapter(){		
+		
+		return contactsAdapter;
 	}
 
 	public void readPhoneContacts(Activity act){
@@ -64,11 +74,15 @@ public class ContactManager {
 
 				Contact cont = new Contact(name, true);
 				otherContactsMap.put(numTel, cont);
-
+				
+				
 			} while(c.next());
 		}
 	}
-
+	
+ public void addAdapter(ContactListAdapter cla){	
+	 contactsAdapter= cla;
+ }
 
 
 	//This methods adds or updates a contact 
@@ -93,7 +107,7 @@ public class ContactManager {
 		synchronized (otherContactsMap) {
 			Contact c  = otherContactsMap.get(agentId.getLocalName());
 
-			//If a contact is local (It's in the phone contatcs) it must be shown as offline
+			//If a contact is local (It's in the phone contacts) it must be shown as offline
 			//If the contact is not local, remove it when it goes offline
 			if (c.isLocal()){
 				c.setOffline();

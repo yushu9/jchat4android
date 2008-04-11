@@ -1,25 +1,20 @@
 package com.tilab.msn;
 
 
-import jade.lang.acl.ACLMessage;
-import jade.util.Logger;
-import jade.util.leap.Properties;
 import jade.android.ConnectionListener;
 import jade.android.JadeGateway;
 import jade.core.AID;
 import jade.core.behaviours.OneShotBehaviour;
+import jade.lang.acl.ACLMessage;
+import jade.util.Logger;
+import jade.util.leap.Properties;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import java.util.Calendar;
-
-import android.util.DateUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;

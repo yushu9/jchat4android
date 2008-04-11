@@ -4,29 +4,18 @@ package com.tilab.msn;
 
 import jade.android.ConnectionListener;
 import jade.android.JadeGateway;
-import jade.core.AID;
 import jade.core.Profile;
 import jade.imtp.leap.JICP.JICPProtocol;
-import jade.lang.acl.ACLMessage;
 import jade.util.Logger;
 import jade.util.leap.Properties;
-import jade.wrapper.ControllerException;
-import jade.wrapper.StaleProxyException;
 
 import java.net.ConnectException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.ContentUris;
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IServiceManager;
 import android.os.ServiceManagerNative;
@@ -43,7 +32,6 @@ import android.widget.AdapterView.ContextMenuInfo;
 import android.widget.TabHost.TabSpec;
 
 import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayController;
 
@@ -55,11 +43,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	private TabHost mainTabHost;
 	private ListView contactsListView;
 	private OverlayController overlayCtrl;
-
+	
 	private static String numTel;
 	
-	//Adapter for the contacts list
-	private ContactListAdapter contactsAdapter;
 	
 	//MENUITEM CONSTANT
 	private final int MENUITEM_ID_EXIT=Menu.FIRST;
@@ -109,11 +95,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         updaters = new HashMap<String, ContactsUIUpdater>(2);
         updaters.put(CONTACTS_TAB_TAG, new ContactListUpdater(this)); 
         updaters.put(MAPVIEW_TAB_TAG, new MapUpdater(this));
-	
-        //set the default updater
-		//TilabMsnApplication myApp =  (TilabMsnApplication) getApplication();
-		//myApp.myBehaviour.setContactsUpdater(updaters.get(CONTACTS_TAB_TAG));
-	
+	        
 		//Select default tab
 		mainTabHost.setCurrentTabByTag(CONTACTS_TAB_TAG);
 		
@@ -121,32 +103,30 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	     //Set the handler for the click on the tab host
 		mainTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
 
+				
+				public void onTabChanged(String arg0) {
 					
-					public void onTabChanged(String arg0) {
-						
-						myLogger.log(Logger.FINER, "Tab was switched! Current tab is "+ arg0 + " Changing the updater...");
-						
-						//FIXME: THIS LOOKS LIKE AN ANDROID BUG!!!!
-						//We should investigate!!!!!
-						if (arg0 == null){
-							try{
-								gateway.execute(updaters.get(CONTACTS_TAB_TAG));
-							}catch(Exception e){
-								myLogger.log(Logger.SEVERE, e.getMessage());
-							}
-							//This forced update could be dangerous!!!
-							contactsAdapter.updateAdapter(ContactManager.getInstance().getMyContact().getLocation(), ContactManager.getInstance().getOtherContactList());
-							contactsListView.setAdapter(contactsAdapter);
-							
-						} else {
-							try{
-								gateway.execute(updaters.get(MAPVIEW_TAB_TAG));
-							}catch(Exception e){
-								myLogger.log(Logger.SEVERE, e.getMessage());
-							}
+					myLogger.log(Logger.FINER, "Tab was switched! Current tab is "+ arg0 + " Changing the updater...");
+					
+			            if (arg0 == null){
+						try{
+							gateway.execute(updaters.get(CONTACTS_TAB_TAG));
+						}catch(Exception e){
+							myLogger.log(Logger.SEVERE, e.getMessage());
 						}
-					}        	
-		});
+						//This forced update could be dangerous!!!
+						contactsAdapter.updateAdapter(ContactManager.getInstance().getMyContact().getLocation(), ContactManager.getInstance().getOtherContactList());
+						contactsListView.setAdapter(contactsAdapter);
+						
+					} else {
+						try{
+							gateway.execute(updaters.get(MAPVIEW_TAB_TAG));
+						}catch(Exception e){
+							myLogger.log(Logger.SEVERE, e.getMessage());
+						}
+					}
+				}        	
+	});
 
 		contactsListView = (ListView) findViewById(R.id.contactsList);
 		//added ContextMenu
@@ -183,6 +163,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        ContactListAdapter cla;
+        ContactListAdapter cla = new ContactListAdapter();
         
         //Initialize the UI
         initUI();
@@ -251,7 +233,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		}
 		
 	}
-	
 	
 
 	protected void onStop() {
@@ -418,9 +399,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 					MapView mapView = (MapView) activity.findViewById(R.id.myMapView);
 					mapView.invalidate();
 				}
-			}
-			
-	}
-	
-	
+			}		
+	}	
 }

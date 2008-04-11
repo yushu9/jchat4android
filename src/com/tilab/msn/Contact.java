@@ -7,7 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * This class represents a generic contact that can be onlin or offline
+ * This class represents a generic contact that can be online or offline
  * Each contact has non null location:  online contacts have a location that is updated
  * while offline contacts have a fixed location (null location)(but should not be drawn) 
  * 
