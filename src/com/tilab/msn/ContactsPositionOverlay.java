@@ -1,5 +1,7 @@
 package com.tilab.msn;
 
+import jade.util.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +28,7 @@ import com.google.android.maps.Point;
 
 public class ContactsPositionOverlay extends Overlay {
 	
+	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	private int UPPER_THRESHOLD = 0;
 	private  int LOWER_THRESHOLD = 0;
 	
@@ -57,6 +60,9 @@ public class ContactsPositionOverlay extends Overlay {
 	private int SQUARED_WIDTH=-1; 
 	private int WIDTH=-1;
 	private int HEIGHT=-1;
+	private int centerScreenX;
+	private int centerScreenY;
+	
 	
 	private final int ZOOM_MAX=0;
 	private final int RECOMPUTE_ZOOM=1;
@@ -175,6 +181,15 @@ public class ContactsPositionOverlay extends Overlay {
 		if (WIDTH == -1){
 			WIDTH = calculator.getMapWidth();
 			HEIGHT = calculator.getMapHeight();
+			centerScreenX = WIDTH / 2;
+			centerScreenY = HEIGHT / 2;
+
+			
+			myLogger.log(Logger.INFO, "WIDTH = "+WIDTH);
+			myLogger.log(Logger.INFO, "HEIGHT = "+HEIGHT);
+			myLogger.log(Logger.INFO, "MapViev WIDTH = "+myMapView.getWidth());
+			myLogger.log(Logger.INFO, "Map View HEIGHT = "+myMapView.getHeight());
+			
 			SQUARED_WIDTH = WIDTH*WIDTH;
 			SCROLL_AREA_HEIGHT = (int) (HEIGHT * SCROLL_AREA_HEIGHT_RATIO);
 			SCROLL_AREA_WIDTH = (int) (WIDTH * SCROLL_AREA_WIDTH_RATIO);
@@ -294,7 +309,9 @@ public class ContactsPositionOverlay extends Overlay {
 		params.midpointOnScreen[0] = midPointX / contactsOnLine;
 		params.midpointOnScreen[1] = midPointY / contactsOnLine;
 		
-		params.midpointOnMap = new Point((maxLat + minLat)/2, (maxLong + minLong)/2);
+		//test
+		params.midpointOnMap = screenToMap(params.midpointOnScreen);
+		//		params.midpointOnMap = new Point((maxLat + minLat)/2, (maxLong + minLong)/2);
 		params.coordMaxSpan = new int[2];
 		
 		//we need to zoom in another way if we have a single point
@@ -329,6 +346,27 @@ public class ContactsPositionOverlay extends Overlay {
 	}
 	
 
+	//Converts a point on screen (pixel coordinates) into  point on the map (Lat/Long Coordinated)
+	
+	private Point screenToMap(int [] point) {
+		//Calculate ratio 
+		int latitudeSpan = myMapView.getLatitudeSpan();
+		int longitudeSpan = myMapView.getLongitudeSpan();
+
+		int microDegreePerPixelLatitude = latitudeSpan / HEIGHT;
+		int microDegreePerPixelLongitude = longitudeSpan / WIDTH;
+		int deltaX = centerScreenX - point[0];
+		int deltaY = centerScreenY - point[1];
+		int deltaLatitude = microDegreePerPixelLatitude * deltaY;
+		int deltaLongitude = microDegreePerPixelLongitude * deltaX;
+		int computedLocationLatitude = myMapView.getMapCenter().getLatitudeE6()
+		          + deltaLatitude;
+		int computedLocationLongitude = myMapView.getMapCenter().getLongitudeE6()
+		          - deltaLongitude;
+
+		
+		return  new Point(computedLocationLatitude,computedLocationLongitude);
+	}
 	private class PointClusterParams {
 		public int[] coordMaxSpan;
 		public Point midpointOnMap;
