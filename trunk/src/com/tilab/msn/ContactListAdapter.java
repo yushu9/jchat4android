@@ -15,88 +15,56 @@ import android.view.ViewGroup;
 import android.view.ViewInflate;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class ContactListAdapter extends BaseAdapter {
-
-	private List<Contact> otherContactList;
+	private List<ContactInfo> contactInfoList;
 	private Context context;
 	private Location myLocation;
 	private ViewInflate inflater;
-	private List<View> contactViewList; 
 	
 	
 	public ContactListAdapter(Context c){
 		context = c;
 	    inflater = (ViewInflate)context.getSystemService(Context.INFLATE_SERVICE);
 		myLocation = ContactManager.getInstance().getMyContact().getLocation();
-		otherContactList = new ArrayList<Contact>();
-		contactViewList = new ArrayList<View>();
-	}
+		contactInfoList = new ArrayList<ContactInfo>();
+		}
+	
 	
 	
 	public void addAndUpdate(Contact contact){
-		
-	    int position = otherContactList.indexOf(contact);
-		
-		if (position == -1){
+		ContactInfo ci = new ContactInfo(contact.getPhoneNumber());
+	    int position = contactInfoList.indexOf(ci);		
+		if (position == -1){			
+			synchronized (contactInfoList) {
+				contactInfoList.add(position, ci);
+			}				
+	    }			
 			
-			synchronized (otherContactList) {
-				otherContactList.add(contact);
-			}
-			
-			View v = inflater.inflate(R.layout.element_layout, null,null);
-			TextView tv = (TextView)v.findViewById(R.id.contact_name);
-			tv.setText(contact.getName());
-			TextView tv1 = (TextView)v.findViewById(R.id.contact_dist);
-			float dist = myLocation.distanceTo(contact.getLocation())/1000;
-			String.valueOf(dist);		
-			tv1.setText(String.valueOf(dist)+ " km");
-			synchronized (contactViewList){
-				contactViewList.add(v);
-	        }
-			
-		}else{
-			synchronized (otherContactList) {
-				otherContactList.set(position, contact);
-			}
-			
-			View view=null;
-			synchronized (contactViewList){
-				view = contactViewList.get(position);
-	        }
-			
-			TextView tv1 = (TextView)view.findViewById(R.id.contact_dist);
-			float dist = myLocation.distanceTo(contact.getLocation())/1000;
-			String.valueOf(dist);		
-			tv1.setText(String.valueOf(dist)+ " km");
 		}			
-	}
+	
 	
 		
-	public void remove(Contact c){	
-		
-		synchronized(this){
-			int index = otherContactList.indexOf(c);
-			contactViewList.remove(index);
-			otherContactList.remove(c);		
-		}
-		
+	public void remove(Contact c){			
+		ContactInfo ci= new ContactInfo(c.getPhoneNumber());
+	    contactInfoList.remove(ci);				
 	}
 	
 	public int getCount() {
 		// TODO Auto-generated method stub
-		return otherContactList.size();
+		return contactInfoList.size();
 	}
 
 	
 	public Object getItem(int arg0) {
 		// TODO Auto-generated method stub
-		return otherContactList.get(arg0);
+		ContactInfo ci = contactInfoList.get(arg0);		
+		return ContactManager.getInstance().getContactByAgentId(ci.getID());
 	}
-
 	
 	public long getItemId(int position) {
 		// TODO Auto-generated method stub
@@ -105,8 +73,73 @@ public class ContactListAdapter extends BaseAdapter {
 
 	
 	public View getView(int position, View convertView, ViewGroup parent) {
-		 return contactViewList.get(position);
-	}	
+		ContactInfo ci = contactInfoList.get(position);	
+		String contactInfoID = ci.getID();
+		Contact c = ContactManager.getInstance().getContactByAgentId(contactInfoID);		 
+		View v = inflater.inflate(R.layout.element_layout, null,null);
+		CheckBox cb = (CheckBox)v.findViewById(R.id.contact_check_box);
+		cb.setOnCheckedChangeListener(new CheckBoxClickListener(position));
+		TextView tv = (TextView)v.findViewById(R.id.contact_name);		 
+		tv.setText(c.getName());
+		TextView tv1 = (TextView)v.findViewById(R.id.contact_dist);
+		float dist = myLocation.distanceTo(c.getLocation())/1000;	
+		tv1.setText(String.valueOf(dist)+ " km");				
+		return v;
+	}
+
+	private class CheckBoxClickListener implements CheckBox.OnCheckedChangeListener{
+         
+		private int selectedListPos;
+		
+		public CheckBoxClickListener(int selectedPos){
+			this.selectedListPos = selectedPos;
+		}				
+
+		@Override
+		public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
+			ContactInfo ci= contactInfoList.get(selectedListPos);
+		    ci.setChecked(arg1);
+				
+		}
+		
+	}
+	
+	private class ContactInfo {	
+		
+		public ContactInfo(String contactID){
+			checked=false;
+			this.contactID= contactID;
+		}
+		
+		public void setChecked(boolean value){
+			checked= value;
+		}
+		
+		public boolean isChecked() {
+			return checked;
+		}
+		public String getID(){
+			return contactID;
+		}
+		
+		
+		
+		@Override
+		public boolean equals(Object o) {
+			
+			boolean retval= false;
+			
+			if(o instanceof ContactInfo){				
+				ContactInfo ci = (ContactInfo) o;
+				retval= ci.contactID.equals(contactID);		
+			}
+			return retval;	
+		}		
+		
+		boolean checked;
+		String contactID;		
+	} 
 }
+
 
 	

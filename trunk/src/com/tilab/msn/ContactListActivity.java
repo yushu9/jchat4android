@@ -378,21 +378,16 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		protected void handleUpdate(Object parameter) {
 			// TODO Auto-generated method stub
 					
-			refreshContactList();
-		
-		}
-		
-	}
-	
+			refreshContactList();	
+		}		
+	}	
 	
 	private class MapUpdater extends ContactsUIUpdater{
 
 		public MapUpdater(Activity act) {
 			super(act);
 			// TODO Auto-generated constructor stub
-		}
-
-			
+		}			
 			
 			protected void handleUpdate(Object parameter) {
 				// TODO Auto-generated method stub

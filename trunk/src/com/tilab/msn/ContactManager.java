@@ -117,8 +117,6 @@ public class ContactManager {
 		}
 	}
 
-
-
 	//Agent Id is the AID.getLocalName()
 	public Contact getContactByAgentId(String agentId){
 
@@ -141,9 +139,7 @@ public class ContactManager {
 			if (manager == null){
 				manager = new ContactManager();
 			}
-
 		}
-
 		return manager;
 	}
 
@@ -156,11 +152,8 @@ public class ContactManager {
 
 		synchronized (otherContactsMap) {
 			list = new ArrayList<Contact>(otherContactsMap.values());
-		}		
-
+		}
 		return list;
 	}
-
-
 }
 
