@@ -20,7 +20,6 @@ public class ContactManager {
 	private static ContactManager manager = null;
 	//The key of this map is the local name (phone number)
 	private Map<String, Contact> otherContactsMap; 
-	private String myContactKey;
 	private Contact myContact;
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	private boolean updateOngoing = false;
@@ -40,9 +39,6 @@ public class ContactManager {
 	private ContactManager() {
 		updateOngoing = false; 
 		otherContactsMap = new HashMap <String, Contact>();
-	
-
-
 
 		//FIXME: Try a better way to retrieve MyContact name
 		myContact = new Contact("Me",true);
@@ -74,6 +70,7 @@ public class ContactManager {
 
 				Contact cont = new Contact(name, true);
 				otherContactsMap.put(numTel, cont);
+				contactsAdapter.addAndUpdate(cont);
 				
 				
 			} while(c.next());
@@ -96,10 +93,12 @@ public class ContactManager {
 			if (cont == null){
 				cont = new Contact(agentAid.getLocalName(), false);
 				otherContactsMap.put(agentAid.getLocalName(), cont);
+				
 			} 
 
 			cont.setAgentContact(agentAid.getName());
 			cont.setLocation(loc);
+			contactsAdapter.addAndUpdate(cont);
 		}	
 	}
 
@@ -113,6 +112,7 @@ public class ContactManager {
 				c.setOffline();
 			} else {
 				otherContactsMap.remove(agentId.getLocalName());
+				contactsAdapter.remove(c);
 			}
 		}
 	}

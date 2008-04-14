@@ -391,6 +391,7 @@ public class ContactsPositionOverlay extends Overlay {
 			positionOnScreen[1] = y;
 		}
 		
+		
 		public ContactLayoutData(String cname, Location contactLoc, PixelCalculator pixelCalc){
 			this.name = cname;
 			isMyContact = false;
