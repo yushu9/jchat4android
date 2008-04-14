@@ -179,6 +179,29 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		//Things we do just the first time
 		if (WIDTH == -1){
+			initialize(params, calculator);
+		} 
+		
+		//if any pixel is out our scrolling area
+		if (scrollingIsNeeded(params.contactPoints)){
+			//change map center
+			doScrolling(params);
+		}
+		
+		int howToZoom = zoomChangeIsNeeded(params);
+		
+		if (howToZoom != NO_ZOOM)	{
+			doZoom(params,howToZoom);
+		}
+	
+		//Draw all the contacts
+		drawOnlineContacts(canvas, myPaint, params.contactPoints);
+	
+	}
+	
+	
+	
+	private void initialize(PointClusterParams params, PixelCalculator calculator) {
 			WIDTH = calculator.getMapWidth();
 			HEIGHT = calculator.getMapHeight();
 			centerScreenX = WIDTH / 2;
@@ -204,50 +227,8 @@ public class ContactsPositionOverlay extends Overlay {
 			doScrolling(params);
 			int howToZoom = zoomChangeIsNeeded(params);
 			doZoom(params, howToZoom);
-		
-		} else {
-		
-			//if any pixel is out our scrolling area
-			if (scrollingIsNeeded(params.contactPoints)){
-				//change map center
-				doScrolling(params);
-			}
-			
-			int howToZoom = zoomChangeIsNeeded(params);
-			
-			if (howToZoom != NO_ZOOM)	{
-				doZoom(params,howToZoom);
-			}
-		}
-	
-	/*	int oldColor = myPaint.getColor();
-		myPaint.setARGB(80, 255, 0, 0);
-		Style oldStyle = myPaint.getStyle();
-		myPaint.setStyle(Style.FILL);
-		canvas.drawRect(scrollingArea, myPaint);
-		
-		myPaint.setARGB(255, 0, 0, 0);
-		int[] center = new int[2];
-		calculator.getPointXY(params.midpointOnMap, center);
-		canvas.drawCircle(center[0],center[1], 10, myPaint);
-		
-		
-		myPaint.setARGB(255, 255, 255, 0);
-		canvas.drawCircle(params.midpointOnScreen[0], params.midpointOnScreen[1], 10, myPaint);
-		
-		myPaint.setColor(oldColor);
-		myPaint.setStyle(oldStyle);*/
-		
-	
-		
-		
-		//Draw all the contacts
-		drawOnlineContacts(canvas, myPaint, params.contactPoints);
 	
 	}
-	
-	
-	
 	private PointClusterParams extractParams(List<Contact> contacts, Contact myContact, PixelCalculator calc){
 		int contactsOnLine = 1;
 		int maxLat;
