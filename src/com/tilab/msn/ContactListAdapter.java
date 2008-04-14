@@ -1,5 +1,6 @@
 package com.tilab.msn;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,18 +25,28 @@ public class ContactListAdapter extends BaseAdapter {
 	private Context context;
 	private Location myLocation;
 	private ViewInflate inflater;
-	private Map<String, View> contactViewMap; 
+	private List<View> contactViewList; 
 	
 	
 	public ContactListAdapter(Context c){
 		context = c;
 	    inflater = (ViewInflate)context.getSystemService(Context.INFLATE_SERVICE);
 		myLocation = ContactManager.getInstance().getMyContact().getLocation();
+		otherContactList = new ArrayList<Contact>();
+		contactViewList = new ArrayList<View>();
 	}
 	
-	public void addAndUpdate(String key, Contact contact){
-		View view = contactViewMap.get(key);
-		if (view==null){
+	
+	public void addAndUpdate(Contact contact){
+		
+	    int position = otherContactList.indexOf(contact);
+		
+		if (position == -1){
+			
+			synchronized (otherContactList) {
+				otherContactList.add(contact);
+			}
+			
 			View v = inflater.inflate(R.layout.element_layout, null,null);
 			TextView tv = (TextView)v.findViewById(R.id.contact_name);
 			tv.setText(contact.getName());
@@ -43,23 +54,36 @@ public class ContactListAdapter extends BaseAdapter {
 			float dist = myLocation.distanceTo(contact.getLocation())/1000;
 			String.valueOf(dist);		
 			tv1.setText(String.valueOf(dist)+ " km");
-			synchronized (contactViewMap){
-				contactViewMap.put(key, v);
+			synchronized (contactViewList){
+				contactViewList.add(v);
 	        }
+			
 		}else{
+			synchronized (otherContactList) {
+				otherContactList.set(position, contact);
+			}
+			
+			View view=null;
+			synchronized (contactViewList){
+				view = contactViewList.get(position);
+	        }
+			
 			TextView tv1 = (TextView)view.findViewById(R.id.contact_dist);
 			float dist = myLocation.distanceTo(contact.getLocation())/1000;
 			String.valueOf(dist);		
 			tv1.setText(String.valueOf(dist)+ " km");
-			
 		}			
 	}
 	
 		
-	public void remove(String ID){	
-		synchronized(contactViewMap){
-		contactViewMap.remove(ID);
+	public void remove(Contact c){	
+		
+		synchronized(this){
+			int index = otherContactList.indexOf(c);
+			contactViewList.remove(index);
+			otherContactList.remove(c);		
 		}
+		
 	}
 	
 	public int getCount() {
@@ -79,15 +103,9 @@ public class ContactListAdapter extends BaseAdapter {
 		return position;
 	}
 
-	public void updateAdapter(Location myLoc, List<Contact> newList){
-		myLocation = myLoc;
-		otherContactList = newList;
-	}	
 	
 	public View getView(int position, View convertView, ViewGroup parent) {
-		Contact c = otherContactList.get(position);
-		
-	    return v;	
+		 return contactViewList.get(position);
 	}	
 }
 

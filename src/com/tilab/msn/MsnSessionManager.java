@@ -35,20 +35,25 @@ public class MsnSessionManager {
 		return notificationUpdater;
 	}
 	
-	//This will create and register a new session initiated by the  
-	public MsnSession createNewMsnSession(){
-		MsnSession session;
-		
-		//To create a session we need a sessionId, we create it from agentContactName + currentNumberOfSession before creating this one
-		StringBuffer sessionId = new StringBuffer();
+	//This will generate a sessionId  to be used for a new session
+	public MsnSession createNewMsnSession(List<Contact> participants){
+	
 		String myAgentId =	ContactManager.getInstance().getMyContact().getAgentContact();
-		int numOfSessions = getActiveSessionNumber();
+		//The session id is computed by hashing agentNames
+		int sessionId= myAgentId.hashCode();
 		
-		sessionId.append(myAgentId);
-		sessionId.append(numOfSessions);
+		for (Contact participant : participants) {
+			int tmp = participant.hashCode();
+			sessionId ^= tmp;
+		}
 		
-		session = createNewMsnSession(sessionId.toString());
-		
+		String sessionIdAsString = String.valueOf(sessionId);
+		MsnSession session = createNewMsnSession(sessionIdAsString);
+	
+		for (Contact participant : participants) {
+			session.addParticipant(participant);
+		}
+				
 		return session;
 	}
 	

@@ -10,7 +10,9 @@ import jade.util.Logger;
 import jade.util.leap.Properties;
 
 import java.net.ConnectException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -41,7 +43,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	private JadeGateway gateway;
 	private static final Logger myLogger = Logger.getMyLogger(ContactListActivity.class.getName());
 	private TabHost mainTabHost;
-	private ListView contactsListView;
+	private MultiSelectionListView contactsListView;
 	private OverlayController overlayCtrl;
 	
 	private static String numTel;
@@ -114,9 +116,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 						}catch(Exception e){
 							myLogger.log(Logger.SEVERE, e.getMessage());
 						}
-						//This forced update could be dangerous!!!
-						contactsAdapter.updateAdapter(ContactManager.getInstance().getMyContact().getLocation(), ContactManager.getInstance().getOtherContactList());
-						contactsListView.setAdapter(contactsAdapter);
+						
+						contactsListView.setAdapter(ContactManager.getInstance().getAdapter());
 						
 					} else {
 						try{
@@ -128,7 +129,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				}        	
 	});
 
-		contactsListView = (ListView) findViewById(R.id.contactsList);
+		contactsListView = (MultiSelectionListView) findViewById(R.id.contactsList);
 		//added ContextMenu
 		contactsListView.setOnPopulateContextMenuListener(
 				new View.OnPopulateContextMenuListener(){
@@ -148,10 +149,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				}
 		);		
 	
-		contactsAdapter = new ContactListAdapter(this);
 		ContactManager.getInstance().readPhoneContacts(this);
-		contactsAdapter.updateAdapter(ContactManager.getInstance().getMyContact().getLocation(), ContactManager.getInstance().getOtherContactList());
-		contactsListView.setAdapter(contactsAdapter);
+		contactsListView.setAdapter(ContactManager.getInstance().getAdapter());
 	}		
     
 	
@@ -163,8 +162,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        ContactListAdapter cla;
-        ContactListAdapter cla = new ContactListAdapter();
+        ContactListAdapter cla = new ContactListAdapter(this);
+        ContactManager.getInstance().addAdapter(cla);
         
         //Initialize the UI
         initUI();
@@ -332,8 +331,11 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			case CONTEXT_MENU_ITEM_CHAT:
 				Contact selectedC = (Contact) contactsListView.getSelectedItem();
 				
-				MsnSession newSession = MsnSessionManager.getInstance().createNewMsnSession();
-				newSession.addParticipant(selectedC);
+				List<Contact> participantList = new ArrayList<Contact>(1);
+				participantList.add(selectedC);
+				
+				//creates a new session filling it with participants
+				MsnSession newSession = MsnSessionManager.getInstance().createNewMsnSession(participantList);
 		
 				//packet an intent. We'll try to add the session ID in the intent data in URI form
 				//We use intent resolution here, cause the ChatActivity should be selected cause matching ACTION and CATEGORY
@@ -355,8 +357,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		int selectedPos = contactsListView.getSelectedItemPosition();
 		
 		if (ContactManager.getInstance().updateIsOngoing()) {
-			contactsAdapter.updateAdapter(ContactManager.getInstance().getMyContact().getLocation(), ContactManager.getInstance().getOtherContactList());
-			contactsListView.setAdapter(contactsAdapter);
+			contactsListView.setAdapter(ContactManager.getInstance().getAdapter());
 			contactsListView.setSelection(selectedPos);
 		}
 	}
