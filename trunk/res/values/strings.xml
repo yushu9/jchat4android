@@ -31,6 +31,8 @@
     <string name="jade_platform_host">10.0.2.2</string>
 	<string name="jade_platform_port">1099</string>
 	
+	<!-- TEXT LABELS -->
+	  <string name="label_for_offline">Offline</string>
 
     <!-- ERROR MESSAGES -->
     <string name="error_msg_jadegw_connection">Error connecting to Jade Gateway</string>

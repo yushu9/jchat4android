@@ -334,11 +334,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				this.startActivity(i);  */
 				break;
 			case CONTEXT_MENU_ITEM_CHAT:
-				Contact selectedC = (Contact) contactsListView.getSelectedItem();
-				
-				List<Contact> participantList = new ArrayList<Contact>(1);
-				participantList.add(selectedC);
-				
+				List<Contact> participantList = contactsListView.getAllSelectedItems();
+					
 				//creates a new session filling it with participants
 				MsnSession newSession = MsnSessionManager.getInstance().createNewMsnSession(participantList);
 		
