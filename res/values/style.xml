@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ContactOnLine">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#FF00FF00</item>
+    </style>
+    
+    <style name="PositionOnLine">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#FF00FF00</item>
+    </style>
+    
+    <style name="ContactOffLine">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#FFFF0000</item>
+    </style>	
+    
+    <style name="PositionOffLine">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#FFFF0000</item>
+    </style>	
+    
+     <style name="Parts">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#FFFF0000</item>                
+    </style>
+    	
+     <style name="SendButton">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">#FFFF0000</item>          
+     </style>	
+</resources>
