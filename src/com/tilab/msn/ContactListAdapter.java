@@ -10,15 +10,18 @@ import android.content.Context;
 import android.content.Resources;
 import android.graphics.Typeface;
 import android.location.Location;
+import android.telephony.gsm.stk.TextAttribute;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewInflate;
+import android.webkit.WebSettings.TextSize;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextSetting;
 import android.widget.TextView;
 
 public class ContactListAdapter extends BaseAdapter {
@@ -63,9 +66,13 @@ public class ContactListAdapter extends BaseAdapter {
 	public List<Contact> getAllSelectedItems(){
 		List<Contact> contactsSelected = new ArrayList<Contact>();
 		
-		for (ContactViewInfo contactsInfo : contactViewInfoList) {
-			Contact cont = ContactManager.getInstance().getContactByAgentId(contactsInfo.contactId);
-			contactsSelected.add(cont);
+		for (ContactViewInfo contactViewInfo : contactViewInfoList) {
+			View v = contactViewInfo.contactView;
+			CheckBox cb = (CheckBox) v.findViewById(R.id.contact_check_box);
+			if (cb.isChecked()){
+				Contact cont = ContactManager.getInstance().getContactByAgentId(contactViewInfo.contactId);
+				contactsSelected.add(cont);
+			}
 		}
 		
 		return contactsSelected;
@@ -112,6 +119,11 @@ public class ContactListAdapter extends BaseAdapter {
 	
 	private class ContactViewInfo {
 		
+		public static final int ONLINE_STYLE=-2;
+		public static final int OFFLINE_STYLE=-3;
+		public View contactView;
+		public String contactId;
+
 		public boolean equals(Object o) {
 			boolean retVal =false;
 			
@@ -123,16 +135,35 @@ public class ContactListAdapter extends BaseAdapter {
 			return retVal;
 		}
 
-		public View contactView;
-		public String contactId;
-		
+	
 		public ContactViewInfo(String contactId){
 			this.contactId = contactId;	
 		}
 		
 		
-		public void setStyle(int style){
+		private void setStyle(int style){
+			TextView contactName = (TextView) contactView.findViewById(R.id.contact_name);
+			TextView contactDist = (TextView) contactView.findViewById(R.id.contact_dist);
+			CheckBox contactCheckBox = (CheckBox) contactView.findViewById(R.id.contact_check_box);
+			Resources res = context.getResources();
 			
+			switch (style) {
+				case ONLINE_STYLE:
+					contactName.setTextColor(res.getColor(R.color.online_contact_color));
+					contactName.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
+					contactDist.setTextColor(res.getColor(R.color.online_contact_color));
+					contactDist.setTextSize(TypedValue.COMPLEX_UNIT_SP,15);
+					contactCheckBox.setEnabled(true);
+			break;
+
+				case OFFLINE_STYLE:
+					contactName.setTextColor(res.getColor(R.color.offline_contact_color));
+					contactName.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
+					contactDist.setTextColor(res.getColor(R.color.offline_contact_color));
+					contactDist.setTextSize(TypedValue.COMPLEX_UNIT_SP,15);
+					contactCheckBox.setEnabled(false);
+				break;
+			}
 		}
 		
 		public void updateView(Contact c, Contact myContact){
@@ -146,14 +177,22 @@ public class ContactListAdapter extends BaseAdapter {
 			}
 			
 			TextView contactDistTxt = (TextView) contactView.findViewById(R.id.contact_dist);
-			Location myContactLoc = myContact.getLocation();
-			float distInMeters  = myContactLoc.distanceTo(c.getLocation());
-			float distInKm = distInMeters / 1000.0f;
-			String distKmAsString = String.valueOf(distInKm);
-			StringBuffer buf = new StringBuffer(distKmAsString);
-			buf.append(" km");
-			buf.append(" from me");
-			contactDistTxt.setText(buf.toString());
+			
+			
+			if (c.isOnline()){
+				setStyle(ONLINE_STYLE);
+				Location myContactLoc = myContact.getLocation();
+				float distInMeters  = myContactLoc.distanceTo(c.getLocation());
+				float distInKm = distInMeters / 1000.0f;
+				String distKmAsString = String.valueOf(distInKm);
+				StringBuffer buf = new StringBuffer(distKmAsString);
+				buf.append(" km");
+				buf.append(" from me");
+				contactDistTxt.setText(buf.toString());
+			} else {
+				setStyle(OFFLINE_STYLE);
+				contactDistTxt.setText(context.getResources().getText(R.string.label_for_offline));
+			}
 		}
 		
 	}
