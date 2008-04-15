@@ -151,6 +151,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	
 		ContactManager.getInstance().readPhoneContacts(this);
 		contactsListView.setAdapter(ContactManager.getInstance().getAdapter());
+		initializeContactList();
 	}		
     
 	
@@ -183,6 +184,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 						   getString(R.string.error_msg_jadegw_connection), 
 						   Integer.parseInt(getString(R.string.toast_duration))
 						   ).show();
+			myLogger.log(Logger.SEVERE, "Error in onCreate",e);
+			e.printStackTrace();
 		}
     }
 
@@ -254,6 +257,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		
 		} catch(Exception e){
 			Toast.makeText(this, e.toString(), 1000).show();
+			myLogger.log(Logger.SEVERE, "Exception in onConnected",e);
+			e.printStackTrace();
 		}
 	}
 
@@ -357,9 +362,18 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		int selectedPos = contactsListView.getSelectedItemPosition();
 		
 		if (ContactManager.getInstance().updateIsOngoing()) {
-			contactsListView.setAdapter(ContactManager.getInstance().getAdapter());
+			ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
+			//FIXME: if this works we should try to use the DataSetObserver pattern 
+			adapter.update();
+			contactsListView.setAdapter(adapter);
 			contactsListView.setSelection(selectedPos);
 		}
+	}
+	
+	private void initializeContactList(){
+		ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
+		adapter.initialize();
+		contactsListView.setAdapter(adapter);
 	}
 	
 	/**

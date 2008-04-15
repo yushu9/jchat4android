@@ -19,14 +19,12 @@ android:layout_height="wrap_content"
 <TextView
 	android:id="@+id/contact_name"
 	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"
-	android:text="To: "/>
+	android:layout_height="wrap_content"/>
 
 <TextView
 	android:id="@+id/contact_dist"
 	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"
-	android:text="Messages"/>
+	android:layout_height="wrap_content"/>
  </LinearLayout>
 
 </LinearLayout>

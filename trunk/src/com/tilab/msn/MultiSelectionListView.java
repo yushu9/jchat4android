@@ -17,20 +17,11 @@ public class MultiSelectionListView extends ListView{
 		super(context, attrs, params);
 		// TODO Auto-generated constructor stub
 	}
-	public List getAllSelectedItems () {		
-		List l= new ArrayList();
-		ListAdapter la = this.getAdapter();
-		for(int i=0; i< la.getCount(); i++)
-		{
-			View itemView = la.getView(i, null, this);
-			CheckBox cb = (CheckBox)itemView.findViewById(R.id.contact_check_box);	
-			if (cb.isChecked()){
-				Contact c= (Contact)la.getItem(i);
-			 	l.add(c);
-			}
-		}
-		return l;	
+	
+	public List<Contact> getAllSelectedItems () {				
+		return ((ContactListAdapter) getAdapter()).getAllSelectedItems();
 	}
 	
+		
 }
  

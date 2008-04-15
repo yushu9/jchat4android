@@ -88,6 +88,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
 						   getString(R.string.error_msg_jadegw_connection), 
 						   Integer.parseInt(getString(R.string.toast_duration))
 						   ).show();
+			myLogger.log(Logger.SEVERE, "Error in chatActivity", e);
+			e.printStackTrace();
 		}
 	}
 	
