@@ -18,7 +18,7 @@ import android.os.Parcelable;
 public class Contact implements Parcelable {
 
 	private static final long serialVersionUID = 1274339729698023648L;
-	
+	private String numTel;
 	private String agentContact; //nome globale dell'agente corrisponde a numTel@platformID
 	private String name; //nome come appare sulla rubrica (se non è presente è il numTel)
 	private boolean isLocal; //distingue quelli che sono nella lista dei contatti
@@ -35,17 +35,13 @@ public class Contact implements Parcelable {
 		this.isLocal = isLocal;
 	}
 	
+	public void setNumTel(String num){
+		numTel = num;
+	}
+	
 	
 	public String getPhoneNumber(){
-		String phoneNbr = null;
-		if(agentContact != null){
-			int atPos = agentContact.lastIndexOf('@');
-			if(atPos == -1)
-				phoneNbr = agentContact;
-			else
-				phoneNbr = agentContact.substring(0, atPos);
-		}
-		return phoneNbr;
+		return numTel;
 	}
 	
 	public boolean isOnline(){
@@ -59,7 +55,16 @@ public class Contact implements Parcelable {
 	
 	public void setAgentContact(String agentContact){
 		this.agentContact = agentContact;
+		int lastIndex = agentContact.lastIndexOf('@');
 		
+		//FIXME: for now we have to discriminate between my contact and otherContacts
+		//because myContact is put online by passing in the numTel without agent name.
+		//May be asking the agent name to the agent is better
+		if (lastIndex == -1){
+			this.numTel = agentContact;
+		} else {
+			this.numTel = agentContact.substring(0, lastIndex);
+		}
 	}
 	
 	public String getAgentContact(){

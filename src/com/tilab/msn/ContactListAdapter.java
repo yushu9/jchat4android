@@ -1,6 +1,7 @@
 package com.tilab.msn;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,49 +22,31 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class ContactListAdapter extends BaseAdapter {
-	private List<ContactInfo> contactInfoList;
+	
+	private List<ContactViewInfo> contactViewInfoList;
 	private Context context;
-	private Location myLocation;
 	private ViewInflate inflater;
 	
 	
 	public ContactListAdapter(Context c){
 		context = c;
-	    inflater = (ViewInflate)context.getSystemService(Context.INFLATE_SERVICE);
-		myLocation = ContactManager.getInstance().getMyContact().getLocation();
-		contactInfoList = new ArrayList<ContactInfo>();
-		}
-	
-	
-	
-	public void addAndUpdate(Contact contact){
-		ContactInfo ci = new ContactInfo(contact.getPhoneNumber());
-	    int position = contactInfoList.indexOf(ci);		
-		if (position == -1){			
-			synchronized (contactInfoList) {
-				contactInfoList.add(position, ci);
-			}				
-	    }			
-			
-		}			
-	
-	
-		
-	public void remove(Contact c){			
-		ContactInfo ci= new ContactInfo(c.getPhoneNumber());
-	    contactInfoList.remove(ci);				
+	    inflater = (ViewInflate)context.getSystemService(Context.INFLATE_SERVICE);		
+	    contactViewInfoList = new ArrayList<ContactViewInfo>();
 	}
+	
+	
+	
 	
 	public int getCount() {
 		// TODO Auto-generated method stub
-		return contactInfoList.size();
+		return contactViewInfoList.size();
 	}
 
 	
 	public Object getItem(int arg0) {
 		// TODO Auto-generated method stub
-		ContactInfo ci = contactInfoList.get(arg0);		
-		return ContactManager.getInstance().getContactByAgentId(ci.getID());
+		ContactViewInfo cvi = contactViewInfoList.get(arg0);		
+		return ContactManager.getInstance().getContactByAgentId(cvi.contactId);
 	}
 	
 	public long getItemId(int position) {
@@ -72,73 +55,109 @@ public class ContactListAdapter extends BaseAdapter {
 	}
 
 	
+	
 	public View getView(int position, View convertView, ViewGroup parent) {
-		ContactInfo ci = contactInfoList.get(position);	
-		String contactInfoID = ci.getID();
-		Contact c = ContactManager.getInstance().getContactByAgentId(contactInfoID);		 
-		View v = inflater.inflate(R.layout.element_layout, null,null);
-		CheckBox cb = (CheckBox)v.findViewById(R.id.contact_check_box);
-		cb.setOnCheckedChangeListener(new CheckBoxClickListener(position));
-		TextView tv = (TextView)v.findViewById(R.id.contact_name);		 
-		tv.setText(c.getName());
-		TextView tv1 = (TextView)v.findViewById(R.id.contact_dist);
-		float dist = myLocation.distanceTo(c.getLocation())/1000;	
-		tv1.setText(String.valueOf(dist)+ " km");				
-		return v;
+		return contactViewInfoList.get(position).contactView;
 	}
 
-	private class CheckBoxClickListener implements CheckBox.OnCheckedChangeListener{
-         
-		private int selectedListPos;
+	public List<Contact> getAllSelectedItems(){
+		List<Contact> contactsSelected = new ArrayList<Contact>();
 		
-		public CheckBoxClickListener(int selectedPos){
-			this.selectedListPos = selectedPos;
-		}				
-
-		@Override
-		public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
-			ContactInfo ci= contactInfoList.get(selectedListPos);
-		    ci.setChecked(arg1);
-				
+		for (ContactViewInfo contactsInfo : contactViewInfoList) {
+			Contact cont = ContactManager.getInstance().getContactByAgentId(contactsInfo.contactId);
+			contactsSelected.add(cont);
+		}
+		
+		return contactsSelected;
+	}
+	
+	public void initialize(){
+		List<Contact> localContactList = ContactManager.getInstance().getOtherContactList();
+		Contact myContact = ContactManager.getInstance().getMyContact();
+		
+		for (Contact contact : localContactList) {
+			ContactViewInfo cvi = new ContactViewInfo(contact.getPhoneNumber());
+			cvi.updateView(contact, myContact);
+			contactViewInfoList.add(cvi);
 		}
 		
 	}
 	
-	private class ContactInfo {	
+	public void update(){
+		Contact myContact = ContactManager.getInstance().getMyContact();
 		
-		public ContactInfo(String contactID){
-			checked=false;
-			this.contactID= contactID;
+		//retrieve the list of ID of newly added contacts
+		List<String> newlyAdded = ContactManager.getInstance().getLastAddedContacts();
+		//retrieve the list of ID of recently deleted contacts
+		List<String> recentlyDeleted = ContactManager.getInstance().getLastDeletedContacts();
+		
+		//Ok, now we should update the views
+		//For each newly added contact add it
+		for (String contactId : newlyAdded) {
+			ContactViewInfo cvi = new ContactViewInfo(contactId);
+			contactViewInfoList.add(cvi);
 		}
 		
-		public void setChecked(boolean value){
-			checked= value;
+		//Now for all deleted contact delete it
+		for (String contactId : recentlyDeleted) {
+			ContactViewInfo cvi = new ContactViewInfo(contactId);
+			contactViewInfoList.remove(cvi);
 		}
 		
-		public boolean isChecked() {
-			return checked;
+		//At the end update all contacts
+		for (ContactViewInfo viewInfo : contactViewInfoList) {
+			viewInfo.updateView(ContactManager.getInstance().getContactByAgentId(viewInfo.contactId), myContact);
 		}
-		public String getID(){
-			return contactID;
-		}
+	}
+	
+	private class ContactViewInfo {
 		
-		
-		
-		@Override
 		public boolean equals(Object o) {
+			boolean retVal =false;
 			
-			boolean retval= false;
-			
-			if(o instanceof ContactInfo){				
-				ContactInfo ci = (ContactInfo) o;
-				retval= ci.contactID.equals(contactID);		
+			if (o instanceof ContactViewInfo){
+				ContactViewInfo cvInfo = (ContactViewInfo) o;
+				retVal = cvInfo.contactId.equals(this.contactId);
 			}
-			return retval;	
-		}		
+				
+			return retVal;
+		}
+
+		public View contactView;
+		public String contactId;
 		
-		boolean checked;
-		String contactID;		
-	} 
+		public ContactViewInfo(String contactId){
+			this.contactId = contactId;	
+		}
+		
+		
+		public void setStyle(int style){
+			
+		}
+		
+		public void updateView(Contact c, Contact myContact){
+			//this contact is new and has no view
+			if (contactView == null){
+				//create a new view and start filling it
+				contactView = inflater.inflate(R.layout.element_layout, null, null);
+				//Set the contact name
+				TextView contactNameTxt = (TextView) contactView.findViewById(R.id.contact_name);
+				contactNameTxt.setText(c.getName());
+			}
+			
+			TextView contactDistTxt = (TextView) contactView.findViewById(R.id.contact_dist);
+			Location myContactLoc = myContact.getLocation();
+			float distInMeters  = myContactLoc.distanceTo(c.getLocation());
+			float distInKm = distInMeters / 1000.0f;
+			String distKmAsString = String.valueOf(distInKm);
+			StringBuffer buf = new StringBuffer(distKmAsString);
+			buf.append(" km");
+			buf.append(" from me");
+			contactDistTxt.setText(buf.toString());
+		}
+		
+	}
+	
 }
 
 

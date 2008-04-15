@@ -27,6 +27,11 @@ public class ContactManager {
 	//Adapter for the contacts list
 	private ContactListAdapter contactsAdapter;
 	
+	//List that registers ids of all newly added contacts
+	private List<String> newlyAddedContacts;
+	//List that registers ids of recently removed contacts
+	private List<String> contactsToDelete;
+	
 
 	public boolean updateIsOngoing(){
 		return updateOngoing;
@@ -42,15 +47,59 @@ public class ContactManager {
 
 		//FIXME: Try a better way to retrieve MyContact name
 		myContact = new Contact("Me",true);
+		contactsToDelete = new ArrayList<String>();
+		newlyAddedContacts = new ArrayList<String>();
 
 	}
+	
+	private void markAsToDelete(String id){
+		synchronized (contactsToDelete) {
+			contactsToDelete.add(id);
+		}
+	}
+	
+	private void markAsNewlyAdded(String id){
+		synchronized (newlyAddedContacts) {
+			newlyAddedContacts.add(id);
+		}
+	}
+	
+	public void resetChanges(){
+		synchronized (this) {
+			newlyAddedContacts.clear();
+			contactsToDelete.clear();
+		}
+	}
+		
+	public List<String> getLastDeletedContacts(){
+		
+		List<String> contacts;
+		
+		synchronized (contactsToDelete) {
+			contacts = new ArrayList<String>(contactsToDelete);
+		}
+		
+		return contacts;
+	}
+	
+	public List<String> getLastAddedContacts(){
+		
+		List<String> contacts;
+		
+		synchronized (newlyAddedContacts) {
+			contacts = new ArrayList<String>(newlyAddedContacts);
+		}
+		
+		return contacts;
+	}
+	
 	
 	public  ContactListAdapter getAdapter(){		
 		
 		return contactsAdapter;
 	}
 
-	public void readPhoneContacts(Activity act){
+	public void readPhoneContacts(ContactListActivity act){
 		//perform a query on contacts database returning all contacts data in name ascending order
 		Cursor c = act.getContentResolver().query(People.CONTENT_URI, null, null, null, People.NAME + " DESC");
 
@@ -69,12 +118,13 @@ public class ContactManager {
 				myLogger.log(Logger.INFO, "Found contact "+ name + " with numtel " + numTel);
 
 				Contact cont = new Contact(name, true);
-				otherContactsMap.put(numTel, cont);
-				contactsAdapter.addAndUpdate(cont);
-				
+				cont.setNumTel(numTel);
+				otherContactsMap.put(numTel, cont);				
 				
 			} while(c.next());
+			
 		}
+		
 	}
 	
  public void addAdapter(ContactListAdapter cla){	
@@ -93,12 +143,11 @@ public class ContactManager {
 			if (cont == null){
 				cont = new Contact(agentAid.getLocalName(), false);
 				otherContactsMap.put(agentAid.getLocalName(), cont);
-				
+				markAsNewlyAdded(agentAid.getLocalName());
 			} 
 
 			cont.setAgentContact(agentAid.getName());
 			cont.setLocation(loc);
-			contactsAdapter.addAndUpdate(cont);
 		}	
 	}
 
@@ -112,7 +161,7 @@ public class ContactManager {
 				c.setOffline();
 			} else {
 				otherContactsMap.remove(agentId.getLocalName());
-				contactsAdapter.remove(c);
+				markAsToDelete(agentId.getLocalName());
 			}
 		}
 	}

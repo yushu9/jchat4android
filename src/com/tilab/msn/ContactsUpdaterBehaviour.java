@@ -38,6 +38,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 	@Override
 	public void action()  {
+		try {
 		//first thing to do is to register on the df and save current location if any
 		DFAgentDescription myDescription = new DFAgentDescription();
 		//fill a msn service description
@@ -46,7 +47,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		msnServiceDescription.setType(MsnAgent.msnDescType);
 		myDescription.addServices(msnServiceDescription);
 
-		try {
+		
 			DFAgentDescription[] onlineContacts = DFService.search(myAgent, myDescription);
 
 			updateContactList(onlineContacts);
@@ -57,11 +58,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 				}
 			}
 
-		} catch (FIPAException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		
 
 		DFUpdaterBehaviour updater = new DFUpdaterBehaviour(myAgent,msnUpdateTime);
 		MsnAgent agent = (MsnAgent) myAgent;
@@ -69,6 +66,12 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 		myAgent.addBehaviour(updater);
 		myAgent.addBehaviour(subBh);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			myLogger.log(Logger.SEVERE, "Severe error: ", e);
+			e.printStackTrace();
+		}
+
 	}
 
 
@@ -132,6 +135,8 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 		protected void handleInform(ACLMessage inform) {
 
+			//This is necessary to reset the track of cahnges on the contact list
+			ContactManager.getInstance().resetChanges();
 			myLogger.log(Logger.FINE, " Notification received from DF");
 
 			try {
@@ -179,9 +184,9 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 
 			}
-			catch (FIPAException fe) {
-				myLogger.log(Logger.WARNING, "See printstack for Exception.", fe);
-				fe.printStackTrace();
+			catch (Exception e) {
+				myLogger.log(Logger.WARNING, "See printstack for Exception.", e);
+				e.printStackTrace();
 			}
 		}
 	}
