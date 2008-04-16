@@ -1,10 +1,14 @@
 package com.tilab.msn;
 
+import jade.util.Logger;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.google.android.maps.MyLocationOverlay;
 
 import android.content.Context;
 import android.content.Resources;
@@ -26,6 +30,7 @@ import android.widget.TextView;
 
 public class ContactListAdapter extends BaseAdapter {
 	
+	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	private List<ContactViewInfo> contactViewInfoList;
 	private Context context;
 	private ViewInflate inflater;
@@ -95,6 +100,12 @@ public class ContactListAdapter extends BaseAdapter {
 	
 	public void update(ContactListChanges changes){
 		Contact myContact = ContactManager.getInstance().getMyContact();
+		
+		if (changes.contactsAdded.size() > 0 || changes.contactsDeleted.size() > 0)
+			myLogger.log(Logger.INFO, "Modifications reported from updating thread...\n " +
+					"Contacts added: " + changes.contactsAdded.size() + 
+					"\nContacts deleted: " + changes.contactsDeleted.size());
+		
 		
 		
 		//Ok, now we should update the views

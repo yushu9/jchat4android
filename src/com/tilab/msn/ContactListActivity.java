@@ -358,14 +358,12 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	private void refreshContactList(ContactListChanges changes){
 		
 		int selectedPos = contactsListView.getSelectedItemPosition();
-		
-		if (ContactManager.getInstance().updateIsOngoing()) {
-			ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
-			//FIXME: if this works we should try to use the DataSetObserver pattern 
-			adapter.update(changes);
-			contactsListView.setAdapter(adapter);
-			contactsListView.setSelection(selectedPos);
-		}
+
+		ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
+		//FIXME: if this works we should try to use the DataSetObserver pattern 
+		adapter.update(changes);
+		contactsListView.setAdapter(adapter);
+		contactsListView.setSelection(selectedPos);
 	}
 	
 	private void initializeContactList(){
@@ -408,6 +406,11 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				if (ContactManager.getInstance().updateIsOngoing()){
 					MapView mapView = (MapView) activity.findViewById(R.id.myMapView);
 					mapView.invalidate();
+				}
+				
+				if (parameter instanceof ContactListChanges){		
+					ContactListChanges changes = (ContactListChanges) parameter;
+					refreshContactList(changes);	
 				}
 			}		
 	}	
