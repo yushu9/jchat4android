@@ -159,6 +159,7 @@ public class ContactManager {
 
 	public void shutdown() {
 		otherContactsMap.clear();
+		contactsAdapter.clear();
 	}
 
 	//We cannot modify the contacts from this list, we copy th list to avoid race conditions

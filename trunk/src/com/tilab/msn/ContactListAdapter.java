@@ -57,6 +57,9 @@ public class ContactListAdapter extends BaseAdapter {
 		return position;
 	}
 
+	public void clear(){
+		contactViewInfoList.clear();
+	}
 	
 	
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -131,6 +134,7 @@ public class ContactListAdapter extends BaseAdapter {
 			return retVal;
 		}
 
+	
 	
 		public ContactViewInfo(String contactId){
 			this.contactId = contactId;	
