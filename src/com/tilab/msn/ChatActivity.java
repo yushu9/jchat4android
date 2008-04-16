@@ -106,6 +106,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		
 		
 		updater.removeSessionNotification(session.getSessionId());
+		myLogger.log(Logger.FINER, "Removing notification having ID " + session.getSessionId());
 		
 		if (gateway != null){
 			gateway.disconnect(this);

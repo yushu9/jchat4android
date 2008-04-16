@@ -38,12 +38,12 @@ public class MsnSessionManager {
 	//This will generate a sessionId  to be used for a new session
 	public MsnSession createNewMsnSession(List<Contact> participants){
 	
-		String myAgentId =	ContactManager.getInstance().getMyContact().getAgentContact();
+		String myAgentId =	ContactManager.getInstance().getMyContact().getPhoneNumber();
 		//The session id is computed by hashing agentNames
 		int sessionId= myAgentId.hashCode();
 		
 		for (Contact participant : participants) {
-			int tmp = participant.getAgentContact().hashCode();
+			int tmp = participant.getPhoneNumber().hashCode();
 			sessionId ^= tmp;
 		}
 		

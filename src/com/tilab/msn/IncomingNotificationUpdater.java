@@ -43,7 +43,7 @@ class IncomingNotificationUpdater {
 		}
 		
 		public void removeSessionNotification(String sessionId){
-			manager.cancel(sessionId.hashCode());
+			manager.cancel(Integer.parseInt(sessionId));
 		}
 		
 		public void removeAllNotifications(){
@@ -67,7 +67,8 @@ class IncomingNotificationUpdater {
 			public void run() {
 				String logMsg;
 				//get the message id from the conversation id hashcode
-				int index =  message.getConversationId().hashCode();
+				String indexStr =  message.getConversationId();
+				int index = Integer.parseInt(indexStr);
 				Integer indexAsInteger = new Integer(index);
 				
 				Intent viewChatIntent = new Intent(Intent.VIEW_ACTION);
