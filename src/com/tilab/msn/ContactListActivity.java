@@ -78,13 +78,13 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
     
       //Fill the contacts tab
         TabSpec contactsTabSpecs = mainTabHost.newTabSpec(CONTACTS_TAB_TAG);
-		contactsTabSpecs.setIndicator(getText(R.string.contacts_tab_name));
+		contactsTabSpecs.setIndicator(getText(R.string.contacts_tab_name),getResources().getDrawable(R.drawable.contact));
 		contactsTabSpecs.setContent(R.id.content1);
 		mainTabHost.addTab(contactsTabSpecs);
         
     	//Fill the map tab
 		TabSpec mapTabSpecs = mainTabHost.newTabSpec(MAPVIEW_TAB_TAG);
-		mapTabSpecs.setIndicator(getText(R.string.mapview_tab_name));
+		mapTabSpecs.setIndicator(getText(R.string.mapview_tab_name), getResources().getDrawable(R.drawable.globemap));
 		mapTabSpecs.setContent(R.id.content2);
 		mainTabHost.addTab(mapTabSpecs);
         
@@ -152,8 +152,11 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		);		
 	    contactsListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 	    	public void  onItemClick(AdapterView parent, View v, int position, long id) {
-	    	CheckBox cb= (CheckBox)v.findViewById(R.id.contact_check_box);	
-	    	cb.setChecked(!cb.isChecked());
+	    		CheckBox cb= (CheckBox)v.findViewById(R.id.contact_check_box);	
+	    		ContactListAdapter  adapter = (ContactListAdapter) parent.getAdapter();
+	    		Contact selC = (Contact) adapter.getItem(position);
+	    		if (selC.isOnline())
+	    			cb.setChecked(!cb.isChecked());
 	    	}
 	    });
 		
