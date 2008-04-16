@@ -27,6 +27,8 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.View;
 import android.view.Menu.Item;
+import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.Toast;
@@ -70,7 +72,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	
 	private void initUI(){
 		//Setup the main tabhost
-        setContentView(R.layout.main);
+        setContentView(R.layout.homepage);
         mainTabHost = (TabHost) findViewById(R.id.main_tabhost);
         mainTabHost.setup();
     
@@ -148,7 +150,16 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 					}
 				}
 		);		
-	
+	    contactsListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+	    	public void  onItemClick(AdapterView parent, View v, int position, long id) {
+	    	CheckBox cb= (CheckBox)v.findViewById(R.id.contact_check_box);	
+	    	cb.setChecked(!cb.isChecked());
+	    	}
+	    });
+		
+
+				
+		
 		ContactManager.getInstance().readPhoneContacts(this);
 		contactsListView.setAdapter(ContactManager.getInstance().getAdapter());
 		initializeContactList();

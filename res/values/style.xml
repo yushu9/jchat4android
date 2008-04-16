@@ -32,8 +32,37 @@
     
     <style name="ParticipantStyle">
         <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/participant_list_item</item>
+        <item name="android:textColor">@color/blue</item>
     </style>
+    
+     <style name="MessagesStyle">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/dark_grey</item>
+        <item name="android:textStyle">bold</item> 
+        <item name="android:typeface">sans</item>
+    </style>
+    
+    <style name="ToStyle">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/dark_grey</item>
+        <item name="android:textStyle">bold</item> 
+        <item name="android:typeface">sans</item>
+    </style>
+    
+    <style name="Contact_nameStyle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/blue</item>
+        <item name="android:textStyle">normal</item> 
+        <item name="android:typeface">sans</item>
+    </style>
+    
+     <style name="Contact_distStyle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/blue</item>
+        <item name="android:textStyle">normal</item> 
+        <item name="android:typeface">sans</item>
+    </style>
+    
     
    
 </resources>
