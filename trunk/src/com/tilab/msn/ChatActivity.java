@@ -97,8 +97,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
-		super.onDestroy();
-		
+		super.onDestroy();		
 		
 		MsnSessionManager.getInstance().removeMsnSession(session.getSessionId());
 		myLogger.log(Logger.INFO, "Removing session having sessionID  " + session.getSessionId());

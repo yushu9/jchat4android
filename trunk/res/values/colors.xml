@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?> 
 
 <resources> 
-   <color name="online_contact_color">#FF00FF00</color> 
-   <color name="offline_contact_color">#FFFF0000</color>
+   <color name="online_contact_color">#FF0DFF0D</color> 
+   <color name="offline_contact_color">#FFC60000</color>
    <color name="my_contact_map_color">#FFFF0000</color>
    <color name="other_contact_map_color">#FF00FF00</color>
-   <color name="participant_list_item">#FF55FF55</color>
+   <color name="dark_grey">#FFCFCFCF</color> 
+   <color name="blue">#FF000080</color>
+   <color name="dark_green">#FF006200</color>  
+   <color name="dark_red">#FFC60000</color>       
 </resources>
     
