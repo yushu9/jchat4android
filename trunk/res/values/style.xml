@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="ContactOnLine">
+<!-- <style name="ContactOnLine">
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">#FF00FF00</item>
     </style>
     
-    <style name="PositionOnLine">
+    <style name="DistanceOnLine">
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">#FF00FF00</item>
     </style>
@@ -13,20 +13,27 @@
     <style name="ContactOffLine">
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">#FFFF0000</item>
+        <item name="android:text"> "Not available"</item>
     </style>	
     
-    <style name="PositionOffLine">
+    <style name="DistanceOffLine">
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">#FFFF0000</item>
+    </style>
+    
+    <style name="CheckboxOffLine">
+        <item name="android:editable">false</item>
     </style>	
     
-     <style name="Parts">
-        <item name="android:textSize">20sp</item>
-        <item name="android:textColor">#FFFF0000</item>                
+    <style name="CheckboxOnLine">
+        <item name="android:editable">true</item>
     </style>
-    	
-     <style name="SendButton">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">#FFFF0000</item>          
-     </style>	
+    -->
+    
+    <style name="ParticipantStyle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/participant_list_item</item>
+    </style>
+    
+   
 </resources>

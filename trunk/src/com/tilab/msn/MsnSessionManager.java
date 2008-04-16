@@ -136,4 +136,9 @@ public class MsnSessionManager {
 		
 		return updater;
 	}
+	
+	public void shutdown(){
+		sessionMap.clear();
+		updatersMap.clear();
+	}
 }

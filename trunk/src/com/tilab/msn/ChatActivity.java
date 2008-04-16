@@ -52,7 +52,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		partsList = (ListView) findViewById(R.id.partsList);
 		List<Contact> participants = session.getAllParticipants();
 		
-		ArrayAdapter aAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1, participants);
+		ArrayAdapter aAdapter = new ArrayAdapter(this,R.layout.participant_layout, R.id.participantName, participants);
 		partsList.setAdapter(aAdapter);
 		
 		messageToBeSent = (EditText)findViewById(R.id.edit);
