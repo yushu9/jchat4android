@@ -43,7 +43,7 @@ public class MsnSessionManager {
 		int sessionId= myAgentId.hashCode();
 		
 		for (Contact participant : participants) {
-			int tmp = participant.hashCode();
+			int tmp = participant.getAgentContact().hashCode();
 			sessionId ^= tmp;
 		}
 		
