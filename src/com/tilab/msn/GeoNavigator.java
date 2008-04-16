@@ -51,8 +51,7 @@ public class GeoNavigator {
 	}
 	
 	public void startLocationUpdate(){
-		myContext.registerReceiver(locationReceiver, filter);
-		myLogger.log(Logger.INFO, "Registering the intent receiver");
+		myLogger.log(Logger.INFO, "Starting location update...");
 		manager.requestUpdates(provider, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE, updateIntent);
 	}
 	
@@ -64,9 +63,17 @@ public class GeoNavigator {
 		
 		
 	public void stopLocationUpdate(){
-		myLogger.log(Logger.INFO, "Unregistering the intent receiver");
+		myLogger.log(Logger.INFO, "Stopping location updates....");
 		manager.removeUpdates(updateIntent);
-		myContext.unregisterReceiver(locationReceiver);
 	}
 	
+	public void initialize(){
+		myLogger.log(Logger.INFO, "Registering the intent receiver....");
+		myContext.registerReceiver(locationReceiver,filter);
+	}
+	
+	public void shutdown(){
+		myLogger.log(Logger.INFO, "Unregistering the intent receiver....");
+		myContext.unregisterReceiver(locationReceiver);
+	}
 }

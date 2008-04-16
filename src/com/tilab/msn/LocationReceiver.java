@@ -21,6 +21,7 @@ public class LocationReceiver extends IntentReceiver {
 			Contact myContact = ContactManager.getInstance().getMyContact();
 			myContact.setLocation(loc);
 			ContactManager.getInstance().setOngoingUpdate();
+			this.abortBroadcast(); 
 		}
 	}
 

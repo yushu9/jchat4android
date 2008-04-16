@@ -26,11 +26,8 @@ public class ContactManager {
 	
 	//Adapter for the contacts list
 	private ContactListAdapter contactsAdapter;
-	
-	//List that registers ids of all newly added contacts
-	private List<String> newlyAddedContacts;
-	//List that registers ids of recently removed contacts
-	private List<String> contactsToDelete;
+	private ContactListChanges modifications;
+
 	
 
 	public boolean updateIsOngoing(){
@@ -47,50 +44,17 @@ public class ContactManager {
 
 		//FIXME: Try a better way to retrieve MyContact name
 		myContact = new Contact("Me",true);
-		contactsToDelete = new ArrayList<String>();
-		newlyAddedContacts = new ArrayList<String>();
+		modifications = new ContactListChanges();
 
 	}
 	
-	private void markAsToDelete(String id){
-		synchronized (contactsToDelete) {
-			contactsToDelete.add(id);
-		}
+	
+	public void resetModifications(){
+		modifications.resetChanges();
 	}
 	
-	private void markAsNewlyAdded(String id){
-		synchronized (newlyAddedContacts) {
-			newlyAddedContacts.add(id);
-		}
-	}
-	
-	public void resetChanges(){
-		synchronized (this) {
-			newlyAddedContacts.clear();
-			contactsToDelete.clear();
-		}
-	}
-		
-	public List<String> getLastDeletedContacts(){
-		
-		List<String> contacts;
-		
-		synchronized (contactsToDelete) {
-			contacts = new ArrayList<String>(contactsToDelete);
-		}
-		
-		return contacts;
-	}
-	
-	public List<String> getLastAddedContacts(){
-		
-		List<String> contacts;
-		
-		synchronized (newlyAddedContacts) {
-			contacts = new ArrayList<String>(newlyAddedContacts);
-		}
-		
-		return contacts;
+	public ContactListChanges getModifications() {
+		return new ContactListChanges(modifications);
 	}
 	
 	
@@ -143,7 +107,7 @@ public class ContactManager {
 			if (cont == null){
 				cont = new Contact(agentAid.getLocalName(), false);
 				otherContactsMap.put(agentAid.getLocalName(), cont);
-				markAsNewlyAdded(agentAid.getLocalName());
+				modifications.contactsAdded.add(agentAid.getLocalName());
 			} 
 
 			cont.setAgentContact(agentAid.getName());
@@ -161,7 +125,7 @@ public class ContactManager {
 				c.setOffline();
 			} else {
 				otherContactsMap.remove(agentId.getLocalName());
-				markAsToDelete(agentId.getLocalName());
+				modifications.contactsDeleted.add(agentId.getLocalName());
 			}
 		}
 	}
@@ -193,6 +157,9 @@ public class ContactManager {
 	}
 
 
+	public void shutdown() {
+		otherContactsMap.clear();
+	}
 
 	//We cannot modify the contacts from this list, we copy th list to avoid race conditions
 	public List<Contact> getOtherContactList() {
@@ -204,5 +171,6 @@ public class ContactManager {
 		}
 		return list;
 	}
+	
 }
 

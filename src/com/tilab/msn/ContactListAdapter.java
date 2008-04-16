@@ -90,23 +90,19 @@ public class ContactListAdapter extends BaseAdapter {
 		
 	}
 	
-	public void update(){
+	public void update(ContactListChanges changes){
 		Contact myContact = ContactManager.getInstance().getMyContact();
 		
-		//retrieve the list of ID of newly added contacts
-		List<String> newlyAdded = ContactManager.getInstance().getLastAddedContacts();
-		//retrieve the list of ID of recently deleted contacts
-		List<String> recentlyDeleted = ContactManager.getInstance().getLastDeletedContacts();
 		
 		//Ok, now we should update the views
 		//For each newly added contact add it
-		for (String contactId : newlyAdded) {
+		for (String contactId : changes.contactsAdded) {
 			ContactViewInfo cvi = new ContactViewInfo(contactId);
 			contactViewInfoList.add(cvi);
 		}
 		
 		//Now for all deleted contact delete it
-		for (String contactId : recentlyDeleted) {
+		for (String contactId : changes.contactsDeleted) {
 			ContactViewInfo cvi = new ContactViewInfo(contactId);
 			contactViewInfoList.remove(cvi);
 		}

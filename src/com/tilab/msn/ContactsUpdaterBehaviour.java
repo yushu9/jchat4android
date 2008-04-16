@@ -47,16 +47,18 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		msnServiceDescription.setType(MsnAgent.msnDescType);
 		myDescription.addServices(msnServiceDescription);
 
+		ContactManager.getInstance().resetModifications();
 		
-			DFAgentDescription[] onlineContacts = DFService.search(myAgent, myDescription);
+		DFAgentDescription[] onlineContacts = DFService.search(myAgent, myDescription);
 
-			updateContactList(onlineContacts);
+		updateContactList(onlineContacts);
 
-			synchronized (ContactsUpdaterBehaviour.this) {
-				if (updater != null){
-					updater.postUIUpdate(null);
-				}
+		synchronized (ContactsUpdaterBehaviour.this) {
+			if (updater != null){
+				ContactListChanges changes = ContactManager.getInstance().getModifications();
+				updater.postUIUpdate(changes);
 			}
+		}
 
 		
 
@@ -135,10 +137,10 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 		protected void handleInform(ACLMessage inform) {
 
-			//This is necessary to reset the track of cahnges on the contact list
-			ContactManager.getInstance().resetChanges();
+		
 			myLogger.log(Logger.FINE, " Notification received from DF");
-
+			ContactManager.getInstance().resetModifications();
+			
 			try {
 
 				DFAgentDescription[] results = DFService.decodeNotification(inform.getContent());
@@ -177,7 +179,8 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 					synchronized (ContactsUpdaterBehaviour.this) {
 						if (updater != null){
-							updater.postUIUpdate(null);
+							ContactListChanges changes = ContactManager.getInstance().getModifications();
+							updater.postUIUpdate(changes);
 						}
 					}
 				}

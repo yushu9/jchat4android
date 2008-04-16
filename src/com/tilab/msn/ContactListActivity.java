@@ -134,7 +134,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		contactsListView.setOnPopulateContextMenuListener(
 				new View.OnPopulateContextMenuListener(){
 					public void  onPopulateContextMenu(ContextMenu menu, View v, Object menuInfo) {
-						ListView myLv = (ListView) v;
+						MultiSelectionListView myLv = (MultiSelectionListView) v;
 						ContextMenuInfo info = (ContextMenuInfo) menuInfo;
 						myLv.setSelection(info.position);
 						
@@ -173,7 +173,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         Properties jadeProperties = getJadeProperties(this);
         
         GeoNavigator.setLocationProviderName(getText(R.string.location_provider_name).toString());
-        GeoNavigator.getInstance(this).startLocationUpdate();
+        GeoNavigator.getInstance(this).initialize();
         
         //try to get a JadeGateway
         try {
@@ -187,6 +187,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			myLogger.log(Logger.SEVERE, "Error in onCreate",e);
 			e.printStackTrace();
 		}
+		
+		GeoNavigator.getInstance(this).startLocationUpdate();
     }
 
     private static Properties jadeProperties;
@@ -213,7 +215,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		
 		super.onDestroy();
 		myLogger.log(Logger.INFO, "onDestroy called ...");
-		GeoNavigator.getInstance(this).stopLocationUpdate();
+		GeoNavigator.getInstance(this).shutdown();
 		
 		IncomingNotificationUpdater notifUpd = MsnSessionManager.getInstance().getNotificationUpdater();
 		
@@ -231,15 +233,17 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				e.printStackTrace();
 			}
 			gateway.disconnect(this);
-			
 		}
 		
+		MsnSessionManager.getInstance().shutdown();
+		ContactManager.getInstance().shutdown();
 	}
 	
 
 	protected void onStop() {
-		super.onStop();
 		myLogger.log(Logger.INFO, "onStop called ...");
+		GeoNavigator.getInstance(this).stopLocationUpdate();
+		super.onStop();
 	}
 
 
@@ -264,18 +268,18 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 
 
 	protected void onResume() {
-		super.onResume();
 		myLogger.log(Logger.INFO, "onResume called...");
 	
+		super.onResume();
 	}
 
 	
 	
 	protected void onPause() {
-		super.onPause();
 		myLogger.log(Logger.INFO, "onPause called...");
+		
+		super.onPause();
 	
-	//	GeoNavigator.getInstance(this).pauseLocationUpdate();
 	}
 
 	public void onDisconnected() {
@@ -321,17 +325,14 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		               phoneService = IPhone.Stub.asInterface(sm.getService("phone")); 
 		          } catch (Exception e) { 
 		          } 
-		          ; 
+		          
 		           
 		          try { 
 		        	  Contact selectedC = (Contact) contactsListView.getSelectedItem();
 		              phoneService.call(selectedC.getPhoneNumber());
 		          } catch (Exception e) { 
 		          }
-			/*	Contact selC = (Contact) contactsListView.getSelectedItem();
-				Intent i = new Intent(Intent.CALL_ACTION);
-				i.setData(ContentUris.withAppendedId(android.provider.Contacts.Phones.CONTENT_URI, Long.parseLong(selC.getPhoneNumber()))); 
-				this.startActivity(i);  */
+		
 				break;
 			case CONTEXT_MENU_ITEM_CHAT:
 				List<Contact> participantList = contactsListView.getAllSelectedItems();
@@ -354,14 +355,14 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		return false;
 	}
 	
-	private void refreshContactList(){
+	private void refreshContactList(ContactListChanges changes){
 		
 		int selectedPos = contactsListView.getSelectedItemPosition();
 		
 		if (ContactManager.getInstance().updateIsOngoing()) {
 			ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
 			//FIXME: if this works we should try to use the DataSetObserver pattern 
-			adapter.update();
+			adapter.update(changes);
 			contactsListView.setAdapter(adapter);
 			contactsListView.setSelection(selectedPos);
 		}
@@ -388,8 +389,10 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 
 		protected void handleUpdate(Object parameter) {
 			// TODO Auto-generated method stub
-					
-			refreshContactList();	
+			if (parameter instanceof ContactListChanges){		
+				ContactListChanges changes = (ContactListChanges) parameter;
+				refreshContactList(changes);	
+			}
 		}		
 	}	
 	
