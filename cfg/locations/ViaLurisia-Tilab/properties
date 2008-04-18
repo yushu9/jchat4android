@@ -5,7 +5,7 @@ hasMonetaryCost false
 supportsAltitude true
 supportsBearing true
 supportsSpeed true
-trackSpeed 15
+trackSpeed 50
 repeat true
 accuracy 5
 powerRequirement 1

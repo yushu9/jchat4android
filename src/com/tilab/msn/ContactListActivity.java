@@ -271,7 +271,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		
 	protected void onDestroy() {
 		
-		super.onDestroy();
+		GeoNavigator.getInstance(this).stopLocationUpdate();
+		
 		myLogger.log(Logger.INFO, "onDestroy called ...");
 		GeoNavigator.getInstance(this).shutdown();
 		
@@ -295,12 +296,12 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		
 		MsnSessionManager.getInstance().shutdown();
 		ContactManager.getInstance().shutdown();
+		super.onDestroy();
 	}
 	
 
 	protected void onStop() {
 		myLogger.log(Logger.INFO, "onStop called ...");
-		GeoNavigator.getInstance(this).stopLocationUpdate();
 		super.onStop();
 	}
 
