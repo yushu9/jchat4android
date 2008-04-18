@@ -28,6 +28,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.Menu.Item;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TabHost;
@@ -47,7 +48,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	private TabHost mainTabHost;
 	private MultiSelectionListView contactsListView;
 	private OverlayController overlayCtrl;
-	
+	private MapView mapView;
 	private static String numTel;
 	
 	
@@ -90,10 +91,29 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         
         
 		//init the map view
-		MapView mapView = (MapView) findViewById(R.id.myMapView);
+		mapView = (MapView) findViewById(R.id.myMapView);
 		overlayCtrl = mapView.createOverlayController();
 		overlayCtrl.add(new ContactsPositionOverlay(mapView,getResources()),true);
-	
+		
+		//Button for switching map mode
+		Button switchButton = (Button) findViewById(R.id.switchMapBtn);
+		switchButton.setOnClickListener(new View.OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				Button clickedBtn = (Button) arg0;
+				
+				mapView.toggleSatellite();
+				mapView.getController().stopAnimation(true);
+				
+				if (mapView.isSatellite()){
+					clickedBtn.setText(ContactListActivity.this.getText(R.string.label_toggle_map));
+				} else {
+					clickedBtn.setText(ContactListActivity.this.getText(R.string.label_toggle_satellite));
+				}
+			}
+			
+		});
 		
 		//Create the updater array
         updaters = new HashMap<String, ContactsUIUpdater>(2);
