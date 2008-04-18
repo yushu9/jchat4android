@@ -124,12 +124,13 @@ public class ContactsPositionOverlay extends Overlay {
 		int latSpan = myMapView.getLatitudeSpan();
 		Point center = myMapView.getMapCenter();
 		Point newCenter = pixelToMap(params.midpointOnScreen, WIDTH, HEIGHT, latSpan, longSpan, center);
-*/		mapController.animateTo(params.midpointOnMap);
+*/		
+		mapController.centerMapTo(params.midpointOnMap, true);
 	}
 	
 	private void doZoom(PointClusterParams params, int howToZoom){
 		if (howToZoom == ZOOM_MAX)
-			mapController.zoomTo(21);
+			mapController.zoomTo(18);
 		if (howToZoom == RECOMPUTE_ZOOM)
 			mapController.zoomToSpan(params.coordMaxSpan[0],params.coordMaxSpan[1]);
 	}
