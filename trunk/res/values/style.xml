@@ -1,34 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-<!-- <style name="ContactOnLine">
-        <item name="android:textSize">20sp</item>
-        <item name="android:textColor">#FF00FF00</item>
-    </style>
-    
-    <style name="DistanceOnLine">
-        <item name="android:textSize">20sp</item>
-        <item name="android:textColor">#FF00FF00</item>
-    </style>
-    
-    <style name="ContactOffLine">
-        <item name="android:textSize">20sp</item>
-        <item name="android:textColor">#FFFF0000</item>
-        <item name="android:text"> "Not available"</item>
-    </style>	
-    
-    <style name="DistanceOffLine">
-        <item name="android:textSize">20sp</item>
-        <item name="android:textColor">#FFFF0000</item>
-    </style>
-    
-    <style name="CheckboxOffLine">
-        <item name="android:editable">false</item>
-    </style>	
-    
-    <style name="CheckboxOnLine">
-        <item name="android:editable">true</item>
-    </style>
-    -->
+<resources> 
+   
     
     <style name="ParticipantStyle">
         <item name="android:textSize">18sp</item>
@@ -37,14 +9,14 @@
         
          <style name="MessagesStyle">
         <item name="android:textSize">22sp</item>
-        <item name="android:textColor">@color/dark_grey</item>
+        <item name="android:textColor">@color/white</item>
         <item name="android:textStyle">bold</item> 
         <item name="android:typeface">sans</item>
     </style>
     
     <style name="ToStyle">
         <item name="android:textSize">22sp</item>
-        <item name="android:textColor">@color/dark_grey</item>
+        <item name="android:textColor">@color/white</item>
         <item name="android:textStyle">bold</item> 
         <item name="android:typeface">sans</item>
     </style>
@@ -75,6 +47,27 @@
         <item name="android:textStyle">normal</item> 
         <item name="android:typeface">sans</item>
     </style>
+    
+      <style name="MyContactsStyle">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/blue</item>
+        <item name="android:textStyle">bold</item> 
+        <item name="android:typeface">sans</item>
+    </style>
+    
+     <style name="SendButtonStyle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/blue</item>
+        <item name="android:textStyle">italic</item> 
+        <item name="android:typeface">sans</item>
+    </style>
+    
+    <style name="LabelStyle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/blue</item>
+        <item name="android:textStyle">bold</item> 
+        <item name="android:typeface">sans</item>
+    </style>    
     
     
    

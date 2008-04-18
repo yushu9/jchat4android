@@ -59,7 +59,7 @@ android:layout_height="fill_parent"
 		
 	<Button
 		android:id="@+id/sendBtn"
-		style="?android:attr/buttonStyleSmallLeft"
+		style="@style/SendButtonStyle"
 		android:layout_width="wrap_content"
 		android:background="@android:drawable/button_background"
 		android:layout_height="fill_parent"

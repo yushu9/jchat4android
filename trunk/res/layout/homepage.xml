@@ -35,7 +35,7 @@ android:padding="10px"
 			<TextView
 				android:id="@+id/senderTxtView"
 				android:layout_width="wrap_content"
-				android:textSize="18px"
+				style="@style/MyContactsStyle"
 				android:layout_height="wrap_content"
 				android:text="My Contacts"/>	
 				
