@@ -17,7 +17,11 @@ import java.util.Map;
 import java.util.Random;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.Resources;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.Bundle;
 import android.os.IServiceManager;
 import android.os.ServiceManagerNative;
@@ -26,12 +30,15 @@ import android.telephony.IPhone;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewInflate;
 import android.view.Menu.Item;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TabHost;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.ContextMenuInfo;
 import android.widget.TabHost.TabSpec;
@@ -39,6 +46,7 @@ import android.widget.TabHost.TabSpec;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayController;
+
 
 
 public class ContactListActivity extends MapActivity implements ConnectionListener {
@@ -63,7 +71,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	//NEEDED TAGS FOR THE TABHOST (to address them)
 	private final String CONTACTS_TAB_TAG="ContactsTab";
 	private final String MAPVIEW_TAB_TAG="MapViewTab";
-
+	
 	
 	//Array of updaters
 	private Map<String, ContactsUIUpdater> updaters;
@@ -79,17 +87,33 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
     
       //Fill the contacts tab
         TabSpec contactsTabSpecs = mainTabHost.newTabSpec(CONTACTS_TAB_TAG);
-		contactsTabSpecs.setIndicator(getText(R.string.contacts_tab_name),getResources().getDrawable(R.drawable.contact));
+        TabSpec mapTabSpecs = mainTabHost.newTabSpec(MAPVIEW_TAB_TAG);
+        View contactView; 
+        View mapViewTab; 
+		ViewInflate inflater;
+		inflater = (ViewInflate)getSystemService(Context.INFLATE_SERVICE);			
+		contactView = inflater.inflate(R.layout.contact_tab, null, null);
+        contactsTabSpecs.setIndicator(contactView);
+        mapViewTab = inflater.inflate(R.layout.maptab, null, null);
+        mapTabSpecs.setIndicator(mapViewTab);
 		contactsTabSpecs.setContent(R.id.content1);
-		mainTabHost.addTab(contactsTabSpecs);
-        
-    	//Fill the map tab
-		TabSpec mapTabSpecs = mainTabHost.newTabSpec(MAPVIEW_TAB_TAG);
-		mapTabSpecs.setIndicator(getText(R.string.mapview_tab_name), getResources().getDrawable(R.drawable.globemap));
 		mapTabSpecs.setContent(R.id.content2);
+		mainTabHost.addTab(contactsTabSpecs);
 		mainTabHost.addTab(mapTabSpecs);
+		Resources res= getResources();		
+		int[] colors= new int[] {res.getColor(R.color.white), res.getColor(R.color.dark_grey)};
+		int[] colors1 = new int[] {res.getColor(R.color.white), res.getColor(R.color.blue)};
+		GradientDrawable gd1 = new GradientDrawable(Orientation.LEFT_RIGHT, colors);
+		GradientDrawable gd2 = new GradientDrawable(Orientation.LEFT_RIGHT, colors1);
+		contactView.setBackground(gd1);
+		mapViewTab.setBackground(gd2);
+		
         
-        
+        View homeTab = (View) findViewById(R.id.content1);
+        homeTab.setBackground(gd1);
+        View homeTab1 = (View) findViewById(R.id.content2);
+        homeTab1.setBackground(gd2);
+        		
 		//init the map view
 		mapView = (MapView) findViewById(R.id.myMapView);
 		overlayCtrl = mapView.createOverlayController();
