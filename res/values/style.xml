@@ -41,6 +41,20 @@
         <item name="android:typeface">sans</item>
     </style>
     
+    <style name="ylwbmpStyle">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/yellow</item>
+        <item name="android:textStyle">bold</item> 
+        <item name="android:typeface">sans</item>
+    </style>
+    
+    <style name="bluebmpStyle">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/blue</item>
+        <item name="android:textStyle">bold</item> 
+        <item name="android:typeface">sans</item>
+    </style>
+    
       <style name="editStyle">
         <item name="android:textSize">18sp</item>
         <item name="android:textColor">@color/blue</item>
@@ -55,12 +69,14 @@
         <item name="android:typeface">sans</item>
     </style>
     
-     <style name="SendButtonStyle">
-        <item name="android:textSize">14sp</item>
+     <style name="ButtonStyle">
+        <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/blue</item>
         <item name="android:textStyle">italic</item> 
         <item name="android:typeface">sans</item>
     </style>
+    
+    
     
     <style name="LabelStyle">
         <item name="android:textSize">18sp</item>

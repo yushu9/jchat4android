@@ -5,24 +5,21 @@ import jade.util.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.content.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.BitmapFactory;
 import android.graphics.Paint.FontMetrics;
 import android.graphics.Paint.Style;
+
 import android.location.Location;
-import android.pim.ContactPickerActivity.MyContentObserver;
-import android.text.style.StyleSpan;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
+
 import com.google.android.maps.Overlay;
 import com.google.android.maps.Point;
 
@@ -34,7 +31,8 @@ public class ContactsPositionOverlay extends Overlay {
 	
 	private MapController mapController; 
 	private Paint myPaint;
-	
+	private Bitmap ylwbmp;
+	private Bitmap bluebmp;
 	private Resources appRes;
 	
 	//The SCROLL area represents the area that finds when points are going out of the screen 
@@ -63,7 +61,9 @@ public class ContactsPositionOverlay extends Overlay {
 	private int centerScreenX;
 	private int centerScreenY;
 	
-	
+	private final android.graphics.Point PIN_HOTSPOT = new android.graphics.Point(0,0); 
+    
+
 	private final int ZOOM_MAX=0;
 	private final int RECOMPUTE_ZOOM=1;
 	private final int NO_ZOOM=2;
@@ -76,6 +76,11 @@ public class ContactsPositionOverlay extends Overlay {
 		myPaint = new Paint();
 		this.myMapView = myMapView;
 		scrollingArea= new Rect();
+		
+		ylwbmp = BitmapFactory.decodeResource(appRes,R.drawable.ylw_circle); 
+		bluebmp = BitmapFactory.decodeResource(appRes,R.drawable.blu_circle); 
+		
+		
 	}
 	
 	
@@ -142,26 +147,28 @@ public class ContactsPositionOverlay extends Overlay {
 		int oldColor = p.getColor();
 		FontMetrics fm = p.getFontMetrics();
 		int offset =((int) fm.bottom)+CONTACT_LOC_POINT_RADIUS;
-		
+		int blueheight= bluebmp.getHeight();
+        int bluewidth= bluebmp.getWidth()/2;
+        int ylwheight= ylwbmp.getHeight();
+        int ylwwidth= ylwbmp.getWidth()/2;
 		for (int i=0; i < size; i++){
-			ContactLayoutData cData = layoutDataList.get(i);
-			
+			ContactLayoutData cData = layoutDataList.get(i);			
 			if (cData.isMyContact){
-				p.setColor(appRes.getColor(R.color.my_contact_map_color));
+				myPaint.setColor(Color.YELLOW);					
+				myPaint.setStrokeWidth(10);
+				c.drawBitmap(ylwbmp, cData.positionOnScreen[0]-ylwwidth, cData.positionOnScreen[1]-ylwheight, myPaint);
 			} else {
-				p.setColor(appRes.getColor(R.color.other_contact_map_color));
+				c.drawBitmap(bluebmp, cData.positionOnScreen[0]-bluewidth, cData.positionOnScreen[1]-blueheight, myPaint);
+				myPaint.setColor(Color.BLUE);	
 			}
-			
-			
-			c.drawCircle(cData.positionOnScreen[0], cData.positionOnScreen[1], CONTACT_LOC_POINT_RADIUS, p);
-			c.drawText(cData.name, cData.positionOnScreen[0], cData.positionOnScreen[1]-offset, p);
-	
+		  int textheight= bluebmp.getHeight()+5;		  
+          c.drawText(cData.name, cData.positionOnScreen[0], cData.positionOnScreen[1]-textheight, myPaint);	
+          
+         
 		}
 		
 		p.setColor(oldColor);
 	}
-
-
 
 	
 	

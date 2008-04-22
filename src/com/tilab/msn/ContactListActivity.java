@@ -405,7 +405,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				//set the data as an URI (content://sessionId#<sessionIdValue>)
 				it.setData(newSession.getSessionIdAsUri());
 				it.addCategory(Intent.DEFAULT_CATEGORY);
-				startActivity(it);
+				startSubActivity(it,1);
 				break;
 			case CONTEXT_MENU_ITEM_SMS:
 				break;
