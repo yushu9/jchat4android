@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,7 +27,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
 
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	private ListView partsList;
-	private Button sendButton;
+	private Button sendButton;	
+	private Button mapButton;
 	private EditText messagesSent;
 	private EditText messageToBeSent;
 	private JadeGateway gateway;
@@ -75,6 +77,20 @@ public class ChatActivity extends Activity implements ConnectionListener{
 				}	
             }
         });
+		
+		
+		mapButton = (Button) findViewById(R.id.mapBtn);
+		mapButton.setOnClickListener(new View.OnClickListener(){
+			public void onClick(View view){
+			Intent i = new Intent();
+			i.setClass(ChatActivity.this,ContactListActivity.class);
+			Window w = getParent().getWindow();
+			w.makeActive();
+			
+			}
+		});
+		
+		
 		
 		
 		//fill Jade connection properties
