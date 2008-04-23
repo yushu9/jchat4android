@@ -18,22 +18,26 @@ public class MsnSessionMessage {
 	private boolean received;
 	private String messageContent;
 	private String messageSenderName;
-	
+	private String senderNumTel;
 	
 	//Stores the data and save the current date
-	public MsnSessionMessage(String message, String senderName, boolean received){
-		this(message,senderName,System.currentTimeMillis(),received);
+	public MsnSessionMessage(String message, String senderName, String senderTel, boolean received){
+		this(message,senderName,senderTel, System.currentTimeMillis(), received);
 	}
 	
 	
 	//
-	public MsnSessionMessage(String message, String senderName, long timestamp, boolean received){
+	public MsnSessionMessage(String message, String senderName, String senderTel, long timestamp, boolean received){
 		time = timestamp;
 		messageContent = message;
 		messageSenderName = senderName;
-	
+		senderNumTel = senderTel;
 	}
 
+	public String getSenderNumTel(){
+		return senderNumTel;
+	}
+	
 	public long getTime() {
 		return time;
 	}

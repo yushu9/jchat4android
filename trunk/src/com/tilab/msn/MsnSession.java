@@ -28,27 +28,51 @@ public class MsnSession {
 	
 	//This shall be used as intent data. 
 	public Uri getSessionIdAsUri(){
-		return Uri.fromParts(SESSION_ID_URI_SCHEME, SESSION_ID_URI_SSP, sessionId);
+		String str = null;
+		synchronized (sessionId) {
+			str = sessionId;
+		}
+		return Uri.fromParts(SESSION_ID_URI_SCHEME, SESSION_ID_URI_SSP, str);
 	}
 	
 	public void addParticipant(Contact c){
-		participants.add(c);
+		synchronized (participants) {
+			participants.add(c);
+		}
 	}
 	
 	public void addMessage(MsnSessionMessage msg){
-		messageList.add(msg);
+		synchronized (messageList) {
+			messageList.add(msg);
+		}
 	}
 	
 	
 	public ArrayList<MsnSessionMessage> getMessageList(){
-		return messageList;
+		ArrayList<MsnSessionMessage> list = null;
+		synchronized (messageList) {
+			list = new ArrayList<MsnSessionMessage>(messageList);
+		}
+		return list;
 	}
 	
 	public ArrayList<Contact> getAllParticipants(){
-		return participants;
+		ArrayList<Contact> list=null;
+		
+		synchronized (participants) {
+			list = new ArrayList<Contact>(participants);
+		}
+		return list;
 	}
 
 	public String getSessionId() {
-		return sessionId;
+		
+		String id = null;
+		
+		synchronized (sessionId) {
+			id = sessionId;
+		}
+		
+		return id;
 	}
 }
