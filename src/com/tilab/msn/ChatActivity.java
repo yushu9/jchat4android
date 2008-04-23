@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -29,11 +30,11 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	private ListView partsList;
 	private Button sendButton;	
 	private Button mapButton;
-	private EditText messagesSent;
+	private ListView messagesSentList;
 	private EditText messageToBeSent;
 	private JadeGateway gateway;
 	private MsnSession session;
-	
+	private MsnSessionAdapter sessionAdapter;
 	
 	protected void onCreate(Bundle icicle) {
 		
@@ -59,13 +60,13 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		
 		messageToBeSent = (EditText)findViewById(R.id.edit);
 		
-		messagesSent = (EditText) findViewById(R.id.sentMsg);
+		messagesSentList = (ListView) findViewById(R.id.messagesListView);
 
 		//Retrieve messages if the session already contains data
-		List<MsnSessionMessage> messages = session.getMessageList();
-		for (MsnSessionMessage msg : messages) {
-			messagesSent.append(msg.toString());
-		}
+		sessionAdapter = new MsnSessionAdapter(getViewInflate());
+		sessionAdapter.setNewSession(session);
+		messagesSentList.setAdapter(sessionAdapter);
+
 		
 		sendButton = (Button) findViewById(R.id.sendBtn);
 		sendButton.setOnClickListener(new View.OnClickListener() {
@@ -149,24 +150,23 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		
 		for(int i=0; i<contacts.size(); i++){
 			Contact c = ((Contact)contacts.get(i));
-			if (!c.isOnline()){
-				messagesSent.append("Contact " + c.getName() + " is no more available\n\n");
-			} else {
+			if (c.isOnline()){
 				String agentContact = c.getAgentContact();
-				if(agentContact != null){
+				if(agentContact != null)
 					msg.addReceiver(new AID(agentContact, AID.ISGUID));
-				}
 			}
 		}		
 		
 		
 		try{
 			gateway.execute(new SenderBehaviour(msg));
-  
-    		MsnSessionMessage message = new MsnSessionMessage(msg.getContent(),"Me",false);
+			Contact myContact = ContactManager.getInstance().getMyContact();
+    		MsnSessionMessage message = new MsnSessionMessage(msg.getContent(),myContact.getName(),myContact.getPhoneNumber(),false);
     		session.addMessage(message);
-    		
-    		messagesSent.append(message.toString());
+    		//Add a new view to the adapter
+    		sessionAdapter.addMessageView(message);
+    		//refresh the list
+    		messagesSentList.setAdapter(sessionAdapter);
 		}catch(Exception e){
 			myLogger.log(Logger.WARNING, e.getMessage());
 		}
@@ -202,10 +202,11 @@ public class ChatActivity extends Activity implements ConnectionListener{
 			if (parameter instanceof MsnSessionMessage){
 				//retrieve the SessionMessage
 				myLogger.log(Logger.INFO, "Received an order of UI update: updating GUI with new message");
-				MsnSessionMessage msg = (MsnSessionMessage) parameter;
-				messagesSent.append(msg.toString());
-				messageToBeSent.setText("");
+				MsnSessionMessage msg = (MsnSessionMessage) parameter;				
+				sessionAdapter.addMessageView(msg);
+				messagesSentList.setAdapter(sessionAdapter);
 			} 
+			
 			if (parameter instanceof String ){
 				myLogger.log(Logger.INFO, "Received an order of UI update: adding Toast notification");
 				String contactGoneName = (String) parameter;

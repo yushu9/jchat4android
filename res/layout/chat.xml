@@ -11,7 +11,7 @@ android:layout_height="fill_parent"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
 	style="@style/ToStyle"
-	android:text="To: "/>
+	android:text="To "/>
 	
 <ListView
 	android:id="@+id/partsList"
@@ -28,15 +28,14 @@ android:layout_height="fill_parent"
 	style="@style/MessagesStyle"
 	android:text="Messages"/>
 	
-<EditText
-	android:id="@+id/sentMsg"
-	android:editable="false"	
-	android:layout_weight="1"
-	style="@style/sent_MsgStyle"
+	<ListView
+	android:id="@+id/messagesListView"
 	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
+	android:layout_weight="1"
+	android:scrollbars="vertical"
+	android:layout_height="80px"
 	android:background="@android:drawable/editbox_background"
-	
+	android:listSelector="@android:drawable/list_highlight_background_blue"
 	/>
 
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -44,6 +43,7 @@ android:layout_height="fill_parent"
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
 	>
+	
 	
 	<EditText
 		android:id="@+id/edit"

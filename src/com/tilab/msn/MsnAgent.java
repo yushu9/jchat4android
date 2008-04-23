@@ -137,29 +137,34 @@ public class MsnAgent extends GatewayAgent {
 					//check if there's an activity to update
 					ContactsUIUpdater updater = MsnSessionManager.getInstance().retrieveMsgReceivedUpdater(sessionId);
 					Contact sender = ContactManager.getInstance().getContactByAgentId(msg.getSender().getLocalName());
-					MsnSessionMessage sessionMessage = new MsnSessionMessage(msg.getContent(),sender.getName(),true);
+					MsnSessionMessage sessionMessage = new MsnSessionMessage(msg.getContent(),sender.getName(),sender.getPhoneNumber(),true);
 
 					//If we have no activity we need to add a notification
 					if (updater == null) {
 
 						myLogger.log(Logger.INFO, "Updater not found... creating a new session object");
 
-						//Before adding the notification w have to add a new session
-						MsnSession session = MsnSessionManager.getInstance().createNewMsnSession(sessionId);
-						//Add all participants
-
-						Contact myContact = ContactManager.getInstance().getMyContact();
-						myLogger.log(Logger.INFO, "Adding sender " + sender.getName() + "as a session participant");
-						session.addParticipant(sender);
-						for (jade.util.leap.Iterator it = msg.getAllReceiver(); it.hasNext();) {
-							AID agentId = (AID) it.next();
-
-							if (!agentId.getName().startsWith(myContact.getAgentContact())){
-								Contact otherContact = ContactManager.getInstance().getContactByAgentId(agentId.getLocalName());
-								myLogger.log(Logger.INFO, "Adding contact " + otherContact.getName() + "as a session participant");
-								session.addParticipant(otherContact);
+						//Check if this session is new or not
+						MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
+						
+						//If no session exist
+						if (session == null) {
+							//Create a new session
+						    session = MsnSessionManager.getInstance().createNewMsnSession(sessionId);
+							//Add all participants
+							Contact myContact = ContactManager.getInstance().getMyContact();
+							myLogger.log(Logger.INFO, "Adding sender " + sender.getName() + "as a session participant");
+							session.addParticipant(sender);
+							for (jade.util.leap.Iterator it = msg.getAllReceiver(); it.hasNext();) {
+								AID agentId = (AID) it.next();
+		
+								if (!agentId.getName().startsWith(myContact.getAgentContact())){
+									Contact otherContact = ContactManager.getInstance().getContactByAgentId(agentId.getLocalName());
+									myLogger.log(Logger.INFO, "Adding contact " + otherContact.getName() + "as a session participant");
+									session.addParticipant(otherContact);
+								}
 							}
-						}
+						} 
 
 						session.addMessage(sessionMessage);
 						IncomingNotificationUpdater notificationUpdater = MsnSessionManager.getInstance().getNotificationUpdater();

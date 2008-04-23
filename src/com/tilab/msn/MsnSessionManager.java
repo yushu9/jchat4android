@@ -11,6 +11,7 @@ public class MsnSessionManager {
 	private Map<String,MsnSession> sessionMap; 
 	private Map<String,ContactsUIUpdater> updatersMap;
 	private IncomingNotificationUpdater notificationUpdater;
+
 	
 	public static final int MAX_MSN_SESSION_NUMBER =10; 
 	

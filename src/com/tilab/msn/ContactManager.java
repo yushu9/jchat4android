@@ -44,8 +44,8 @@ public class ContactManager {
 
 		//FIXME: Try a better way to retrieve MyContact name
 		myContact = new Contact("Me",true);
+		myContact.setNumTel("MyNumTel");
 		modifications = new ContactListChanges();
-
 	}
 	
 	
