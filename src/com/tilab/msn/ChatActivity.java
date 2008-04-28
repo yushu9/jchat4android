@@ -9,6 +9,7 @@ import jade.lang.acl.ACLMessage;
 import jade.util.Logger;
 import jade.util.leap.Properties;
 
+import java.util.Iterator;
 import java.util.List;
 
 import android.app.Activity;
@@ -36,37 +37,18 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	private MsnSession session;
 	private MsnSessionAdapter sessionAdapter;
 	
+	public MsnSession getMsnSession(){
+		return session;
+	}
+	
 	protected void onCreate(Bundle icicle) {
 		
 		super.onCreate(icicle);
 		myLogger.log(Logger.INFO, "onCreate called ...");
 		setContentView(R.layout.chat);
-	
-		Intent i = getIntent();
-		Uri sessionIdUri = i.getData();
-		String sessionId = sessionIdUri.getFragment();
-		
-		//register an updater for this session
-		MsnSessionManager.getInstance().registerMsgReceivedUpdater(sessionId, new MessageReceivedUpdater(this));
-		
-		session = MsnSessionManager.getInstance().retrieveSession(sessionId);
-		
-		//retrieve the list
-		partsList = (ListView) findViewById(R.id.partsList);
-		List<Contact> participants = session.getAllParticipants();
-		
-		ArrayAdapter aAdapter = new ArrayAdapter(this,R.layout.participant_layout, R.id.participantName, participants);
-		partsList.setAdapter(aAdapter);
-		
-		messageToBeSent = (EditText)findViewById(R.id.edit);
-		
-		messagesSentList = (ListView) findViewById(R.id.messagesListView);
-
-		//Retrieve messages if the session already contains data
 		sessionAdapter = new MsnSessionAdapter(getViewInflate());
-		sessionAdapter.setNewSession(session);
-		messagesSentList.setAdapter(sessionAdapter);
-
+	
+	
 		
 		sendButton = (Button) findViewById(R.id.sendBtn);
 		sendButton.setOnClickListener(new View.OnClickListener() {
@@ -78,24 +60,23 @@ public class ChatActivity extends Activity implements ConnectionListener{
 				}	
             }
         });
-		
-		
-		mapButton = (Button) findViewById(R.id.mapBtn);
+		//retrieve the list
+		partsList = (ListView) findViewById(R.id.partsList);		
+		messageToBeSent = (EditText)findViewById(R.id.edit);
+		messagesSentList = (ListView) findViewById(R.id.messagesListView);
+
+		mapButton = (Button) findViewById(R.id.closeBtn);
 		mapButton.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View view){
-			Intent i = new Intent();
-			i.setClass(ChatActivity.this,ContactListActivity.class);
-			Window w = getParent().getWindow();
-			w.makeActive();
-			
+				MsnSessionManager.getInstance().getNotificationUpdater().removeSessionNotification(session.getSessionId());
+				MsnSessionManager.getInstance().removeMsnSession(session.getSessionId());
+				finish();
 			}
 		});
 		
-		
-		
-		
 		//fill Jade connection properties
         Properties jadeProperties = ContactListActivity.getJadeProperties(this);
+        
         //try to get a JadeGateway
         try {
 			JadeGateway.connect(MsnAgent.class.getName(), jadeProperties, this, this);
@@ -110,24 +91,103 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		}
 	}
 	
+	
+	
+
+	
+	protected void onStart() {
+		myLogger.log(Logger.INFO, "OnStart was called! This Activity has task ID: " + getTaskId());
+		super.onStart();
+		
+	}
+
+
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		myLogger.log(Logger.INFO, "onPause() was called!" );
+		super.onPause();
+	}
+
+
+
+
+	@Override
+	protected void onPostCreate(Bundle icicle) {
+		// TODO Auto-generated method stub
+		myLogger.log(Logger.INFO, "onPostCreate() was called!" );
+		super.onPostCreate(icicle);
+	}
+
+
+
+	@Override
+	protected void onPostResume() {
+		// TODO Auto-generated method stub
+		myLogger.log(Logger.INFO, "onPostResume() was called!" );
+		super.onPostResume();
+	}
+
+
+
+
+	@Override
+	protected void onRestart() {
+		// TODO Auto-generated method stub
+		myLogger.log(Logger.INFO, "onRestart() was called!" );
+		super.onRestart();
+	}
+
+
+
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		myLogger.log(Logger.INFO, "onResume() was called!" );
+		Intent i = getIntent();
+		Uri sessionIdUri = i.getData();
+		String sessionId = sessionIdUri.getFragment();
+		
+		session = MsnSessionManager.getInstance().retrieveSession(sessionId);
+		
+		List<Contact> participants = session.getAllParticipants();
+		ArrayAdapter aAdapter = new ArrayAdapter(this,R.layout.participant_layout, R.id.participantName, participants);
+		partsList.setAdapter(aAdapter);
+		
+		messageToBeSent.setText("");
+		
+		//register an updater for this session
+		MsnSessionManager.getInstance().registerChatActivityUpdater(new MessageReceivedUpdater(this));
+
+		//Retrieve messages if the session already contains data
+		sessionAdapter.setNewSession(session);
+		messagesSentList.setAdapter(sessionAdapter);
+
+		super.onResume();
+	}
+
+	
+	@Override
+	protected void onNewIntent(Intent intent) {
+		// TODO Auto-generated method stub
+		myLogger.log(Logger.INFO, "WOW: onNewIntent was called!! \n Intent received was: " + intent.toString());
+		setIntent(intent);
+		super.onNewIntent(intent);
+	}
+
 
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();		
-		
-		MsnSessionManager.getInstance().removeMsnSession(session.getSessionId());
-		myLogger.log(Logger.INFO, "Removing session having sessionID  " + session.getSessionId());
-		IncomingNotificationUpdater updater = MsnSessionManager.getInstance().getNotificationUpdater();
-		
-		
-		updater.removeSessionNotification(session.getSessionId());
-		myLogger.log(Logger.FINER, "Removing notification having ID " + session.getSessionId());
-		
+				
 		if (gateway != null){
 			gateway.disconnect(this);
 			myLogger.log(Logger.FINER, "ChatActivity.onDestroy() : disconnected from MicroRuntimeService");
 		}
+		
 	}
 	
 	public void onConnected(JadeGateway arg0) {
@@ -193,8 +253,12 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		
 		public MessageReceivedUpdater(Activity act) {
 			super(act);
+			ChatActivity chatAct = (ChatActivity) act;
+			data = chatAct.getMsnSession();
 		}
 
+		
+		
 		//This method updates the GUI and receives the MsnSessionMessage object 
 		//that should be added
 		protected void handleUpdate(Object parameter) {

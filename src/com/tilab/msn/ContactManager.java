@@ -17,7 +17,7 @@ import android.provider.Contacts.People;
 public class ContactManager {
 
 
-	private static ContactManager manager = null;
+	private static ContactManager manager = new ContactManager();
 	//The key of this map is the local name (phone number)
 	private Map<String, Contact> otherContactsMap; 
 	private Contact myContact;
@@ -145,14 +145,8 @@ public class ContactManager {
 	public Contact getMyContact() {
 		return myContact;
 	}
-
+ 
 	public static ContactManager getInstance() {
-
-		synchronized (ContactManager.class) {
-			if (manager == null){
-				manager = new ContactManager();
-			}
-		}
 		return manager;
 	}
 
