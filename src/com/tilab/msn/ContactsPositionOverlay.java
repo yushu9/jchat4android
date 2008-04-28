@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.BitmapFactory;
+import android.graphics.RectF;
 import android.graphics.Paint.FontMetrics;
 
 import android.location.Location;
@@ -31,9 +32,9 @@ public class ContactsPositionOverlay extends Overlay {
 	
 	private MapController mapController; 
 	private Paint myPaint;
-	private Bitmap ylwbmp;
-	private Bitmap bluebmp;
-	private Bitmap redbmp;
+	private Bitmap ylwPaddle;
+	private Bitmap blueBaloon;
+	private Bitmap bluePaddle;
 	private Resources appRes;
 	
 	//The SCROLL area represents the area that finds when points are going out of the screen 
@@ -78,9 +79,9 @@ public class ContactsPositionOverlay extends Overlay {
 		this.myMapView = myMapView;
 		scrollingArea= new Rect();
 		
-		ylwbmp = BitmapFactory.decodeResource(appRes,R.drawable.ylw_circle); 
-		bluebmp = BitmapFactory.decodeResource(appRes,R.drawable.bluemessage);
-		redbmp = BitmapFactory.decodeResource(appRes,R.drawable.red_circle);
+		ylwPaddle = BitmapFactory.decodeResource(appRes,R.drawable.ylw_circle); 
+		blueBaloon = BitmapFactory.decodeResource(appRes,R.drawable.bluemessage);
+		bluePaddle = BitmapFactory.decodeResource(appRes,R.drawable.blu_circle);
 		
 		
 		
@@ -144,50 +145,68 @@ public class ContactsPositionOverlay extends Overlay {
 	private void drawOnlineContacts(Canvas c, Paint p, List<ContactLayoutData> layoutDataList){
 		
 		int size = layoutDataList.size();
-		int oldColor = p.getColor();
 		FontMetrics fm = p.getFontMetrics();
-		int fontheight = (int)(fm.bottom+ fm.top);
-		int offset =((int) fm.bottom)+CONTACT_LOC_POINT_RADIUS;
-		int blueheight= bluebmp.getHeight();
-        int bluewidth= bluebmp.getWidth()/2;
-        int ylwheight= ylwbmp.getHeight();
-        int ylwwidth= ylwbmp.getWidth()/2;
-        int redheight = redbmp.getHeight();
-        int redwidth = redbmp.getWidth()/2;
+	
+		
+		int bluePaddleOffsetY= bluePaddle.getHeight();
+        int bluePaddleOffsetX= bluePaddle.getWidth()/2;
+        int ylwPaddleOffsetY= ylwPaddle.getHeight();
+        int ylwPaddleOffsetX= ylwPaddle.getWidth()/2;
+        int blueBaloonOffsetY = 25;
+        int blueBaloonOffsetX = 4;
         myPaint.setTextSize(18);
+        
         Set<Contact> allParticipants = MsnSessionManager.getInstance().getAllParticipants();
 		int color=0;
-		int textheight= bluebmp.getHeight()+5;
+		int iconToTextOffsetY= 5;
+		
         for (int i=0; i < size; i++){
         	ContactLayoutData cData = layoutDataList.get(i);		
-    		int xtext=cData.positionOnScreen[0];    		
-    		int ytext=cData.positionOnScreen[1];		
+    		
+        	int bitmapOriginX=0;
+        	int bitmapOriginY=0;
+        	Bitmap bitmapToBeDrawn = null;
+        	
 			if (cData.isMyContact){	
 				color = Color.YELLOW;				
-				c.drawBitmap(ylwbmp, xtext-ylwwidth, ytext-ylwheight, myPaint);
+				bitmapOriginX = cData.positionOnScreen[0] - ylwPaddleOffsetX;
+				bitmapOriginY = cData.positionOnScreen[1] - ylwPaddleOffsetY;
+				bitmapToBeDrawn = ylwPaddle;
 			} 
 			else {			
-			
+				//Here blueBaloon for people you're chatting with
 				if(allParticipants.contains(ContactManager.getInstance().getContactByAgentId(cData.idContact))){							
-				c.drawBitmap(bluebmp, xtext-bluewidth, ytext-blueheight, myPaint);
-				color = Color.BLUE;
-					
+					bitmapOriginX = cData.positionOnScreen[0]-blueBaloonOffsetX;
+					bitmapOriginY = cData.positionOnScreen[1]-blueBaloonOffsetY;
+					bitmapToBeDrawn = blueBaloon;
 				}			    
-			    else{			    
-			    c.drawBitmap(redbmp, xtext-redwidth, ytext-redheight, myPaint);
-			    color=Color.RED;
+			    else{			
+			    	bitmapOriginX = cData.positionOnScreen[0]-bluePaddleOffsetX;
+					bitmapOriginY = cData.positionOnScreen[1]-bluePaddleOffsetY;
+			    	bitmapToBeDrawn = bluePaddle;
 			    }	    
+				color = Color.BLUE;
 			}
-				  
-		  Rect rect = new Rect(xtext-1, ytext- fontheight, xtext+this.getStringLength(cData.name, myPaint),ytext+1);
+			
+		  int textOriginX = cData.positionOnScreen[0];
+		  int textOriginY = bitmapOriginY - iconToTextOffsetY;
+		  
+		  
+		  RectF rect = new RectF(textOriginX - 2, textOriginY + (int) fm.top - 2, textOriginX +this.getStringLength(cData.name, myPaint) + 2,textOriginY + (int) fm.bottom + 2);		  
+		  
+		  //Draw the right bitmap icon
+		  c.drawBitmap(bitmapToBeDrawn, bitmapOriginX, bitmapOriginY, myPaint);
+		  //Change color for background rectangle
 		  myPaint.setColor(Color.argb(100, 0,0, 0));		 	
-		  c.drawRect(rect, myPaint);	
+		  c.drawRoundRect(rect, 4.0f, 4.0f, myPaint);// Rect(rect, myPaint);
+		 // c.drawText(cData.name, textOriginX+2, textOriginY-1, myPaint);
+		  //ChangeColor for text
 		  myPaint.setColor(color);
-          c.drawText(cData.name,xtext, ytext, myPaint);	
-              
-		}
+          c.drawText(cData.name,textOriginX, textOriginY, myPaint);	
+          
+          myPaint.setARGB(255, 255, 0, 0);
+         }
 		
-		p.setColor(oldColor);
 	}
 
 	
