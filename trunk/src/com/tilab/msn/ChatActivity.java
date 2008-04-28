@@ -30,7 +30,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	private ListView partsList;
 	private Button sendButton;	
-	private Button mapButton;
+	private Button closeButton;
 	private ListView messagesSentList;
 	private EditText messageToBeSent;
 	private JadeGateway gateway;
@@ -65,8 +65,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		messageToBeSent = (EditText)findViewById(R.id.edit);
 		messagesSentList = (ListView) findViewById(R.id.messagesListView);
 
-		mapButton = (Button) findViewById(R.id.closeBtn);
-		mapButton.setOnClickListener(new View.OnClickListener(){
+		closeButton = (Button) findViewById(R.id.closeBtn);
+		closeButton.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View view){
 				MsnSessionManager.getInstance().getNotificationUpdater().removeSessionNotification(session.getSessionId());
 				MsnSessionManager.getInstance().removeMsnSession(session.getSessionId());
