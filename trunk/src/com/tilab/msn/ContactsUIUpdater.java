@@ -5,9 +5,14 @@ import android.app.Activity;
 public abstract class ContactsUIUpdater {
 	
 	protected Activity activity;
+	protected Object data;
 	
 	public ContactsUIUpdater(Activity act){
 		activity = act;
+	}
+	
+	public Object retrieveExtraData(){
+		return data;
 	}
 	
 	public void postUIUpdate(Object obj){

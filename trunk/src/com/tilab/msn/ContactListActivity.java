@@ -395,17 +395,26 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				break;
 			case CONTEXT_MENU_ITEM_CHAT:
 				List<Contact> participantList = contactsListView.getAllSelectedItems();
-					
-				//creates a new session filling it with participants
-				MsnSession newSession = MsnSessionManager.getInstance().createNewMsnSession(participantList);
-		
+				
+				MsnSession session = MsnSessionManager.getInstance().getSessionByParticipantList(participantList);
+				
+				//If no session available, we must add a notification
+				if (session == null){
+					//creates a new session filling it with participants (or retrieve the existing one)
+					session = MsnSessionManager.getInstance().createNewMsnSession(participantList);
+					MsnSessionManager.getInstance().getNotificationUpdater().createSessionNotification(session.getSessionId());
+				}			
+				
 				//packet an intent. We'll try to add the session ID in the intent data in URI form
 				//We use intent resolution here, cause the ChatActivity should be selected cause matching ACTION and CATEGORY
 				Intent it = new Intent(Intent.VIEW_ACTION);
 				//set the data as an URI (content://sessionId#<sessionIdValue>)
-				it.setData(newSession.getSessionIdAsUri());
+				it.setData(session.getSessionIdAsUri());
+				it.setLaunchFlags(Intent.NEW_TASK_LAUNCH | Intent.SINGLE_TOP_LAUNCH);
 				it.addCategory(Intent.DEFAULT_CATEGORY);
-				startSubActivity(it,1);
+		
+				startActivity(it);
+				
 				break;
 			case CONTEXT_MENU_ITEM_SMS:
 				break;
@@ -472,5 +481,12 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 					refreshContactList(changes);	
 				}
 			}		
+	}
+
+	@Override
+	protected void onStart() {
+		// TODO Auto-generated method stub
+		super.onStart();
+		myLogger.log(Logger.INFO, "OnStart called: This activity has Task ID: " + getTaskId());
 	}	
 }

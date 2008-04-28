@@ -93,7 +93,6 @@
     <style name="MsgListMessageTimeStyle">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/dark_grey</item>
-        <item name="android:textStyle">italic</item>
     </style>    
     
     <style name="MsgListMessageContent">

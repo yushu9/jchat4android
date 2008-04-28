@@ -7,9 +7,9 @@ import java.util.Map;
 
 public class MsnSessionManager {
 	
-	private static MsnSessionManager instance; 
+	private static MsnSessionManager instance = new MsnSessionManager(); 
 	private Map<String,MsnSession> sessionMap; 
-	private Map<String,ContactsUIUpdater> updatersMap;
+	private ContactsUIUpdater chatActivityUpdater;
 	private IncomingNotificationUpdater notificationUpdater;
 
 	
@@ -17,13 +17,11 @@ public class MsnSessionManager {
 	
 	private MsnSessionManager(){
 		sessionMap = new HashMap<String, MsnSession>(MAX_MSN_SESSION_NUMBER);
-		updatersMap = new HashMap<String, ContactsUIUpdater>(MAX_MSN_SESSION_NUMBER);
+		chatActivityUpdater = null;
 	}
 
 	public static MsnSessionManager getInstance(){
-		if (instance == null){
-			instance = new MsnSessionManager();
-		}
+		
 		return instance;
 	}
 	
@@ -36,34 +34,43 @@ public class MsnSessionManager {
 		return notificationUpdater;
 	}
 	
-	//This will generate a sessionId  to be used for a new session
+	//This will generate a sessionId  to be used for a new session and creates or retrieves a session with that ID
+	//the boolean tell us if it is an update or not
 	public MsnSession createNewMsnSession(List<Contact> participants){
-	
-		String myAgentId =	ContactManager.getInstance().getMyContact().getPhoneNumber();
-		//The session id is computed by hashing agentNames
-		int sessionId= myAgentId.hashCode();
 		
-		for (Contact participant : participants) {
-			int tmp = participant.getPhoneNumber().hashCode();
-			sessionId ^= tmp;
-		}
-		
-		String sessionIdAsString = String.valueOf(sessionId);
+		String sessionIdAsString = getSessionIdFromParticipants(participants);
 		MsnSession session = createNewMsnSession(sessionIdAsString);
-	
+			
 		for (Contact participant : participants) {
 			session.addParticipant(participant);
 		}
-				
+			
+		
 		return session;
 	}
 	
-	//This will create and register a new session initiated by the  
+	private String getSessionIdFromParticipants(List<Contact> participants){
+		
+		
+		String myAgentId =	ContactManager.getInstance().getMyContact().getPhoneNumber();
+		//The session id is computed by hashing agentNames
+		int sessionIdAsInt= myAgentId.hashCode();
+		
+		for (Contact participant : participants) {
+			int tmp = participant.getPhoneNumber().hashCode();
+			sessionIdAsInt ^= tmp;
+		}
+		
+		String sessionIdAsStr = String.valueOf(sessionIdAsInt);
+		return sessionIdAsStr;
+	}
+	
+	//This will create and register a new session initiated by another contact
 	public MsnSession createNewMsnSession(String sessionId){
 		
 		MsnSession session = new MsnSession(sessionId); 
 		//register it
-		registerSession(sessionId.toString(), session);
+		registerSession(sessionId, session);
 		
 		return session;
 	}
@@ -72,7 +79,6 @@ public class MsnSessionManager {
 	public void removeMsnSession(String msnSession){
 		synchronized (this) {
 			sessionMap.remove(msnSession);
-			updatersMap.remove(msnSession);
 		}
 	}
 	
@@ -94,10 +100,8 @@ public class MsnSessionManager {
 		}
 	}
 	
-	public void registerMsgReceivedUpdater(String sessionId, ContactsUIUpdater updater){
-		synchronized (updatersMap) {
-			updatersMap.put(sessionId, updater);
-		}
+	public void registerChatActivityUpdater(ContactsUIUpdater updater){
+		chatActivityUpdater = updater;
 	}
 	
 	public MsnSession retrieveSession(String sessionId){
@@ -128,18 +132,20 @@ public class MsnSessionManager {
 		return sessionList;
 	}
 	
-	public ContactsUIUpdater retrieveMsgReceivedUpdater(String sessionId){
-		ContactsUIUpdater updater=null;
-		
-		synchronized (instance) {
-			updater =  updatersMap.get(sessionId);
-		}
-		
-		return updater;
+	
+	//I shall assume that there cannot be two different sessions with the same particpants
+	public MsnSession getSessionByParticipantList(List<Contact> participantList){
+		String sessionId = getSessionIdFromParticipants(participantList);
+		MsnSession session = retrieveSession(sessionId);
+		return session;
+	}
+	
+	public ContactsUIUpdater getChatActivityUpdater(){
+		return chatActivityUpdater;
 	}
 	
 	public void shutdown(){
 		sessionMap.clear();
-		updatersMap.clear();
+		chatActivityUpdater = null;
 	}
 }
