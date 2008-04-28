@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import android.content.Resources;
 import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +22,10 @@ public class MsnSessionAdapter extends BaseAdapter {
 	private MsnSession theSession;
 	private ContactColorGenerator colorGenerator;
 	
-	public MsnSessionAdapter(ViewInflate vi){
+	public MsnSessionAdapter(ViewInflate vi, Resources res){
 		theInflater = vi;
 		messageViews = new LinkedList<View>();
-		colorGenerator = new ContactColorGenerator();
+		colorGenerator = new ContactColorGenerator(res);
 	}
 	
 	@Override
@@ -84,19 +85,43 @@ public class MsnSessionAdapter extends BaseAdapter {
 
 	//This inner class generates a random color for a given contact phone number 
 	private class  ContactColorGenerator{
-		private Map<String,Integer>  contactColorMap = new HashMap<String, Integer>();
-		private Random generator = new Random();
+		private Map<String,Integer>  contactColorMap; 
+		private int[] colorPalette;
+		private int counter;
+		
+		public ContactColorGenerator(Resources res){
+			contactColorMap = new HashMap<String, Integer>();
+			colorPalette = new int[10];
+			counter =0;
+			loadPalette(res);
+			
+		}
+		
+		private void loadPalette(Resources res){
+			colorPalette[0] = res.getColor(R.color.chat_ocean_blue);
+			colorPalette[1] = res.getColor(R.color.chat_dark_orange);
+			colorPalette[2] = res.getColor(R.color.chat_grass_green);
+			colorPalette[3] = res.getColor(R.color.chat_pale_yellow);
+			colorPalette[4] = res.getColor(R.color.chat_dark_pink);
+			colorPalette[5] = res.getColor(R.color.chat_light_orange);
+			colorPalette[6] = res.getColor(R.color.chat_dark_green);
+			colorPalette[7] = res.getColor(R.color.chat_olive_green);
+			colorPalette[8] = res.getColor(R.color.chat_earth_brown);
+			colorPalette[9] = res.getColor(R.color.chat_strong_purple);
+		}
 		
 		public int getColor(String contactName){
 			Integer color = contactColorMap.get(contactName);
 			int colAsInt=0;
 			
+			
 			//If color not available
 			if (color == null){
 				//Create a new random one
-				colAsInt = Color.rgb(generator.nextInt(236)+10, generator.nextInt(236)+10, generator.nextInt(236)+10);
+				colAsInt = colorPalette[counter];
 				//Put it into the map
 				contactColorMap.put(contactName, new Integer(colAsInt));
+				counter = (counter + 1)% 10;
 			} else {
 				//retrieve the already created color
 				colAsInt = color.intValue();
