@@ -46,7 +46,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		super.onCreate(icicle);
 		myLogger.log(Logger.INFO, "onCreate called ...");
 		setContentView(R.layout.chat);
-		sessionAdapter = new MsnSessionAdapter(getViewInflate());
+		sessionAdapter = new MsnSessionAdapter(getViewInflate(), getResources());
 	
 	
 		
