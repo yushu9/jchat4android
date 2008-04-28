@@ -2,8 +2,10 @@ package com.tilab.msn;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class MsnSessionManager {
 	
@@ -148,4 +150,14 @@ public class MsnSessionManager {
 		sessionMap.clear();
 		chatActivityUpdater = null;
 	}
+	 public Set<Contact> getAllParticipants(){
+		 
+		Set<Contact> allParticipantList = new HashSet<Contact>();
+		
+		for	(MsnSession session : sessionMap.values()){	
+			allParticipantList.addAll(session.getAllParticipants());			
+		}
+		return allParticipantList;
+	 }
 }
+   

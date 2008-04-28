@@ -4,6 +4,7 @@ import jade.util.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import android.content.Resources;
 import android.graphics.Bitmap;
@@ -13,7 +14,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint.FontMetrics;
-import android.graphics.Paint.Style;
 
 import android.location.Location;
 
@@ -33,6 +33,7 @@ public class ContactsPositionOverlay extends Overlay {
 	private Paint myPaint;
 	private Bitmap ylwbmp;
 	private Bitmap bluebmp;
+	private Bitmap redbmp;
 	private Resources appRes;
 	
 	//The SCROLL area represents the area that finds when points are going out of the screen 
@@ -78,13 +79,12 @@ public class ContactsPositionOverlay extends Overlay {
 		scrollingArea= new Rect();
 		
 		ylwbmp = BitmapFactory.decodeResource(appRes,R.drawable.ylw_circle); 
-		bluebmp = BitmapFactory.decodeResource(appRes,R.drawable.blu_circle); 
+		bluebmp = BitmapFactory.decodeResource(appRes,R.drawable.bluemessage);
+		redbmp = BitmapFactory.decodeResource(appRes,R.drawable.red_circle);
 		
 		
-	}
-	
-	
-	
+		
+	}	
 	
 	private boolean scrollingIsNeeded(List<ContactLayoutData> pointList){
 		
@@ -146,25 +146,45 @@ public class ContactsPositionOverlay extends Overlay {
 		int size = layoutDataList.size();
 		int oldColor = p.getColor();
 		FontMetrics fm = p.getFontMetrics();
+		int fontheight = (int)(fm.bottom+ fm.top);
 		int offset =((int) fm.bottom)+CONTACT_LOC_POINT_RADIUS;
 		int blueheight= bluebmp.getHeight();
         int bluewidth= bluebmp.getWidth()/2;
         int ylwheight= ylwbmp.getHeight();
         int ylwwidth= ylwbmp.getWidth()/2;
-		for (int i=0; i < size; i++){
-			ContactLayoutData cData = layoutDataList.get(i);			
-			if (cData.isMyContact){
-				myPaint.setColor(Color.YELLOW);					
-				myPaint.setStrokeWidth(10);
-				c.drawBitmap(ylwbmp, cData.positionOnScreen[0]-ylwwidth, cData.positionOnScreen[1]-ylwheight, myPaint);
-			} else {
-				c.drawBitmap(bluebmp, cData.positionOnScreen[0]-bluewidth, cData.positionOnScreen[1]-blueheight, myPaint);
-				myPaint.setColor(Color.BLUE);	
+        int redheight = redbmp.getHeight();
+        int redwidth = redbmp.getWidth()/2;
+        myPaint.setTextSize(18);
+        Set<Contact> allParticipants = MsnSessionManager.getInstance().getAllParticipants();
+		int color=0;
+		int textheight= bluebmp.getHeight()+5;
+        for (int i=0; i < size; i++){
+        	ContactLayoutData cData = layoutDataList.get(i);		
+    		int xtext=cData.positionOnScreen[0];    		
+    		int ytext=cData.positionOnScreen[1];		
+			if (cData.isMyContact){	
+				color = Color.YELLOW;				
+				c.drawBitmap(ylwbmp, xtext-ylwwidth, ytext-ylwheight, myPaint);
+			} 
+			else {			
+			
+				if(allParticipants.contains(ContactManager.getInstance().getContactByAgentId(cData.idContact))){							
+				c.drawBitmap(bluebmp, xtext-bluewidth, ytext-blueheight, myPaint);
+				color = Color.BLUE;
+					
+				}			    
+			    else{			    
+			    c.drawBitmap(redbmp, xtext-redwidth, ytext-redheight, myPaint);
+			    color=Color.RED;
+			    }	    
 			}
-		  int textheight= bluebmp.getHeight()+5;		  
-          c.drawText(cData.name, cData.positionOnScreen[0], cData.positionOnScreen[1]-textheight, myPaint);	
-          
-         
+				  
+		  Rect rect = new Rect(xtext-1, ytext- fontheight, xtext+this.getStringLength(cData.name, myPaint),ytext+1);
+		  myPaint.setColor(Color.argb(100, 0,0, 0));		 	
+		  c.drawRect(rect, myPaint);	
+		  myPaint.setColor(color);
+          c.drawText(cData.name,xtext, ytext, myPaint);	
+              
 		}
 		
 		p.setColor(oldColor);
@@ -256,7 +276,7 @@ public class ContactsPositionOverlay extends Overlay {
 		maxLong = (int)(myContactLoc.getLongitude() * 1E6);
 		minLong = (int)(myContactLoc.getLongitude() * 1E6);
 		minLat = (int)(myContactLoc.getLatitude() * 1E6);
-		ContactLayoutData myPointData = new ContactLayoutData(myContact.getName(),myContactLoc ,calc );
+		ContactLayoutData myPointData = new ContactLayoutData(myContact.getName(), myContact.getPhoneNumber(),myContactLoc ,calc );
 		myPointData.isMyContact = true;
 		
 		//Compute mid x and y
@@ -285,7 +305,7 @@ public class ContactsPositionOverlay extends Overlay {
 				minLat = (tmpLat < minLat)? tmpLat : minLat;
 				
 				
-				ContactLayoutData pointData = new ContactLayoutData(ctn.getName(),contactLoc ,calc );
+				ContactLayoutData pointData = new ContactLayoutData(ctn.getName(),ctn.getPhoneNumber(),contactLoc ,calc );
 				
 				midPointX += pointData.positionOnScreen[0];
 				midPointY += pointData.positionOnScreen[1];
@@ -370,6 +390,7 @@ public class ContactsPositionOverlay extends Overlay {
 		public int[] positionOnScreen;
 		public String name;
 		public boolean isMyContact;
+		public String idContact;
 		
 		//Constructor for storing midpoint data
 		public ContactLayoutData(int x, int y){
@@ -381,13 +402,24 @@ public class ContactsPositionOverlay extends Overlay {
 		}
 		
 		
-		public ContactLayoutData(String cname, Location contactLoc, PixelCalculator pixelCalc){
+		public ContactLayoutData(String cname, String idcontact, Location contactLoc, PixelCalculator pixelCalc){
 			this.name = cname;
+			this.idContact= idcontact;			
 			isMyContact = false;
 			positionOnScreen = new int[2];
 			int latitudeE6 = (int)(contactLoc.getLatitude() * 1E6);
 			int longitudeE6 = (int) (contactLoc.getLongitude() * 1E6);
 			pixelCalc.getPointXY(new Point(latitudeE6,longitudeE6), positionOnScreen);
 		}	
-	}		
-}
+	}
+	
+	private int getStringLength (String name, Paint paint) {
+	   float [] widthtext= new float[name.length()];	   
+	   float sumvalues=0;
+	   paint.getTextWidths(name, widthtext);
+	   for(int n=0; n<widthtext.length; n++){ 
+		   sumvalues+= widthtext[n];		
+	   }
+	   return (int) sumvalues; 	    
+       }
+	}
