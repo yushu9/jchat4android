@@ -185,12 +185,16 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 						myLv.setSelection(info.position);
 						
 						Contact selectedC = (Contact)myLv.getSelectedItem();
+						List<Contact>  checkedContacts =myLv.getAllSelectedItems();
 						
-						if (selectedC.isOnline())
-							menu.add(0, CONTEXT_MENU_ITEM_CHAT, R.string.menu_item_chat);
-						
-						menu.add(0, CONTEXT_MENU_ITEM_CALL, R.string.menu_item_call);
-						menu.add(0, CONTEXT_MENU_ITEM_SMS, R.string.menu_item_sms);
+						//If the selected item is also checked
+						if (checkedContacts.contains(selectedC)) {
+							//Let the menu appear
+							if (selectedC.isOnline())
+								menu.add(0, CONTEXT_MENU_ITEM_CHAT, R.string.menu_item_chat);
+							menu.add(0, CONTEXT_MENU_ITEM_CALL, R.string.menu_item_call);
+							menu.add(0, CONTEXT_MENU_ITEM_SMS, R.string.menu_item_sms);
+						}
 					}
 				}
 		);		
@@ -375,6 +379,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 
 	public boolean onContextItemSelected(Item item) {
+		
 		
 		switch(item.getId()) {
 			case CONTEXT_MENU_ITEM_CALL:
