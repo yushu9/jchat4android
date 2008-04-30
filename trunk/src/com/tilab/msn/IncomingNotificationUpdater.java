@@ -83,7 +83,7 @@ class IncomingNotificationUpdater {
 				
 				int numParticipants = participants.size() +1;
 				
-				/*Notification notif = new Notification(activity,
+				Notification notif = new Notification(activity,
 							 R.drawable.incoming,
 							 "",
 							 System.currentTimeMillis(),
@@ -92,20 +92,9 @@ class IncomingNotificationUpdater {
 							 viewChatIntent,
 							 android.R.drawable.app_icon_background,
 							 null,
-							 null);	*/			      
-			        Notification notif= new Notification();
-			        notif.contentIntent = viewChatIntent;
-			        notif.icon= R.drawable.contact;
-			        notif.ongoingEvent=true;
-			        notif.tickerText= "New Message Arrived: ";
-			        notif.when=  System.currentTimeMillis();
-			        RemoteViews expandedView = new RemoteViews("com.tilab.msn" ,R.layout.notification_layout);
-			        expandedView.setTextViewText(R.id.tickerText, "cippalippa");     
-			        notif.expandedView = expandedView;
+							 null);				      
 			        
-			        
-			        manager.notify(R.layout.notification_layout, notif);	  
-				Integer integer = new Integer(Integer.parseInt(sessionId));
+			 	Integer integer = new Integer(Integer.parseInt(sessionId));
 				notificationList.add(integer);
 				int index = integer.intValue();
 				String logMsg = "New notification added with ID " + index;
@@ -177,8 +166,5 @@ class IncomingNotificationUpdater {
 			}
 			
 		}
-		private void setMoodView(int moodId, int textId) {	        
-	            
-	    }
-
+	
 }
