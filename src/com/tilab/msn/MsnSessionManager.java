@@ -135,7 +135,7 @@ public class MsnSessionManager {
 	}
 	
 	
-	//I shall assume that there cannot be two different sessions with the same particpants
+	//I shall assume that there cannot be two different sessions with the same participants
 	public MsnSession getSessionByParticipantList(List<Contact> participantList){
 		String sessionId = getSessionIdFromParticipants(participantList);
 		MsnSession session = retrieveSession(sessionId);

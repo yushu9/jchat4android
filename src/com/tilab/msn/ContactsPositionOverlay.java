@@ -125,12 +125,7 @@ public class ContactsPositionOverlay extends Overlay {
 	}
 	
 	private void doScrolling(PointClusterParams params){
-/*		mapController.zoomTo(18);
-		int longSpan = myMapView.getLongitudeSpan();
-		int latSpan = myMapView.getLatitudeSpan();
-		Point center = myMapView.getMapCenter();
-		Point newCenter = pixelToMap(params.midpointOnScreen, WIDTH, HEIGHT, latSpan, longSpan, center);
-*/		
+
 		mapController.centerMapTo(params.midpointOnMap, true);
 	}
 	
@@ -207,11 +202,7 @@ public class ContactsPositionOverlay extends Overlay {
           myPaint.setARGB(255, 255, 0, 0);
          }
 		
-	}
-
-	
-	
-	
+	}	
 	@Override
 	public void draw(Canvas canvas, PixelCalculator calculator, boolean shadow) {
 		// TODO Auto-generated method stub

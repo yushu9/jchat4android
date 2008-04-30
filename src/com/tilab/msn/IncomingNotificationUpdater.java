@@ -1,24 +1,19 @@
 package com.tilab.msn;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import com.google.android.maps.MyLocationOverlay;
 
-import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import jade.util.Logger;
-import jade.util.leap.Iterator;
+
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import android.util.DateUtils;
+
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 
@@ -88,7 +83,7 @@ class IncomingNotificationUpdater {
 				
 				int numParticipants = participants.size() +1;
 				
-				Notification notif = new Notification(activity,
+				/*Notification notif = new Notification(activity,
 							 R.drawable.incoming,
 							 "",
 							 System.currentTimeMillis(),
@@ -97,8 +92,19 @@ class IncomingNotificationUpdater {
 							 viewChatIntent,
 							 android.R.drawable.app_icon_background,
 							 null,
-							 null);
-				
+							 null);	*/			      
+			        Notification notif= new Notification();
+			        notif.contentIntent = viewChatIntent;
+			        notif.icon= R.drawable.contact;
+			        notif.ongoingEvent=true;
+			        notif.tickerText= "New Message Arrived: ";
+			        notif.when=  System.currentTimeMillis();
+			        RemoteViews expandedView = new RemoteViews("com.tilab.msn" ,R.layout.notification_layout);
+			        expandedView.setTextViewText(R.id.tickerText, "cippalippa");     
+			        notif.expandedView = expandedView;
+			        
+			        
+			        manager.notify(R.layout.notification_layout, notif);	  
 				Integer integer = new Integer(Integer.parseInt(sessionId));
 				notificationList.add(integer);
 				int index = integer.intValue();
@@ -171,4 +177,8 @@ class IncomingNotificationUpdater {
 			}
 			
 		}
+		private void setMoodView(int moodId, int textId) {	        
+	            
+	    }
+
 }

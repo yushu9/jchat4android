@@ -1,7 +1,7 @@
 package com.tilab.msn;
 
 import java.util.ArrayList;
-import java.util.List;
+
 
 import android.net.Uri;
 

@@ -1,8 +1,6 @@
 package com.tilab.msn;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+
 
 import android.util.DateUtils;
 
@@ -14,8 +12,7 @@ import android.util.DateUtils;
  */
 
 public class MsnSessionMessage {
-	private long time;
-	private boolean received;
+	private long time;	
 	private String messageContent;
 	private String messageSenderName;
 	private String senderNumTel;
