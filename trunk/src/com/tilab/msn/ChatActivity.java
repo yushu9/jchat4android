@@ -9,7 +9,7 @@ import jade.lang.acl.ACLMessage;
 import jade.util.Logger;
 import jade.util.leap.Properties;
 
-import java.util.Iterator;
+
 import java.util.List;
 
 import android.app.Activity;
@@ -17,12 +17,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
+
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
+
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.EditText;
+
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -30,7 +31,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	private ListView partsList;
-	private Button sendButton;	
+	private ImageButton sendButton;	
 	private Button closeButton;
 	private ListView messagesSentList;
 	private EditText messageToBeSent;
@@ -51,7 +52,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	
 	
 		
-		sendButton = (Button) findViewById(R.id.sendBtn);			
+		sendButton = (ImageButton) findViewById(R.id.sendBtn);		
 		sendButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
             	String msgContent = messageToBeSent.getText().toString().trim();

@@ -318,8 +318,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		
 		try {
 			gateway.execute(updaters.get(CONTACTS_TAB_TAG));
-			//put my contact online
-			//FIXME: this should be the agent GUID
+			//put my contact online			
 			ContactManager.getInstance().getMyContact().setAgentContact(numTel);
 		
 		} catch(Exception e){
@@ -341,13 +340,10 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	protected void onPause() {
 		myLogger.log(Logger.INFO, "onPause called...");
 		
-		super.onPause();
-	
-	}
+		super.onPause();	}
 
 	public void onDisconnected() {
 		// TODO Auto-generated method stub
-		
 	}
 
 	

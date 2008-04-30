@@ -108,7 +108,7 @@ public class Contact implements Parcelable {
 		
 		StringBuffer buf = new StringBuffer("Position of contact " + name + " was ");
 		buf.append( (updated)? "updated" : "not updated");
-		//myLogger.log(Logger.INFO,  buf.toString());
+		
 	}
 	
 

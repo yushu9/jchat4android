@@ -56,15 +56,25 @@ android:layout_height="fill_parent"
 	    android:background="@android:drawable/editbox_background"
 	    android:singleLine="true"
 	    />	
+	
+	<ImageButton
+	    android:id="@+id/sendBtn"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:src="@drawable/sms"
+    	android:text="Send"
+    	 />
+	
+	
 		
-	<Button
+	<!--  <Button
 		android:id="@+id/sendBtn"
 		style="@style/ButtonStyle"
 		android:layout_width="wrap_content"
 		android:background="@android:drawable/button_background"
 		android:layout_height="fill_parent"
 		android:text="Send"
-		/>
+		/> -->
 		
 	<Button
 		android:id="@+id/closeBtn"
