@@ -19,7 +19,6 @@ import android.location.Location;
 
 public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
-
 	private long msnUpdateTime;
 	private ContactsUIUpdater updater;
 
@@ -136,7 +135,6 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 
 		protected void handleInform(ACLMessage inform) {
-
 		
 			myLogger.log(Logger.FINE, " Notification received from DF");
 			ContactManager.getInstance().resetModifications();
@@ -231,10 +229,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 				p= new Property(PROPERTY_NAME_LOCATION_ALT,new Double(curLoc.getAltitude()));
 				serviceDescription.addProperties(p);
 
-
-				//update df entry
-				//FIXME: what happens if registration goes bad and an exception is thrown??
-				//Must find a way to notify to the application!!! 
+				//update df entry				
 				if (myContact.hasMoved()) {
 					DFService.modify(myAgent, description);
 				}

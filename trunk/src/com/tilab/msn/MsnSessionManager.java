@@ -51,9 +51,7 @@ public class MsnSessionManager {
 		return session;
 	}
 	
-	private String getSessionIdFromParticipants(List<Contact> participants){
-		
-		
+	private String getSessionIdFromParticipants(List<Contact> participants){		
 		String myAgentId =	ContactManager.getInstance().getMyContact().getPhoneNumber();
 		//The session id is computed by hashing agentNames
 		int sessionIdAsInt= myAgentId.hashCode();
@@ -78,59 +76,48 @@ public class MsnSessionManager {
 	}
 	
 	
-	public void removeMsnSession(String msnSession){
-		synchronized (this) {
-			sessionMap.remove(msnSession);
-		}
+	public synchronized void removeMsnSession(String msnSession){		
+			sessionMap.remove(msnSession);		
 	}
 	
 	
-	public int getActiveSessionNumber(){
+	public synchronized int getActiveSessionNumber(){
 		
-		int activeSessionNum = 0;
+		int activeSessionNum = 0;	
 		
-		synchronized (sessionMap) {
-			activeSessionNum = sessionMap.size();
-		}
+			activeSessionNum = sessionMap.size();		
 		
 		return activeSessionNum;
 	}
 	
-	public void registerSession(String sessionId, MsnSession session){
-		synchronized (sessionMap) {
-			sessionMap.put(sessionId, session);
-		}
+	public synchronized void registerSession(String sessionId, MsnSession session){		
+			sessionMap.put(sessionId, session);		
 	}
 	
 	public void registerChatActivityUpdater(ContactsUIUpdater updater){
 		chatActivityUpdater = updater;
 	}
 	
-	public MsnSession retrieveSession(String sessionId){
-		
+	public synchronized MsnSession retrieveSession(String sessionId){		
 		MsnSession session = null;
 		
-		synchronized (sessionMap) {
 			session = sessionMap.get(sessionId);
-		}
-		
+				
 		return session;
 	}
 	
-	public List<MsnSession> getAllSessionByParticipant(String participant){
+	public synchronized List<MsnSession> getAllSessionByParticipant(String participant){
 		
 		List<MsnSession> sessionList = new ArrayList<MsnSession>();
 		
-		synchronized (sessionMap) {
+		
 			for (MsnSession session : sessionMap.values()) {
 				List<Contact> contacts = session.getAllParticipants();
 				for (Contact contact : contacts) {
 					if (participant.equals(contact.getAgentContact()))
 						sessionList.add(session);
 				}
-			}
-		}
-		
+			}		
 		return sessionList;
 	}
 	

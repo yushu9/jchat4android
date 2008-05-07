@@ -7,10 +7,8 @@ import android.content.IntentFilter;
 import android.content.IntentReceiver;
 import android.location.LocationManager;
 import android.location.LocationProvider;
-import android.pim.ContactPickerActivity.MyContentObserver;
 
 public class GeoNavigator {
-
 
 	public static final String LOCATION_UPDATE_ACTION= "com.tilab.msn.LOCATION_UPDATE";
 	private final long MINIMUM_DISTANCECHANGE_FOR_UPDATE = 0; // in Meters 

@@ -44,13 +44,12 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	}
 	
 	protected void onCreate(Bundle icicle) {
-		
+		Thread.currentThread().getId();
+        myLogger.log(Logger.INFO, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
 		super.onCreate(icicle);
 		myLogger.log(Logger.INFO, "onCreate called ...");
 		setContentView(R.layout.chat);
-		sessionAdapter = new MsnSessionAdapter(getViewInflate(), getResources());
-	
-	
+		sessionAdapter = new MsnSessionAdapter(getViewInflate(), getResources());	
 		
 		sendButton = (ImageButton) findViewById(R.id.sendBtn);		
 		sendButton.setOnClickListener(new View.OnClickListener() {
@@ -93,60 +92,37 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		}
 	}
 	
-	
-	
-
-	
 	protected void onStart() {
 		myLogger.log(Logger.INFO, "OnStart was called! This Activity has task ID: " + getTaskId());
-		super.onStart();
-		
+		super.onStart();		
 	}
-
-
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		myLogger.log(Logger.INFO, "onPause() was called!" );
 		super.onPause();
 	}
 
-
-
-
 	@Override
 	protected void onPostCreate(Bundle icicle) {
-		// TODO Auto-generated method stub
 		myLogger.log(Logger.INFO, "onPostCreate() was called!" );
 		super.onPostCreate(icicle);
 	}
 
-
-
 	@Override
 	protected void onPostResume() {
-		// TODO Auto-generated method stub
 		myLogger.log(Logger.INFO, "onPostResume() was called!" );
 		super.onPostResume();
 	}
 
-
-
-
 	@Override
 	protected void onRestart() {
-		// TODO Auto-generated method stub
 		myLogger.log(Logger.INFO, "onRestart() was called!" );
 		super.onRestart();
 	}
 
-
-
-
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		myLogger.log(Logger.INFO, "onResume() was called!" );
 		Intent i = getIntent();
 		Uri sessionIdUri = i.getData();
@@ -169,27 +145,21 @@ public class ChatActivity extends Activity implements ConnectionListener{
 
 		super.onResume();
 	}
-
 	
 	@Override
 	protected void onNewIntent(Intent intent) {
-		// TODO Auto-generated method stub
 		myLogger.log(Logger.INFO, "WOW: onNewIntent was called!! \n Intent received was: " + intent.toString());
 		setIntent(intent);
 		super.onNewIntent(intent);
 	}
 
-
 	@Override
 	protected void onDestroy() {
-		// TODO Auto-generated method stub
-		super.onDestroy();		
-				
+		super.onDestroy();					
 		if (gateway != null){
 			gateway.disconnect(this);
 			myLogger.log(Logger.FINER, "ChatActivity.onDestroy() : disconnected from MicroRuntimeService");
-		}
-		
+		}		
 	}
 	
 	public void onConnected(JadeGateway arg0) {
@@ -198,8 +168,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	}
 	
 	public void onDisconnected() {
-		// TODO Auto-generated method stub
-	}
+		}
 	
 	private void sendMessageToParticipants(String msgContent){
 		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
@@ -219,7 +188,6 @@ public class ChatActivity extends Activity implements ConnectionListener{
 			}
 		}		
 		
-		
 		try{
 			gateway.execute(new SenderBehaviour(msg));
 			Contact myContact = ContactManager.getInstance().getMyContact();
@@ -233,7 +201,6 @@ public class ChatActivity extends Activity implements ConnectionListener{
 			myLogger.log(Logger.WARNING, e.getMessage());
 		}
 	}
-
 	
 	private class SenderBehaviour extends OneShotBehaviour {
 
@@ -251,15 +218,12 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	
 	
 	private class MessageReceivedUpdater extends ContactsUIUpdater {
-
 		
 		public MessageReceivedUpdater(Activity act) {
 			super(act);
 			ChatActivity chatAct = (ChatActivity) act;
 			data = chatAct.getMsnSession();
-		}
-
-		
+		}		
 		
 		//This method updates the GUI and receives the MsnSessionMessage object 
 		//that should be added
@@ -277,10 +241,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 				myLogger.log(Logger.INFO, "Received an order of UI update: adding Toast notification");
 				String contactGoneName = (String) parameter;
 				Toast.makeText(ChatActivity.this, "Contact " +  contactGoneName + " went offline!", 3000).show();
-			}
-				
-				
-				
+			}				
 		}
 		
 	}

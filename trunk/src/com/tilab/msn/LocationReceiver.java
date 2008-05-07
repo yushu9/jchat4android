@@ -1,21 +1,19 @@
 package com.tilab.msn;
 
+
 import jade.util.Logger;
-
-import com.google.android.maps.MyLocationOverlay;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentReceiver;
 import android.location.Location;
-import android.util.Log;
 
-public class LocationReceiver extends IntentReceiver {
 
-	
-	
+public class LocationReceiver extends IntentReceiver {		
+	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	@Override
 	public void onReceiveIntent(Context context, Intent intent) {
+        Thread.currentThread().getId();
+        myLogger.log(Logger.INFO, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
 		if (intent.getAction().equals(GeoNavigator.LOCATION_UPDATE_ACTION)){
 			Location loc = (Location) intent.getParcelableExtra("location");
 			Contact myContact = ContactManager.getInstance().getMyContact();
@@ -23,6 +21,6 @@ public class LocationReceiver extends IntentReceiver {
 			ContactManager.getInstance().setOngoingUpdate();
 			this.abortBroadcast(); 
 		}
+		
 	}
-
 }
