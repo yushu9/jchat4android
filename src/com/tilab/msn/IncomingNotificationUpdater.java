@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 
-import android.widget.RemoteViews;
 import android.widget.Toast;
 
 

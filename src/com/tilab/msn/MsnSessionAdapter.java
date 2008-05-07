@@ -31,8 +31,7 @@ public class MsnSessionAdapter extends BaseAdapter {
 	public int getCount() {
 		// TODO Auto-generated method stub
 		return messageViews.size();
-	}
-	
+	}	
 	
 	//Set a new Session
 	//Each time a session is set we clear the list of messages and rebuild it using messages in the new session
@@ -71,13 +70,13 @@ public class MsnSessionAdapter extends BaseAdapter {
 
 	@Override
 	public long getItemId(int arg0) {
-		// TODO Auto-generated method stub
+		
 		return 0;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		// TODO Auto-generated method stub
+		
 		View v = messageViews.get(position);
 		return v;
 	}

@@ -7,7 +7,7 @@
         <item name="android:textColor">@color/blue</item>
     </style>
         
-         <style name="MessagesStyle">
+        <style name="MessagesStyle">
         <item name="android:textSize">22sp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textStyle">bold</item> 
@@ -88,16 +88,19 @@
      <style name="MsgListContactNameStyle">
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item> 
+        <item name="android:textColor">@color/blue</item>
+         <item name="android:typeface">sans</item>
     </style>
     
     <style name="MsgListMessageTimeStyle">
-        <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/dark_grey</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">@color/blue</item>
     </style>    
     
     <style name="MsgListMessageContent">
-        <item name="android:textSize">14sp</item>
-        <item name="android:textStyle">normal</item> 
+        <item name="android:textSize">14sp</item>  
+        <item name="android:textColor">@color/blue</item>      
+        <item name="android:typeface">sans</item>
     </style>    
     
    

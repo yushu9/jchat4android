@@ -3,8 +3,7 @@ package com.tilab.msn;
 
 import jade.util.Logger;
 import android.location.Location;
-import android.os.Parcel;
-import android.os.Parcelable;
+
 
 /**
  * This class represents a generic contact that can be online or offline
@@ -15,100 +14,45 @@ import android.os.Parcelable;
  *
  */
 
-public class Contact implements Parcelable {
+public class Contact  {
 
-	private static final long serialVersionUID = 1274339729698023648L;
-	private String numTel;
-	private String agentContact; //nome globale dell'agente corrisponde a numTel@platformID
-	private String name; //nome come appare sulla rubrica (se non è presente è il numTel)
-	private boolean isLocal; //distingue quelli che sono nella lista dei contatti
+
+	private final String phoneNumber;	
+	private final String name; //nome come appare sulla rubrica (se non è presente il numTel)	
 	private Location currentLocation;
 	private Location lastPosition;
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
-	
-	public static final android.os.Parcelable.Creator CREATOR = new myContactFactory();
-
-	public Contact(String name, boolean isLocal){
-		this.name = name;
-		currentLocation = new Location();
-		lastPosition = new Location();
-		this.isLocal = isLocal;
-	}
-	
-	public void setNumTel(String num){
-		numTel = num;
-	}
-	
-	
-	public String getPhoneNumber(){
-		return numTel;
-	}
-	
-	public boolean isOnline(){
-		return (agentContact != null);
-	}
-	
-	public boolean isLocal(){
-		return isLocal;
-	}
-	
-	
-	public void setAgentContact(String agentContact){
-		this.agentContact = agentContact;
-		int lastIndex = agentContact.lastIndexOf('@');
 		
-		//FIXME: for now we have to discriminate between my contact and otherContacts
-		//because myContact is put online by passing in the numTel without agent name.
-		//May be asking the agent name to the agent is better
-		if (lastIndex == -1){
-			this.numTel = agentContact;
-		} else {
-			this.numTel = agentContact.substring(0, lastIndex);
-		}
-	}
-	
-	public String getAgentContact(){
-		return this.agentContact;
-	}
-	
-	public void setOffline(){
-		agentContact = null;
+	public Contact(String name, String phoneNumber){
+		this.name = name;
+		this.phoneNumber= phoneNumber;
 		currentLocation = new Location();
-		lastPosition = currentLocation;
+		lastPosition = new Location();		
 	}
+		
+	public  String getPhoneNumber(){
+		return phoneNumber;
+	}		
 	
-	public boolean hasMoved(){
-		boolean moved = false;
-		synchronized (this) {
-			moved = !(currentLocation.equals(lastPosition));
-		}
+	public synchronized boolean hasMoved(){
+		boolean moved = false;		 
+		moved = !(currentLocation.equals(lastPosition));
 		return moved;
 	}
 	
 		
-	public Location getLocation() {
-		Location tmpLoc=null;
-		synchronized (this) {
-			tmpLoc = new Location(currentLocation);
-		}
+	public synchronized Location getLocation() {
+		Location tmpLoc=null;		 
+		tmpLoc = new Location(currentLocation);		
 		return tmpLoc;
 	}
 	
-	public void setLocation(Location loc){
-		boolean updated = false;
+	public synchronized void setLocation(Location loc){
 		
-		synchronized (this) {
-			if (!currentLocation.equals(loc)){
-				updated= true;
+			if (!currentLocation.equals(loc)){				
 				lastPosition = currentLocation;
-				currentLocation = loc;
-				
-			}
-		}
-		
-		StringBuffer buf = new StringBuffer("Position of contact " + name + " was ");
-		buf.append( (updated)? "updated" : "not updated");
-		
+				currentLocation = loc;			
+			}			
 	}
 	
 
@@ -123,41 +67,14 @@ public class Contact implements Parcelable {
 	
 	
 	public boolean equals(Object o) {
-		if (o instanceof Contact) {
-			Contact other = (Contact) o;
-			boolean b;
-			synchronized (this) {
-				b =agentContact.equals(other.agentContact); 
-			}
-			return b;
-		} else {
-			return false;
-		}
-	}
-
-
-	public void writeToParcel(Parcel dest) {
-		dest.writeString(agentContact);
-		dest.writeString(name);
-		boolean[] b = {isLocal};
-		dest.writeBooleanArray(b);
-	}
-	
-	static class myContactFactory implements android.os.Parcelable.Creator{
 		
-		public Contact createFromParcel(Parcel arg){
-			String agentContact = arg.readString();
-			String name = arg.readString();
-			boolean[] b = new boolean[1];
-			arg.readBooleanArray(b);
-			Contact cc = new Contact(name, b[0]);
-			cc.setAgentContact(agentContact);
-			return cc;
+		boolean res= false;
+		
+		if (o instanceof Contact) {
+			Contact other = (Contact) o;					
+			res= phoneNumber.equals(other.phoneNumber);	
 		}
-
-		public Contact[] newArray(int arg0) {
-			return new Contact[arg0];
-		}
-	}
-	
+		
+		return res;
+	}	
 }

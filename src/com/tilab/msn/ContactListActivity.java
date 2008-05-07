@@ -10,7 +10,6 @@ import jade.util.Logger;
 import jade.util.leap.Properties;
 
 import java.net.ConnectException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,13 +31,11 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewInflate;
 import android.view.Menu.Item;
+
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TabHost;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.ContextMenuInfo;
 import android.widget.TabHost.TabSpec;
@@ -224,6 +221,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 	
     public void onCreate(Bundle icicle) {
+    	Thread.currentThread().getId();
+        myLogger.log(Logger.INFO, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
         super.onCreate(icicle);
         ContactListAdapter cla = new ContactListAdapter(this);
         ContactManager.getInstance().addAdapter(cla);
@@ -330,8 +329,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 
 
 	protected void onResume() {
-		myLogger.log(Logger.INFO, "onResume called...");
-	
+		myLogger.log(Logger.INFO, "onResume called...");	
 		super.onResume();
 	}
 
@@ -451,12 +449,10 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 
 		public ContactListUpdater(Activity act) {
 			super(act);
-			// TODO Auto-generated constructor stub
-		}
+			}
 
 		protected void handleUpdate(Object parameter) {
-			// TODO Auto-generated method stub
-			if (parameter instanceof ContactListChanges){		
+				if (parameter instanceof ContactListChanges){		
 				ContactListChanges changes = (ContactListChanges) parameter;
 				refreshContactList(changes);	
 			}
@@ -467,12 +463,10 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 
 		public MapUpdater(Activity act) {
 			super(act);
-			// TODO Auto-generated constructor stub
-		}			
+			}			
 			
 			protected void handleUpdate(Object parameter) {
-				// TODO Auto-generated method stub
-				if (ContactManager.getInstance().updateIsOngoing()){
+					if (ContactManager.getInstance().updateIsOngoing()){
 					MapView mapView = (MapView) activity.findViewById(R.id.myMapView);
 					mapView.invalidate();
 				}
@@ -485,8 +479,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 
 	@Override
-	protected void onStart() {
-		// TODO Auto-generated method stub
+	protected void onStart() {		
 		super.onStart();
 		myLogger.log(Logger.INFO, "OnStart called: This activity has Task ID: " + getTaskId());
 	}	

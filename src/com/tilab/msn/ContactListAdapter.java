@@ -33,39 +33,31 @@ public class ContactListAdapter extends BaseAdapter {
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	private List<ContactViewInfo> contactViewInfoList;
 	private Context context;
-	private ViewInflate inflater;
-	
+	private ViewInflate inflater;	
 	
 	public ContactListAdapter(Context c){
 		context = c;
 	    inflater = (ViewInflate)context.getSystemService(Context.INFLATE_SERVICE);		
 	    contactViewInfoList = new ArrayList<ContactViewInfo>();
 	}
-	
-	
-	
-	
-	public int getCount() {
-		// TODO Auto-generated method stub
+		
+	public int getCount() {		
 		return contactViewInfoList.size();
 	}
 
 	
 	public Object getItem(int arg0) {
-		// TODO Auto-generated method stub
 		ContactViewInfo cvi = contactViewInfoList.get(arg0);		
 		return ContactManager.getInstance().getContactByAgentId(cvi.contactId);
 	}
 	
 	public long getItemId(int position) {
-		// TODO Auto-generated method stub
 		return position;
 	}
 
 	public void clear(){
 		contactViewInfoList.clear();
-	}
-	
+	}	
 	
 	public View getView(int position, View convertView, ViewGroup parent) {
 		return contactViewInfoList.get(position).contactView;
@@ -104,9 +96,7 @@ public class ContactListAdapter extends BaseAdapter {
 		if (changes.contactsAdded.size() > 0 || changes.contactsDeleted.size() > 0)
 			myLogger.log(Logger.INFO, "Modifications reported from updating thread...\n " +
 					"Contacts added: " + changes.contactsAdded.size() + 
-					"\nContacts deleted: " + changes.contactsDeleted.size());
-		
-		
+					"\nContacts deleted: " + changes.contactsDeleted.size());		
 		
 		//Ok, now we should update the views
 		//For each newly added contact add it
@@ -204,8 +194,7 @@ public class ContactListAdapter extends BaseAdapter {
 				setStyle(OFFLINE_STYLE);
 				contactDistTxt.setText(context.getResources().getText(R.string.label_for_offline));
 			}
-		}
-		
+		}		
 	}
 	
 }

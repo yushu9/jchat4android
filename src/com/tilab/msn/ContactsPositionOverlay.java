@@ -81,10 +81,7 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		ylwPaddle = BitmapFactory.decodeResource(appRes,R.drawable.ylw_circle); 
 		blueBaloon = BitmapFactory.decodeResource(appRes,R.drawable.bluemessage);
-		bluePaddle = BitmapFactory.decodeResource(appRes,R.drawable.blu_circle);
-		
-		
-		
+		bluePaddle = BitmapFactory.decodeResource(appRes,R.drawable.blu_circle);		
 	}	
 	
 	private boolean scrollingIsNeeded(List<ContactLayoutData> pointList){
@@ -117,9 +114,7 @@ public class ContactsPositionOverlay extends Overlay {
 			//if we are in the too far or too near range
 				if (maxDistSquared < LOWER_THRESHOLD || maxDistSquared > UPPER_THRESHOLD){
 					retval = RECOMPUTE_ZOOM;
-				}
-				
-					
+				}					
 		}
 		return retval;
 	}
@@ -134,14 +129,12 @@ public class ContactsPositionOverlay extends Overlay {
 			mapController.zoomTo(18);
 		if (howToZoom == RECOMPUTE_ZOOM)
 			mapController.zoomToSpan(params.coordMaxSpan[0],params.coordMaxSpan[1]);
-	}
-	
+	}	
 	
 	private void drawOnlineContacts(Canvas c, Paint p, List<ContactLayoutData> layoutDataList){
 		
 		int size = layoutDataList.size();
-		FontMetrics fm = p.getFontMetrics();
-	
+		FontMetrics fm = p.getFontMetrics();	
 		
 		int bluePaddleOffsetY= bluePaddle.getHeight();
         int bluePaddleOffsetX= bluePaddle.getWidth()/2;
@@ -193,8 +186,7 @@ public class ContactsPositionOverlay extends Overlay {
 		  c.drawBitmap(bitmapToBeDrawn, bitmapOriginX, bitmapOriginY, myPaint);
 		  //Change color for background rectangle
 		  myPaint.setColor(Color.argb(100, 0,0, 0));		 	
-		  c.drawRoundRect(rect, 4.0f, 4.0f, myPaint);// Rect(rect, myPaint);
-		 // c.drawText(cData.name, textOriginX+2, textOriginY-1, myPaint);
+		  c.drawRoundRect(rect, 4.0f, 4.0f, myPaint);// Rect(rect, myPaint);		  
 		  //ChangeColor for text
 		  myPaint.setColor(color);
           c.drawText(cData.name,textOriginX, textOriginY, myPaint);	
@@ -204,8 +196,7 @@ public class ContactsPositionOverlay extends Overlay {
 		
 	}	
 	@Override
-	public void draw(Canvas canvas, PixelCalculator calculator, boolean shadow) {
-		// TODO Auto-generated method stub
+	public void draw(Canvas canvas, PixelCalculator calculator, boolean shadow) {		
 		super.draw(canvas, calculator, shadow);
 		
 		//GET the current contacts
@@ -330,7 +321,6 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		//test
 		params.midpointOnMap = screenToMap(params.midpointOnScreen);
-		//		params.midpointOnMap = new Point((maxLat + minLat)/2, (maxLong + minLong)/2);
 		params.coordMaxSpan = new int[2];
 		
 		//we need to zoom in another way if we have a single point
@@ -362,8 +352,7 @@ public class ContactsPositionOverlay extends Overlay {
 		}
 		
 		return maxDist;
-	}
-	
+	}	
 
 	//Converts a point on screen (pixel coordinates) into  point on the map (Lat/Long Coordinated)
 	
@@ -382,7 +371,6 @@ public class ContactsPositionOverlay extends Overlay {
 		          + deltaLatitude;
 		int computedLocationLongitude = myMapView.getMapCenter().getLongitudeE6()
 		          - deltaLongitude;
-
 		
 		return  new Point(computedLocationLatitude,computedLocationLongitude);
 	}

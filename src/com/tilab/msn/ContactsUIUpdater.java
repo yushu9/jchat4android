@@ -29,8 +29,7 @@ public abstract class ContactsUIUpdater {
 			parameter = obj;
 		}
 			
-		public void run() {
-			// TODO Auto-generated method stub
+		public void run() {			
 			ContactsUIUpdater.this.handleUpdate(parameter);
 		}
 		

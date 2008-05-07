@@ -37,7 +37,8 @@ public class MsnAgent extends GatewayAgent {
 	//In this method we shall register to df and subscribe
 	protected void setup() {
 		super.setup();
-
+		Thread.currentThread().getId();
+        myLogger.log(Logger.INFO, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
 		myDescription = new DFAgentDescription();
 		//fill a msn service description
 		ServiceDescription msnServiceDescription = new ServiceDescription();
@@ -62,8 +63,7 @@ public class MsnAgent extends GatewayAgent {
 			myLogger.log(Logger.INFO, "Registering to DF!");
 			DFService.register(this, myDescription);
 		} catch (FIPAException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		  e.printStackTrace();
 		}
 
 		//added behaviour to dispatch chat messages
@@ -82,8 +82,7 @@ public class MsnAgent extends GatewayAgent {
 	public DFAgentDescription getAgentDescription(){
 		return myDescription;
 	}
-
-
+	
 
 	//Here we will deregister and unsubscribe
 	protected void takeDown() {
@@ -105,10 +104,7 @@ public class MsnAgent extends GatewayAgent {
 
 	//used to pass data to agent
 	protected void processCommand(final Object command) {
-
-		if (command instanceof SynchCommandBehaviour) {
-			addBehaviour( (Behaviour) command);
-		}else if (command instanceof Behaviour){
+	    if (command instanceof Behaviour){
 			addBehaviour( (Behaviour) command);
 			releaseCommand(command);
 		}else if(command instanceof ContactsUIUpdater){
@@ -118,8 +114,6 @@ public class MsnAgent extends GatewayAgent {
 	}
 
 	private class MessageReceiverBehaviour extends CyclicBehaviour{
-
-
 
 		public void action() {
 
@@ -192,7 +186,7 @@ public class MsnAgent extends GatewayAgent {
 						myLogger.log(Logger.INFO, "Updater found... retrieving existing session");
 						MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
 						
-						//We receivd a message for a new session
+						//We received a message for a new session
 						if (session == null){
 							notificationUpdater.createSessionNotification(sessionId);
 							//Create a new session with the specified ID

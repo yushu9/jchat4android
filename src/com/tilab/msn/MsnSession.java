@@ -16,63 +16,49 @@ public class MsnSession {
 	private final String SESSION_ID_URI_SCHEME="content";
 	private final String SESSION_ID_URI_SSP="sessionId";
 	
-	private String sessionId;
-	
+	private String sessionId;	
 	
 	MsnSession(String sessionId){
 		participants = new ArrayList<Contact>();
 		messageList = new ArrayList<MsnSessionMessage>();
 		this.sessionId =sessionId;
-	}
-	
+	}	
 	
 	//This shall be used as intent data. 
-	public Uri getSessionIdAsUri(){
-		String str = null;
-		synchronized (sessionId) {
-			str = sessionId;
-		}
+	public synchronized Uri getSessionIdAsUri(){
+		String str = null;		 
+		str = sessionId;		
 		return Uri.fromParts(SESSION_ID_URI_SCHEME, SESSION_ID_URI_SSP, str);
 	}
 	
-	public void addParticipant(Contact c){
-		synchronized (participants) {
-			participants.add(c);
-		}
-	}
 	
-	public void addMessage(MsnSessionMessage msg){
-		synchronized (messageList) {
-			messageList.add(msg);
-		}
+	public synchronized void addParticipant(Contact c){		 
+			participants.add(c);		
 	}
 	
 	
-	public ArrayList<MsnSessionMessage> getMessageList(){
-		ArrayList<MsnSessionMessage> list = null;
-		synchronized (messageList) {
-			list = new ArrayList<MsnSessionMessage>(messageList);
-		}
+	public synchronized void addMessage(MsnSessionMessage msg){		
+			messageList.add(msg);		
+	}
+	
+	
+	public synchronized ArrayList<MsnSessionMessage> getMessageList(){
+		ArrayList<MsnSessionMessage> list = null;		 
+		list = new ArrayList<MsnSessionMessage>(messageList);
 		return list;
 	}
 	
-	public ArrayList<Contact> getAllParticipants(){
-		ArrayList<Contact> list=null;
-		
-		synchronized (participants) {
-			list = new ArrayList<Contact>(participants);
-		}
+	
+	public synchronized ArrayList<Contact> getAllParticipants(){
+		ArrayList<Contact> list=null;		
+		list = new ArrayList<Contact>(participants);
 		return list;
 	}
+	
 
-	public String getSessionId() {
-		
-		String id = null;
-		
-		synchronized (sessionId) {
-			id = sessionId;
-		}
-		
+	public synchronized String getSessionId() {		
+		String id = null;		
+		id = sessionId;		
 		return id;
 	}
 }
