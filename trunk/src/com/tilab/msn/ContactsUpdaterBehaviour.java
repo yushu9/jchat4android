@@ -21,7 +21,6 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 	private long msnUpdateTime;
 	private ContactsUIUpdater updater;
-	private ACLMessage message;
 
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 
@@ -92,7 +91,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 				AID cId = onlineContactsDescs[i].getName();
 				if (!cId.equals(myAgent.getAID())){
 					//Create an online contact (or update it)
-					String phoneNumber= message.getSender().getLocalName();
+					String phoneNumber = cId.getLocalName();
 				    ContactManager.getInstance().addOrUpdateOnlineContact(phoneNumber, loc);
 					
 				}

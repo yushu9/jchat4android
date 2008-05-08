@@ -36,7 +36,6 @@ public class ContactsPositionOverlay extends Overlay {
 	private Bitmap blueBaloon;
 	private Bitmap bluePaddle;
 	private Resources appRes;
-	private ContactManager contactManager;
 	
 	//The SCROLL area represents the area that finds when points are going out of the screen 
 	//If one of them is out of the hot area we need to recenter the map to follow the point.
@@ -290,7 +289,7 @@ public class ContactsPositionOverlay extends Overlay {
 			
 				contactsOnLine++;
 				
-				ContactLocation contactLoc = contactManager.getContactLocation(ctn.getPhoneNumber());
+				ContactLocation contactLoc = ContactManager.getInstance().getContactLocation(ctn.getPhoneNumber());
 				
 				int tmpLat = (int)(contactLoc.getLatitude() * 1E6);
 				int tmpLong = (int)(contactLoc.getLongitude() * 1E6);
