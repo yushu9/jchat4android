@@ -4,7 +4,10 @@ import jade.core.AID;
 
 import jade.util.Logger;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,28 +23,36 @@ public class ContactManager {
 	private final ConcurrentMap<String, Contact> contactsMap;
 	private final ConcurrentMap<String, ContactLocation> contactLocationMap;
 	
+	private final String MY_CONTACT_NAME="Me";
+	
 	private Contact myContact;
+	private volatile ContactLocation myContactLocation;
+	
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
-	private boolean updateOngoing = false;
 	
 	//Adapter for the contacts list
 	private ContactListAdapter contactsAdapter;
 	private ContactListChanges modifications;	
 	
+
 	
 
-	public boolean updateIsOngoing(){
-		return updateOngoing;
+	public boolean contactsHaveMoved(){
+		
+		boolean moved = true;
+		ArrayList<ContactLocation> locations = new ArrayList<ContactLocation>(contactLocationMap.values());
+		
+		for (ContactLocation contactLocation : locations) {
+			moved = (moved && contactLocation.hasMoved()); 
+		}
+		
+		return moved;
 	}
 
-	public void setOngoingUpdate() {
-		updateOngoing = true;
-	}
-
+	
 	private ContactManager() { 
 		contactsMap = new ConcurrentHashMap<String, Contact>(20, 3.0f, 1);
 		contactLocationMap = new ConcurrentHashMap<String, ContactLocation>(20, 3.0f, 1);
-		
 		modifications = new ContactListChanges();
 	}	
 	
@@ -58,6 +69,19 @@ public class ContactManager {
 		return contactsAdapter;
 	}
 
+	public Map<String,ContactLocation> getAllContactLocations(){
+		
+		Map<String,ContactLocation> loc = new HashMap<String, ContactLocation>();
+		
+		for (String key : contactLocationMap.keySet()) {
+			ContactLocation location = contactLocationMap.get(key);
+			ContactLocation copy = new ContactLocation(location);
+			loc.put(key, copy);
+		}
+		
+		return  loc;
+	}
+	
 	public void readPhoneContacts(ContactListActivity act){
 		//perform a query on contacts database returning all contacts data in name ascending order
 		Cursor c = act.getContentResolver().query(People.CONTENT_URI, null, null, null, People.NAME + " DESC");
@@ -86,6 +110,19 @@ public class ContactManager {
 		 contactsAdapter= cla;
 	}
 
+	public void addMyContact(String phoneNumber){
+		myContact = new Contact(MY_CONTACT_NAME,phoneNumber,true);
+		myContactLocation = new ContactLocation();
+	}
+	
+	public void updateMyContactLocation(Location loc){
+		myContactLocation = myContactLocation.changeLocation(loc);
+	}
+	
+	public ContactLocation getMyContactLocation(){
+		return new ContactLocation(myContactLocation);
+	}
+	
 	//This methods adds or updates a contact 
 	public void addOrUpdateOnlineContact(String phoneNumber, Location loc){
 			//Is the contact already there?

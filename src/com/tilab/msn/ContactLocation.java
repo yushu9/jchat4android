@@ -10,6 +10,10 @@ public class ContactLocation extends Location {
 		hasMoved = false;
 	}
 	
+	public ContactLocation( ContactLocation toBeCopied){
+		this(toBeCopied, toBeCopied.hasMoved);
+	}
+	
 	private ContactLocation(Location loc, boolean moved){
 		super(loc);
 		hasMoved = moved;
