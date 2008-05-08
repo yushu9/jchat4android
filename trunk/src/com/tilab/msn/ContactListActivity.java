@@ -467,7 +467,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			}			
 			
 			protected void handleUpdate(Object parameter) {
-					if (ContactManager.getInstance().updateIsOngoing()){
+				if (ContactManager.getInstance().contactsHaveMoved()){
 					MapView mapView = (MapView) activity.findViewById(R.id.myMapView);
 					mapView.invalidate();
 				}
