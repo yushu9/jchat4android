@@ -48,7 +48,7 @@ public class ContactListAdapter extends BaseAdapter {
 	
 	public Object getItem(int arg0) {
 		ContactViewInfo cvi = contactViewInfoList.get(arg0);		
-		return ContactManager.getInstance().getContactByAgentId(cvi.contactId);
+		return ContactManager.getInstance().getContact(cvi.contactId);
 	}
 	
 	public long getItemId(int position) {
@@ -70,7 +70,7 @@ public class ContactListAdapter extends BaseAdapter {
 			View v = contactViewInfo.contactView;
 			CheckBox cb = (CheckBox) v.findViewById(R.id.contact_check_box);
 			if (cb.isChecked()){
-				Contact cont = ContactManager.getInstance().getContactByAgentId(contactViewInfo.contactId);
+				Contact cont = ContactManager.getInstance().getContact(contactViewInfo.contactId);
 				contactsSelected.add(cont);
 			}
 		}
@@ -79,7 +79,7 @@ public class ContactListAdapter extends BaseAdapter {
 	}
 	
 	public void initialize(){
-		List<Contact> localContactList = ContactManager.getInstance().getOtherContactList();
+		List<Contact> localContactList = ContactManager.getInstance().getContactList();
 		Contact myContact = ContactManager.getInstance().getMyContact();
 		
 		for (Contact contact : localContactList) {
@@ -113,7 +113,7 @@ public class ContactListAdapter extends BaseAdapter {
 		
 		//At the end update all contacts
 		for (ContactViewInfo viewInfo : contactViewInfoList) {
-			viewInfo.updateView(ContactManager.getInstance().getContactByAgentId(viewInfo.contactId), myContact);
+			viewInfo.updateView(ContactManager.getInstance().getContact(viewInfo.contactId), myContact);
 		}
 	}
 	
@@ -182,8 +182,9 @@ public class ContactListAdapter extends BaseAdapter {
 			
 			if (c.isOnline()){
 				setStyle(ONLINE_STYLE);
-				Location myContactLoc = myContact.getLocation();
-				float distInMeters  = myContactLoc.distanceTo(c.getLocation());
+				Location myContactLoc = ContactManager.getInstance().getMyContactLocation();
+				Location otherLoc = ContactManager.getInstance().getContactLocation(c.getPhoneNumber());
+				float distInMeters  = myContactLoc.distanceTo(otherLoc);
 				float distInKm = distInMeters / 1000.0f;
 				String distKmAsString = String.valueOf(distInKm);
 				StringBuffer buf = new StringBuffer(distKmAsString);

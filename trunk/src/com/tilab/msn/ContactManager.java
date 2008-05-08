@@ -4,7 +4,9 @@ package com.tilab.msn;
 
 import jade.util.Logger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,13 +23,15 @@ public class ContactManager {
 	private final ConcurrentMap<String, ContactLocation> contactLocationMap;
 	
 	private Contact myContact;
+	private volatile ContactLocation myContactLocation;
+	
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	private boolean updateOngoing = false;
 	
 	//Adapter for the contacts list
 	private ContactListAdapter contactsAdapter;
 	private ContactListChanges modifications;	
-	
+	private final String MY_CONTACT_NAME="Me";
 	
 
 	public boolean updateIsOngoing(){
@@ -166,6 +170,24 @@ public class ContactManager {
 		list = new ArrayList<Contact>(contactsMap.values());
 		return list;
 	}
+
+	//FIXME: Discuss if here we should return the map or a copy
+	public Map<String, ContactLocation> getAllContactLocations(){
+		return contactLocationMap;
+	}
 	
+	public void addMyContact(String phoneNumber) {
+		// TODO Auto-generated method stub
+		myContact = new Contact(MY_CONTACT_NAME,phoneNumber,true);
+		myContactLocation = new ContactLocation();
+	}
+	
+	public void updateMyContactLocation(Location loc) {
+		myContactLocation = myContactLocation.changeLocation(loc);
+	}
+	
+	public ContactLocation getMyContactLocation(){
+		return new ContactLocation(myContactLocation);
+	}
 }
 
