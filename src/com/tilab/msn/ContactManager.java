@@ -26,26 +26,30 @@ public class ContactManager {
 	private volatile ContactLocation myContactLocation;
 	
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
-	private boolean updateOngoing = false;
-	
 	//Adapter for the contacts list
 	private ContactListAdapter contactsAdapter;
 	private ContactListChanges modifications;	
 	private final String MY_CONTACT_NAME="Me";
 	
+	
 
-	public boolean updateIsOngoing(){
-		return updateOngoing;
+	public boolean movingContacts(){
+		boolean moving= true;
+		List<ContactLocation> locs = new ArrayList<ContactLocation>(contactLocationMap.values());
+		
+		for (ContactLocation contactLocation : locs) {
+			moving = moving && contactLocation.hasMoved();
+		}
+		
+		return moving;
 	}
 
-	public void setOngoingUpdate() {
-		updateOngoing = true;
-	}
 
+
+	
 	private ContactManager() { 
 		contactsMap = new ConcurrentHashMap<String, Contact>(20, 3.0f, 1);
 		contactLocationMap = new ConcurrentHashMap<String, ContactLocation>(20, 3.0f, 1);
-		
 		modifications = new ContactListChanges();
 	}	
 	
