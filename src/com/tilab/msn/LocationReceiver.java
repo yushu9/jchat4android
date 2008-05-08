@@ -16,9 +16,7 @@ public class LocationReceiver extends IntentReceiver {
         myLogger.log(Logger.INFO, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
 		if (intent.getAction().equals(GeoNavigator.LOCATION_UPDATE_ACTION)){
 			Location loc = (Location) intent.getParcelableExtra("location");
-			Contact myContact = ContactManager.getInstance().getMyContact();
-			String phoneNumber= myContact.getPhoneNumber();
-			ContactManager.getInstance().getContactLocation(phoneNumber);
+			ContactManager.getInstance().updateMyContactLocation(loc);
 			this.abortBroadcast(); 
 		}
 		

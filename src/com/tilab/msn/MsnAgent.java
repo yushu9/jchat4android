@@ -39,7 +39,7 @@ public class MsnAgent extends GatewayAgent {
 	protected void setup() {
 		super.setup();
 		Thread.currentThread().getId();
-        myLogger.log(Logger.INFO, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
+        myLogger.log(Logger.INFO, "setup() called: My currentThread has this ID: " + Thread.currentThread().getId());
 		myDescription = new DFAgentDescription();
 		//fill a msn service description
 		ServiceDescription msnServiceDescription = new ServiceDescription();
@@ -49,11 +49,8 @@ public class MsnAgent extends GatewayAgent {
 
 		//subscribe to DF
 		subscriptionMessage = DFService.createSubscriptionMessage(this, this.getDefaultDF(), myDescription, null);
-		Contact myContact = ContactManager.getInstance().getMyContact();
-		String phoneNumber= myContact.getPhoneNumber();
-		Location curLoc = ContactManager.getInstance().getContactLocation(phoneNumber);
+		Location curLoc = ContactManager.getInstance().getMyContactLocation();
 		
-
 		Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curLoc.getLatitude()));
 		msnServiceDescription.addProperties(p);
 		p = new Property(PROPERTY_NAME_LOCATION_LONG,new Double(curLoc.getLongitude()));
@@ -127,14 +124,15 @@ public class MsnAgent extends GatewayAgent {
 				if(msg != null){
 					myLogger.log(Logger.INFO, msg.toString());
 
+					Contact myContact = ContactManager.getInstance().getMyContact();
+					
 					//retrieve the session id
 					String sessionId = msg.getConversationId();
 					myLogger.log(Logger.INFO, "Received Message... session ID is " + sessionId);
 
 					//check if there's an activity to update
 					ContactsUIUpdater updater = MsnSessionManager.getInstance().getChatActivityUpdater();
-					Contact myContact = ContactManager.getInstance().getMyContact();
-					String phoneNum= myContact.getPhoneNumber();
+					String phoneNum = msg.getSender().getLocalName();
 					Contact sender = ContactManager.getInstance().getContact(phoneNum);
 											
 					MsnSessionMessage sessionMessage = new MsnSessionMessage(msg.getContent(),sender.getName(),sender.getPhoneNumber(),true);
