@@ -163,8 +163,8 @@ public class MsnAgent extends GatewayAgent {
 								AID agentId = (AID) it.next();
 		
 								if (!agentId.getName().startsWith(myContact.getPhoneNumber())){
-									String phoneNum= message.getSender().getLocalName();										
-									Contact otherContact = ContactManager.getInstance().getContact(phoneNum);	
+									String phoneNumber = message.getSender().getLocalName();										
+									Contact otherContact = ContactManager.getInstance().getContact(phoneNumber);	
 									myLogger.log(Logger.INFO, "Adding contact " + otherContact.getName() + "as a session participant");
 									session.addParticipant(otherContact);
 								}
@@ -242,9 +242,7 @@ public class MsnAgent extends GatewayAgent {
 			}
 			catch(Throwable t) {
 				myLogger.log(Logger.SEVERE,"***  Uncaught Exception for agent " + myAgent.getLocalName() + "  ***",t);
-			}
-
-		});
+			}		
 	}
  }
 }
