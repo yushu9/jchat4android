@@ -114,7 +114,7 @@ public class MsnSessionManager {
 			for (MsnSession session : sessionMap.values()) {
 				List<Contact> contacts = session.getAllParticipants();
 				for (Contact contact : contacts) {
-					if (participant.equals(contact.getAgentContact()))
+					if (participant.equals(contact.getPhoneNumber()))							
 						sessionList.add(session);
 				}
 			}		

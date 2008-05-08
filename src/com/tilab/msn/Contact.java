@@ -1,12 +1,6 @@
 package com.tilab.msn;
 
-
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import jade.util.Logger;
-import android.location.Location;
-import android.util.AttributeSet;
-
 
 /**
  * This class represents a generic contact that can be online or offline
