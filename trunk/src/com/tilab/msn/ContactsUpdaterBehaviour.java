@@ -21,6 +21,8 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 	private long msnUpdateTime;
 	private ContactsUIUpdater updater;
+	private ACLMessage message;
+	private ContactLocation contactLocation;
 
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 
@@ -91,7 +93,9 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 				AID cId = onlineContactsDescs[i].getName();
 				if (!cId.equals(myAgent.getAID())){
 					//Create an online contact (or update it)
-					ContactManager.getInstance().addOnlineContact(cId, loc);
+					String phoneNumber= message.getSender().getLocalName();
+				    ContactManager.getInstance().addOrUpdateOnlineContact(phoneNumber, loc);
+					
 				}
 			}
 		}
@@ -148,6 +152,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 					for (int i = 0; i < results.length; ++i) {
 						DFAgentDescription dfd = results[i];
 						AID contactAID = dfd.getName();
+						String phoneNumber= message.getSender().getLocalName();
 						// Do something only if the notification deals with an agent different from the current one
 						if (!contactAID.equals(myAgent.getAID())){
 
@@ -160,17 +165,19 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 								Iterator propertyIt = serviceDesc.getAllProperties(); 
 								Location loc = Helper.extractLocation(propertyIt);
-
-								ContactManager.getInstance().addOnlineContact(contactAID, loc);
+                                String phoneNum = contactAID.getLocalName();                                 
+								ContactManager.getInstance().addOrUpdateOnlineContact(phoneNum, loc);								
 							} else {
 								List<MsnSession> sessions = MsnSessionManager.getInstance().getAllSessionByParticipant(contactAID.getName());
 								for (MsnSession msnSession : sessions) {
-									Contact c = ContactManager.getInstance().getContactByAgentId(contactAID.getLocalName());
+									
+									Contact c = ContactManager.getInstance().getContact(phoneNumber);
+									
 									if (c != null)
 										MsnSessionManager.getInstance().getChatActivityUpdater().postUIUpdate(c.getName());
 								}
-								ContactManager.getInstance().setOffline(contactAID);
-
+								ContactManager.getInstance().setContactOffline(phoneNumber);
+								
 							}
 						}
 					}
@@ -219,8 +226,8 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 				//retrieve current location
 				Contact myContact = ContactManager.getInstance().getMyContact();
-				Location curLoc = myContact.getLocation();
-
+				String phoneNum = myContact.getPhoneNumber();
+				Location curLoc = ContactManager.getInstance().getContactLocation(phoneNum);				
 
 				Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curLoc.getLatitude()));
 				serviceDescription.addProperties(p);
@@ -230,7 +237,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 				serviceDescription.addProperties(p);
 
 				//update df entry				
-				if (myContact.hasMoved()) {
+				if (contactLocation.hasMoved()){						
 					DFService.modify(myAgent, description);
 				}
 

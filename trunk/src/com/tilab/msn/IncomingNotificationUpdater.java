@@ -140,7 +140,9 @@ class IncomingNotificationUpdater {
 				viewChatIntent.setLaunchFlags(Intent.NEW_TASK_LAUNCH | Intent.SINGLE_TOP_LAUNCH);
 				MsnSession session = MsnSessionManager.getInstance().retrieveSession(message.getConversationId());
 				viewChatIntent.setData(session.getSessionIdAsUri());
-				Contact cont = ContactManager.getInstance().getContactByAgentId(message.getSender().getLocalName());
+				String phoneNumber= message.getSender().getLocalName();
+				Contact cont = ContactManager.getInstance().getContact(phoneNumber);
+				
 				
 				Toast.makeText(activity, "New Message arrived from " + cont.getName() , 3000).show();
 				

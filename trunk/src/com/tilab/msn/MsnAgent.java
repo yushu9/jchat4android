@@ -30,7 +30,8 @@ public class MsnAgent extends GatewayAgent {
 	private ACLMessage subscriptionMessage;
 	private ContactsUpdaterBehaviour contactsUpdaterB;
 	private MessageReceiverBehaviour messageRecvB;
-
+	
+	private ACLMessage message;
 
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 
@@ -48,8 +49,10 @@ public class MsnAgent extends GatewayAgent {
 
 		//subscribe to DF
 		subscriptionMessage = DFService.createSubscriptionMessage(this, this.getDefaultDF(), myDescription, null);
-
-		Location curLoc = ContactManager.getInstance().getMyContact().getLocation();
+		Contact myContact = ContactManager.getInstance().getMyContact();
+		String phoneNumber= myContact.getPhoneNumber();
+		Location curLoc = ContactManager.getInstance().getContactLocation(phoneNumber);
+		
 
 		Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curLoc.getLatitude()));
 		msnServiceDescription.addProperties(p);
@@ -130,7 +133,10 @@ public class MsnAgent extends GatewayAgent {
 
 					//check if there's an activity to update
 					ContactsUIUpdater updater = MsnSessionManager.getInstance().getChatActivityUpdater();
-					Contact sender = ContactManager.getInstance().getContactByAgentId(msg.getSender().getLocalName());
+					Contact myContact = ContactManager.getInstance().getMyContact();
+					String phoneNum= myContact.getPhoneNumber();
+					Contact sender = ContactManager.getInstance().getContact(phoneNum);
+											
 					MsnSessionMessage sessionMessage = new MsnSessionMessage(msg.getContent(),sender.getName(),sender.getPhoneNumber(),true);
 					
 					IncomingNotificationUpdater notificationUpdater =MsnSessionManager.getInstance().getNotificationUpdater();
@@ -150,15 +156,15 @@ public class MsnAgent extends GatewayAgent {
 						if (session == null) {
 							//Create a new session with the specified ID
 						    session = MsnSessionManager.getInstance().createNewMsnSession(sessionId);
-							//Add all participants
-							Contact myContact = ContactManager.getInstance().getMyContact();
+							//Add all participants							
 							myLogger.log(Logger.INFO, "Adding sender " + sender.getName() + "as a session participant");
 							session.addParticipant(sender);
 							for (jade.util.leap.Iterator it = msg.getAllReceiver(); it.hasNext();) {
 								AID agentId = (AID) it.next();
 		
-								if (!agentId.getName().startsWith(myContact.getAgentContact())){
-									Contact otherContact = ContactManager.getInstance().getContactByAgentId(agentId.getLocalName());
+								if (!agentId.getName().startsWith(myContact.getPhoneNumber())){
+									String phoneNum= message.getSender().getLocalName();										
+									Contact otherContact = ContactManager.getInstance().getContact(phoneNum);	
 									myLogger.log(Logger.INFO, "Adding contact " + otherContact.getName() + "as a session participant");
 									session.addParticipant(otherContact);
 								}
@@ -192,14 +198,15 @@ public class MsnAgent extends GatewayAgent {
 							//Create a new session with the specified ID
 						    session = MsnSessionManager.getInstance().createNewMsnSession(sessionId);
 							//Add all participants
-							Contact myContact = ContactManager.getInstance().getMyContact();
+							
 							myLogger.log(Logger.INFO, "Adding sender " + sender.getName() + "as a session participant");
 							session.addParticipant(sender);
 							for (jade.util.leap.Iterator it = msg.getAllReceiver(); it.hasNext();) {
 								AID agentId = (AID) it.next();
 		
-								if (!agentId.getName().startsWith(myContact.getAgentContact())){
-									Contact otherContact = ContactManager.getInstance().getContactByAgentId(agentId.getLocalName());
+								if (!agentId.getName().startsWith(myContact.getPhoneNumber())){	
+									String phoneNumber1 = message.getSender().getLocalName();										
+									Contact otherContact = ContactManager.getInstance().getContact(phoneNumber1);
 									myLogger.log(Logger.INFO, "Adding contact " + otherContact.getName() + "as a session participant");
 									session.addParticipant(otherContact);
 								}
@@ -237,9 +244,11 @@ public class MsnAgent extends GatewayAgent {
 				myLogger.log(Logger.SEVERE,"***  Uncaught Exception for agent " + myAgent.getLocalName() + "  ***",t);
 			}
 
-		}
+		});
 	}
-
-
+ }
 }
+
+
+
 

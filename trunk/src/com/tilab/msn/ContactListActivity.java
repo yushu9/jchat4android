@@ -319,7 +319,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		try {
 			gateway.execute(updaters.get(CONTACTS_TAB_TAG));
 			//put my contact online			
-			ContactManager.getInstance().getMyContact().setAgentContact(numTel);
+			ContactManager.getInstance().getMyContact().
+			setAgentContact(numTel);
 		
 		} catch(Exception e){
 			Toast.makeText(this, e.toString(), 1000).show();
@@ -467,7 +468,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			}			
 			
 			protected void handleUpdate(Object parameter) {
-				if (ContactManager.getInstance().contactsHaveMoved()){
+					if (ContactManager.getInstance().updateIsOngoing()){
 					MapView mapView = (MapView) activity.findViewById(R.id.myMapView);
 					mapView.invalidate();
 				}

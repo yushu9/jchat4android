@@ -36,6 +36,7 @@ public class ContactsPositionOverlay extends Overlay {
 	private Bitmap blueBaloon;
 	private Bitmap bluePaddle;
 	private Resources appRes;
+	private ContactManager contactManager;
 	
 	//The SCROLL area represents the area that finds when points are going out of the screen 
 	//If one of them is out of the hot area we need to recenter the map to follow the point.
@@ -162,8 +163,8 @@ public class ContactsPositionOverlay extends Overlay {
 				bitmapToBeDrawn = ylwPaddle;
 			} 
 			else {			
-				//Here blueBaloon for people you're chatting with
-				if(allParticipants.contains(ContactManager.getInstance().getContactByAgentId(cData.idContact))){							
+				//Here blueBaloon for people you're chatting with				 
+				if(allParticipants.contains(ContactManager.getInstance().getContact(cData.idContact))){																
 					bitmapOriginX = cData.positionOnScreen[0]-blueBaloonOffsetX;
 					bitmapOriginY = cData.positionOnScreen[1]-blueBaloonOffsetY;
 					bitmapToBeDrawn = blueBaloon;
@@ -201,8 +202,9 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		//GET the current contacts
 		Contact myCont = ContactManager.getInstance().getMyContact();
-		List<Contact> contacts = ContactManager.getInstance().getOtherContactList();		
-		
+		String phoneNumber= myCont.getPhoneNumber();
+		List<Contact> contacts = ContactManager.getInstance().getContactList();	
+			
 		//Compute params needed for further computations on the point cluster
 		PointClusterParams params = extractParams(contacts, myCont, calculator);
 		
@@ -272,7 +274,8 @@ public class ContactsPositionOverlay extends Overlay {
 		params.contactPoints = new ArrayList<ContactLayoutData>();
 
 		//Compute needed params for my contact
-		Location myContactLoc = myContact.getLocation();
+		String phoneNumber= myContact.getPhoneNumber();
+		Location myContactLoc = contactManager.getContactLocation(phoneNumber); 			
 		maxLat = (int)(myContactLoc.getLatitude() * 1E6);
 		maxLong = (int)(myContactLoc.getLongitude() * 1E6);
 		minLong = (int)(myContactLoc.getLongitude() * 1E6);
@@ -295,7 +298,7 @@ public class ContactsPositionOverlay extends Overlay {
 			
 				contactsOnLine++;
 				
-				Location contactLoc = ctn.getLocation();
+				ContactLocation contactLoc = contactManager.getContactLocation(phoneNumber);
 				
 				int tmpLat = (int)(contactLoc.getLatitude() * 1E6);
 				int tmpLong = (int)(contactLoc.getLongitude() * 1E6);
