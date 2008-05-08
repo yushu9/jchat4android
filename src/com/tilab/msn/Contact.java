@@ -1,8 +1,11 @@
 package com.tilab.msn;
 
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import jade.util.Logger;
 import android.location.Location;
+import android.util.AttributeSet;
 
 
 /**
@@ -16,43 +19,23 @@ import android.location.Location;
 
 public class Contact  {
 
-
 	private final String phoneNumber;	
+	//THIS IS MUTABLE
+	private volatile boolean isOnline;
 	private final String name; //nome come appare sulla rubrica (se non è presente il numTel)	
-	private Location currentLocation;
-	private Location lastPosition;
+	private final boolean storedOnPhone;
+	
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 		
-	public Contact(String name, String phoneNumber){
+	public Contact(String name, String phoneNumber, boolean stored){
 		this.name = name;
 		this.phoneNumber= phoneNumber;
-		currentLocation = new Location();
-		lastPosition = new Location();		
+		isOnline = false;	
+		storedOnPhone = stored;
 	}
 		
 	public  String getPhoneNumber(){
 		return phoneNumber;
-	}		
-	
-	public synchronized boolean hasMoved(){
-		boolean moved = false;		 
-		moved = !(currentLocation.equals(lastPosition));
-		return moved;
-	}
-	
-		
-	public synchronized Location getLocation() {
-		Location tmpLoc=null;		 
-		tmpLoc = new Location(currentLocation);		
-		return tmpLoc;
-	}
-	
-	public synchronized void setLocation(Location loc){
-		
-			if (!currentLocation.equals(loc)){				
-				lastPosition = currentLocation;
-				currentLocation = loc;			
-			}			
 	}
 	
 
@@ -60,10 +43,26 @@ public class Contact  {
 		return name;
 	}
 	
+	public boolean isStoredOnPhone(){
+		return storedOnPhone;
+	}
 
 	public String toString() {
 		return name;
 	}
+	
+	public void setOnline(){
+		isOnline = true;
+	}
+	
+	public void setOffline(){
+		isOnline = false;;
+	}
+	
+	public boolean isOnline(){
+		return isOnline;
+	}
+
 	
 	
 	public boolean equals(Object o) {

@@ -17,8 +17,9 @@ public class ContactManager {
 
 	private static ContactManager manager = new ContactManager();
 	//The key of this map is the local name (phone number)	
-	private final ConcurrentMap<String, Contact> onLineContactsMap;
-	private final ConcurrentMap<String, Contact> offLineContactsMap;
+	private final ConcurrentMap<String, Contact> contactsMap;
+	private final ConcurrentMap<String, ContactLocation> contactLocationMap;
+	
 	private Contact myContact;
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	private boolean updateOngoing = false;
@@ -37,10 +38,9 @@ public class ContactManager {
 		updateOngoing = true;
 	}
 
-	private ContactManager() {
-		updateOngoing = false; 
-		onLineContactsMap = new ConcurrentHashMap<String, Contact>(20, 3.0f, 1);
-		offLineContactsMap = new ConcurrentHashMap<String, Contact>(20, 3.0f, 1);
+	private ContactManager() { 
+		contactsMap = new ConcurrentHashMap<String, Contact>(20, 3.0f, 1);
+		contactLocationMap = new ConcurrentHashMap<String, ContactLocation>(20, 3.0f, 1);
 		
 		modifications = new ContactListChanges();
 	}	
@@ -75,51 +75,76 @@ public class ContactManager {
 				String name = c.getString(nameCol);
 
 				myLogger.log(Logger.INFO, "Found contact "+ name + " with numtel " + phonenumber);
-				Contact cont = new Contact(name, phonenumber);
-				offLineContactsMap.put(phonenumber, cont);			
+				Contact cont = new Contact(name, phonenumber,true);
+				contactsMap.put(phonenumber, cont);
+				
 			} while(c.next());			
 		}		
 	}	
 	
- public void addAdapter(ContactListAdapter cla){	
-	 contactsAdapter= cla;
- }
-
-	//This methods adds or updates a contact 
-	public void addOnlineContact(PHONENUMBER phoneNumber, Location loc){
-			//Is the contact already there?
-			Contact cont = onLineContactsMap.get(phoneNumber.getLocalName());
-
-			//If not create a new one
-			if (cont == null){
-				cont = new Contact(phoneNumber.getLocalName(), false);
-				otherContactsMap.put(phoneNumber.getLocalName(), cont);
-				modifications.contactsAdded.add(phoneNumber.getLocalName());
-			} 
-			cont.setAgentContact(phoneNumber.getName());
-			cont.setLocation(loc);
+	public void addAdapter(ContactListAdapter cla){	
+		 contactsAdapter= cla;
 	}
 
-	public void setOffline(AID agentId) {		 
-			Contact c  = otherContactsMap.get(agentId.getLocalName());
+	//This methods adds or updates a contact 
+	public void addOrUpdateOnlineContact(String phoneNumber, Location loc){
+			//Is the contact already there?
+			Contact cont = contactsMap.get(phoneNumber);
+
+			//the new contact is available
+			if (cont != null){
+				
+				if (cont.isOnline()){
+					ContactLocation oldloc= contactLocationMap.get(phoneNumber);
+					ContactLocation newloc= oldloc.changeLocation(loc);				
+					contactLocationMap.put(phoneNumber, newloc);				
+				}
+				else {
+					ContactLocation oldLocation= new ContactLocation();
+					ContactLocation newLocation= oldLocation.changeLocation(loc);
+					synchronized(this){
+						cont.setOnline();						
+						contactLocationMap.put(phoneNumber,newLocation);
+				    }
+				}
+			}else {
+				cont= new Contact(phoneNumber, phoneNumber,false);
+				cont.setOnline();
+				ContactLocation oldLocation= new ContactLocation();
+				ContactLocation newLocation= oldLocation.changeLocation(loc);
+				synchronized(this){
+					contactLocationMap.put(phoneNumber,newLocation);
+					contactsMap.put(phoneNumber, cont);
+					modifications.contactsAdded.add(phoneNumber);
+				}	
+			}
+	}
+				
+				
+	public void setContactOffline(String phoneNumber) {		 
+			Contact c  = contactsMap.get(phoneNumber);
 
 			//If a contact is local (It's in the phone contacts) it must be shown as offline
 			//If the contact is not local, remove it when it goes offline
-			if (c.isLocal()){
-				c.setOffline();
-			} else {
-				otherContactsMap.remove(agentId.getLocalName());
-				modifications.contactsDeleted.add(agentId.getLocalName());
+			synchronized (this) {
+				if (c.isStoredOnPhone()){
+					c.setOffline();	
+				} else {
+					contactsMap.remove(phoneNumber);
+					modifications.contactsDeleted.add(phoneNumber);
+				}		
+				contactLocationMap.remove(phoneNumber);
 			}
-		}
+	}
 
 	//Agent Id is the AID.getLocalName()
-	public Contact getContactByAgentId(String agentId){
-		Contact c;
-		c= otherContactsMap.get(agentId);
-		return c;
+	public Contact getContact(String phoneNumber){
+		return contactsMap.get(phoneNumber);
 	}
 	
+	public ContactLocation getContactLocation(String phoneNumber){
+		return contactLocationMap.get(phoneNumber);
+	}
 
 	public Contact getMyContact() {
 		return myContact;
@@ -131,21 +156,14 @@ public class ContactManager {
 
 
 	public void shutdown() {
-		onLineContactsMap.clear();
-		offLineContactsMap.clear();		
+		contactsMap.clear();
 		contactsAdapter.clear();
 	}
 
 	//We cannot modify the contacts from this list, we copy the list to avoid race conditions
-	public List<Contact> getOnLineContactList() {
+	public List<Contact> getContactList() {
 		ArrayList<Contact> list;
-		list = new ArrayList<Contact>(onLineContactsMap.values());
-		return list;
-	}
-	
-	public List<Contact> getOffLineContactList() {
-		ArrayList<Contact> list;
-		list = new ArrayList<Contact>(offLineContactsMap.values());
+		list = new ArrayList<Contact>(contactsMap.values());
 		return list;
 	}
 	

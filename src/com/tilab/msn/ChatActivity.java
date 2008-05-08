@@ -171,27 +171,15 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		}
 	
 	private void sendMessageToParticipants(String msgContent){
-		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-		msg.setContent(msgContent);
-		msg.setOntology(MsnAgent.CHAT_ONTOLOGY);
-		msg.setConversationId(session.getSessionId());
+		
 		
 		//set all participants as receivers
-		List<Contact> contacts = session.getAllParticipants();
-		
-		for(int i=0; i<contacts.size(); i++){
-			Contact c = ((Contact)contacts.get(i));
-			if (c.isOnline()){
-				String agentContact = c.getAgentContact();
-				if(agentContact != null)
-					msg.addReceiver(new AID(agentContact, AID.ISGUID));
-			}
-		}		
+		List<Contact> receivers = session.getAllParticipants();
 		
 		try{
-			gateway.execute(new SenderBehaviour(msg));
+			gateway.execute(new SenderBehaviour(session.getSessionId(), msgContent, receivers));
 			Contact myContact = ContactManager.getInstance().getMyContact();
-    		MsnSessionMessage message = new MsnSessionMessage(msg.getContent(),myContact.getName(),myContact.getPhoneNumber(),false);
+    		MsnSessionMessage message = new MsnSessionMessage(msgContent,myContact.getName(),myContact.getPhoneNumber(),false);
     		session.addMessage(message);
     		//Add a new view to the adapter
     		sessionAdapter.addMessageView(message);
@@ -206,8 +194,19 @@ public class ChatActivity extends Activity implements ConnectionListener{
 
 		private ACLMessage theMsg;
 		
-		public SenderBehaviour(ACLMessage msg) {
-			theMsg = msg;
+		public SenderBehaviour(String convId, String content, List<Contact> receivers) {
+			theMsg = new ACLMessage(ACLMessage.INFORM);
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setContent(content);
+			msg.setOntology(MsnAgent.CHAT_ONTOLOGY);
+			msg.setConversationId(convId);
+			
+			for(int i=0; i<receivers.size(); i++){
+				Contact c = receivers.get(i);
+				String agentContact = c.getPhoneNumber();
+				msg.addReceiver(new AID(agentContact, AID.ISLOCALNAME));
+			}
+			
 		}
 		
 		public void action() {

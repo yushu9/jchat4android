@@ -18,7 +18,6 @@ public class LocationReceiver extends IntentReceiver {
 			Location loc = (Location) intent.getParcelableExtra("location");
 			Contact myContact = ContactManager.getInstance().getMyContact();
 			myContact.setLocation(loc);
-			ContactManager.getInstance().setOngoingUpdate();
 			this.abortBroadcast(); 
 		}
 		
