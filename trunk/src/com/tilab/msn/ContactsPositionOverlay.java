@@ -53,19 +53,14 @@ public class ContactsPositionOverlay extends Overlay {
 	private int SCROLL_AREA_WIDTH=-1;
 	private int SCROLL_AREA_HEIGHT=-1;
 	
-	private final int CONTACT_LOC_POINT_RADIUS = 5;
 	
 	private MapView myMapView;
 
-	private int zoomLevel;
-	private int SQUARED_WIDTH=-1; 
 	private int WIDTH=-1;
 	private int HEIGHT=-1;
 	private int centerScreenX;
 	private int centerScreenY;
 	
-	private final android.graphics.Point PIN_HOTSPOT = new android.graphics.Point(0,0); 
-    
 
 	private final int ZOOM_MAX=0;
 	private final int RECOMPUTE_ZOOM=1;
@@ -202,7 +197,6 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		//GET the current contacts
 		Contact myCont = ContactManager.getInstance().getMyContact();
-		String phoneNumber= myCont.getPhoneNumber();
 		List<Contact> contacts = ContactManager.getInstance().getContactList();	
 			
 		//Compute params needed for further computations on the point cluster
@@ -244,7 +238,6 @@ public class ContactsPositionOverlay extends Overlay {
 			myLogger.log(Logger.INFO, "MapViev WIDTH = "+myMapView.getWidth());
 			myLogger.log(Logger.INFO, "Map View HEIGHT = "+myMapView.getHeight());
 			
-			SQUARED_WIDTH = WIDTH*WIDTH;
 			SCROLL_AREA_HEIGHT = (int) (HEIGHT * SCROLL_AREA_HEIGHT_RATIO);
 			SCROLL_AREA_WIDTH = (int) (WIDTH * SCROLL_AREA_WIDTH_RATIO);
 			scrollingArea.top = (HEIGHT - SCROLL_AREA_HEIGHT)/2;
@@ -274,8 +267,7 @@ public class ContactsPositionOverlay extends Overlay {
 		params.contactPoints = new ArrayList<ContactLayoutData>();
 
 		//Compute needed params for my contact
-		String phoneNumber= myContact.getPhoneNumber();
-		Location myContactLoc = contactManager.getContactLocation(phoneNumber); 			
+		Location myContactLoc = ContactManager.getInstance().getMyContactLocation(); 			
 		maxLat = (int)(myContactLoc.getLatitude() * 1E6);
 		maxLong = (int)(myContactLoc.getLongitude() * 1E6);
 		minLong = (int)(myContactLoc.getLongitude() * 1E6);
@@ -289,16 +281,16 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		params.contactPoints.add(myPointData);
 		
+		
 		//compute params for all the others
 		for (int i = 0; i < contacts.size(); i++) {
 			Contact ctn = contacts.get(i);
-			
 			//only online contacts are drawn on the map
 			if (ctn.isOnline()){
 			
 				contactsOnLine++;
 				
-				ContactLocation contactLoc = contactManager.getContactLocation(phoneNumber);
+				ContactLocation contactLoc = contactManager.getContactLocation(ctn.getPhoneNumber());
 				
 				int tmpLat = (int)(contactLoc.getLatitude() * 1E6);
 				int tmpLong = (int)(contactLoc.getLongitude() * 1E6);
