@@ -166,7 +166,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 							} else {
 								String phoneNumber = contactAID.getLocalName();
 								Contact c = ContactManager.getInstance().getContact(phoneNumber);
-								MsnSessionManager.getInstance().getChatActivityUpdater().postUIUpdate(c.getName());
+						//		MsnSessionManager.getInstance().getChatActivityUpdater().postUIUpdate(c.getName());
 								ContactManager.getInstance().setContactOffline(phoneNumber);
 								
 							}

@@ -228,18 +228,20 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         ContactListAdapter cla = new ContactListAdapter(this);
         ContactManager.getInstance().addAdapter(cla);
         
-        //Initialize the UI
-        initUI();
-        //fill Jade connection properties
+      //fill Jade connection properties
         Properties jadeProperties = getJadeProperties(this);
-        
-        //Add my contact
+      //Add my contact
         ContactManager.getInstance().addMyContact(jadeProperties.getProperty(JICPProtocol.MSISDN_KEY));
         
-        
+        //start updating myContact
         GeoNavigator.setLocationProviderName(getText(R.string.location_provider_name).toString());
         GeoNavigator.getInstance(this).initialize();
+        GeoNavigator.getInstance(this).startLocationUpdate();
         
+        //Initialize the UI
+        initUI();
+        
+         
         //try to get a JadeGateway
         try {
 			JadeGateway.connect(MsnAgent.class.getName(), new String[]{getText(R.string.contacts_update_time).toString()}, jadeProperties, this, this);
@@ -253,7 +255,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			e.printStackTrace();
 		}
 		
-		GeoNavigator.getInstance(this).startLocationUpdate();
+		
     }
 
     private static Properties jadeProperties;
@@ -428,13 +430,13 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	
 	private void refreshContactList(ContactListChanges changes){
 		
-		int selectedPos = contactsListView.getSelectedItemPosition();
+		int selPos = contactsListView.getSelectedItemPosition();
 
 		ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
 		//FIXME: if this works we should try to use the DataSetObserver pattern 
 		adapter.update(changes);
 		contactsListView.setAdapter(adapter);
-		contactsListView.setSelection(selectedPos);
+		contactsListView.setSelection(selPos);
 	}
 	
 	private void initializeContactList(){
@@ -470,7 +472,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			}			
 			
 			protected void handleUpdate(Object parameter) {
-					if (ContactManager.getInstance().updateIsOngoing()){
+				if (ContactManager.getInstance().movingContacts()){
 					MapView mapView = (MapView) activity.findViewById(R.id.myMapView);
 					mapView.invalidate();
 				}

@@ -49,6 +49,7 @@ public class MsnAgent extends GatewayAgent {
 
 		//subscribe to DF
 		subscriptionMessage = DFService.createSubscriptionMessage(this, this.getDefaultDF(), myDescription, null);
+		
 		Location curLoc = ContactManager.getInstance().getMyContactLocation();
 		
 		Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curLoc.getLatitude()));

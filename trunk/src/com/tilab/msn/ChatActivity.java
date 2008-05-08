@@ -196,15 +196,14 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		
 		public SenderBehaviour(String convId, String content, List<Contact> receivers) {
 			theMsg = new ACLMessage(ACLMessage.INFORM);
-			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-			msg.setContent(content);
-			msg.setOntology(MsnAgent.CHAT_ONTOLOGY);
-			msg.setConversationId(convId);
+			theMsg.setContent(content);
+			theMsg.setOntology(MsnAgent.CHAT_ONTOLOGY);
+			theMsg.setConversationId(convId);
 			
 			for(int i=0; i<receivers.size(); i++){
 				Contact c = receivers.get(i);
 				String agentContact = c.getPhoneNumber();
-				msg.addReceiver(new AID(agentContact, AID.ISLOCALNAME));
+				theMsg.addReceiver(new AID(agentContact, AID.ISLOCALNAME));
 			}
 			
 		}
