@@ -153,6 +153,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 					
 					myLogger.log(Logger.FINER, "Tab was switched! Current tab is "+ arg0 + " Changing the updater...");
 					
+					//FIXME: must understand what's wrong with this! Why do I receive null when the tab is clicked???
 			            if (arg0 == null){
 						try{
 							gateway.execute(updaters.get(CONTACTS_TAB_TAG));
