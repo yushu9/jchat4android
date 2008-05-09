@@ -30,8 +30,6 @@ public class MsnAgent extends GatewayAgent {
 	private ACLMessage subscriptionMessage;
 	private ContactsUpdaterBehaviour contactsUpdaterB;
 	private MessageReceiverBehaviour messageRecvB;
-	
-	private ACLMessage message;
 
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 
@@ -173,8 +171,8 @@ public class MsnAgent extends GatewayAgent {
 							for (jade.util.leap.Iterator it = msg.getAllReceiver(); it.hasNext();) {
 								AID agentId = (AID) it.next();
 		
-								if (!agentId.getName().startsWith(myContact.getPhoneNumber())){
-									String phoneNumber = message.getSender().getLocalName();										
+								if (!agentId.getLocalName().equals(myContact.getPhoneNumber())){
+									String phoneNumber = agentId.getLocalName();										
 									Contact otherContact = ContactManager.getInstance().getContact(phoneNumber);	
 									myLogger.log(Logger.INFO, "Adding contact " + otherContact.getName() + "as a session participant");
 									session.addParticipant(otherContact);
@@ -216,8 +214,8 @@ public class MsnAgent extends GatewayAgent {
 							for (jade.util.leap.Iterator it = msg.getAllReceiver(); it.hasNext();) {
 								AID agentId = (AID) it.next();
 		
-								if (!agentId.getName().startsWith(myContact.getPhoneNumber())){	
-									String phoneNumber1 = message.getSender().getLocalName();										
+								if (!agentId.getLocalName().equals(myContact.getPhoneNumber())){	
+									String phoneNumber1 = agentId.getLocalName();										
 									Contact otherContact = ContactManager.getInstance().getContact(phoneNumber1);
 									myLogger.log(Logger.INFO, "Adding contact " + otherContact.getName() + "as a session participant");
 									session.addParticipant(otherContact);
