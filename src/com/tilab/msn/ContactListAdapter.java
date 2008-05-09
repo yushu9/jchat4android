@@ -60,7 +60,17 @@ public class ContactListAdapter extends BaseAdapter {
 	}	
 	
 	public View getView(int position, View convertView, ViewGroup parent) {
-		return contactViewInfoList.get(position).contactView;
+		View v= null;
+		//FIXME: sometimes I get -1 as position from the callback! Is this an Android bug?
+		//This try / catch should provide a quick and dirty workaround... 
+		try {
+			v = contactViewInfoList.get(position).contactView;
+		} catch(IndexOutOfBoundsException ex){
+			myLogger.log(Logger.SEVERE,"ERROR: a runtime exception should be thrown! Value of position is: " + position );
+			//I returns view at pos 0 when I got -1, but we should check!!!!
+			v = contactViewInfoList.get(0).contactView;
+		}
+		return v;
 	}
 
 	public List<Contact> getAllSelectedItems(){
