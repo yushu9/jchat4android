@@ -89,18 +89,30 @@ public class MsnAgent extends GatewayAgent {
 	protected void takeDown() {
 		myLogger.log(Logger.INFO, "Starting agent takeDown() ");
 
-		ACLMessage unsubcribeMsg = DFService.createCancelMessage(this, getDefaultDF(), getSubscriptionMessage());
-		send(unsubcribeMsg);
+		AID defaultDf = getDefaultDF();
+		
+		if (defaultDf != null){
+		
+			ACLMessage unsubcribeMsg = DFService.createCancelMessage(this, defaultDf, getSubscriptionMessage());
+			send(unsubcribeMsg);
 
-		myLogger.log(Logger.INFO, "DS Subscription Canceling message was sent!");
+			myLogger.log(Logger.INFO, "DS Subscription Canceling message was sent!");
 
-		try {
-			DFService.deregister(this, myDescription);
-			myLogger.log(Logger.INFO, "Deregistering from DF!");
-		} catch (FIPAException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace(); 
-		}	
+			try {
+				defaultDf = getDefaultDF();
+				if (defaultDf != null){
+					DFService.deregister(this, myDescription);
+					myLogger.log(Logger.INFO, "Deregistering from DF!");
+				} else {
+					myLogger.log(Logger.SEVERE, "Default DF was found null the scond time!! Some error happens during jade shutdown");
+				}
+			} catch (FIPAException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace(); 
+			}
+		} else {
+			myLogger.log(Logger.SEVERE, "Default DF was found null!! Some error happens during jade shutdown");
+		}
 	}
 
 	//used to pass data to agent
@@ -193,7 +205,8 @@ public class MsnAgent extends GatewayAgent {
 						
 						//We received a message for a new session
 						if (session == null){
-							notificationUpdater.createSessionNotification(sessionId);
+							myLogger.log(Logger.INFO, "No session found! Creating the new session");
+							
 							//Create a new session with the specified ID
 						    session = MsnSessionManager.getInstance().createNewMsnSession(sessionId);
 							//Add all participants
@@ -210,12 +223,13 @@ public class MsnAgent extends GatewayAgent {
 									session.addParticipant(otherContact);
 								}
 							}
-								
+							
+							
 							//TODO: this instruction seems to be duplicated here but I feel that if we put this  after the if we can 
 							//have racing conditions problems (notification added but message not yet available). Check if we can move 
 							//this addMessage after the if
 							session.addMessage(sessionMessage);
-		
+							notificationUpdater.createSessionNotification(sessionId);
 						} else {
 							
 							//We must check that the updater is updating the same session this message refers to
