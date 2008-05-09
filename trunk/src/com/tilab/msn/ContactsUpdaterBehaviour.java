@@ -1,6 +1,6 @@
 package com.tilab.msn;
 
-import java.util.List;
+
 
 import jade.core.AID;
 import jade.core.Agent;

@@ -145,11 +145,11 @@ public class MsnAgent extends GatewayAgent {
 					ContactsUIUpdater updater = MsnSessionManager.getInstance().getChatActivityUpdater();
 					String phoneNum = msg.getSender().getLocalName();
 					Contact sender = ContactManager.getInstance().getContact(phoneNum);
-											
-					MsnSessionMessage sessionMessage = new MsnSessionMessage(msg.getContent(),sender.getName(),sender.getPhoneNumber(),true);
-					
+									
+										
 					IncomingNotificationUpdater notificationUpdater =MsnSessionManager.getInstance().getNotificationUpdater();
-				
+					MsnSessionMessage sessionMessage = new MsnSessionMessage(msg.getContent(),sender.getName(),sender.getPhoneNumber(),true);
+
 					
 					
 					//If we have no activity we need to add a notification
@@ -164,7 +164,7 @@ public class MsnAgent extends GatewayAgent {
 						//If no session exist
 						if (session == null) {
 							//Create a new session with the specified ID
-						    session = MsnSessionManager.getInstance().createNewMsnSession(sessionId);
+						    session = MsnSessionManager.getInstance().createNewMsnSession(sessionId);						    
 							//Add all participants							
 							myLogger.log(Logger.INFO, "Adding sender " + sender.getName() + "as a session participant");
 							session.addParticipant(sender);
@@ -179,9 +179,7 @@ public class MsnAgent extends GatewayAgent {
 								}
 							}
 								
-							//TODO: this instruction seems to be duplicated here but I feel that if we put this  after the if we can 
-							//have racing conditions problems (notification added but message not yet available). Check if we can move 
-							//this addMessage after the if
+							
 							session.addMessage(sessionMessage);
 							
 							myLogger.log(Logger.INFO, "Calling notification updater to add a new notification on status bar");

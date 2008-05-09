@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 //import java.util.concurrent.ConcurrentHashMap;
 //import java.util.concurrent.ConcurrentMap;
@@ -12,7 +13,7 @@ import java.util.Set;
 public class MsnSessionManager {
 	
 	private static MsnSessionManager instance = new MsnSessionManager(); 
-	private Map<String,MsnSession> sessionMap; 
+	private Map <String,MsnSession> sessionMap; 
 	private ContactsUIUpdater chatActivityUpdater;
 	private IncomingNotificationUpdater notificationUpdater;
 
