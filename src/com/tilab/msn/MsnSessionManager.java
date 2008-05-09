@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+//import java.util.concurrent.ConcurrentHashMap;
+//import java.util.concurrent.ConcurrentMap;
 
 public class MsnSessionManager {
 	
@@ -76,12 +78,12 @@ public class MsnSessionManager {
 	}
 	
 	
-	public synchronized void removeMsnSession(String msnSession){		
+	public void removeMsnSession(String msnSession){		
 			sessionMap.remove(msnSession);		
 	}
 	
 	
-	public synchronized int getActiveSessionNumber(){
+	public  int getActiveSessionNumber(){
 		
 		int activeSessionNum = 0;	
 		
@@ -90,7 +92,7 @@ public class MsnSessionManager {
 		return activeSessionNum;
 	}
 	
-	public synchronized void registerSession(String sessionId, MsnSession session){		
+	public void registerSession(String sessionId, MsnSession session){		
 			sessionMap.put(sessionId, session);		
 	}
 	
@@ -98,7 +100,7 @@ public class MsnSessionManager {
 		chatActivityUpdater = updater;
 	}
 	
-	public synchronized MsnSession retrieveSession(String sessionId){		
+	public MsnSession retrieveSession(String sessionId){		
 		MsnSession session = null;
 		
 			session = sessionMap.get(sessionId);
@@ -106,7 +108,7 @@ public class MsnSessionManager {
 		return session;
 	}
 	
-	public synchronized List<MsnSession> getAllSessionByParticipant(String participant){
+	public List<MsnSession> getAllSessionByParticipant(String participant){
 		
 		List<MsnSession> sessionList = new ArrayList<MsnSession>();
 		
