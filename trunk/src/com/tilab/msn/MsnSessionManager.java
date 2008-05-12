@@ -16,11 +16,10 @@ public class MsnSessionManager {
 	private Map <String,MsnSession> sessionMap; 
 	private ContactsUIUpdater chatActivityUpdater;
 	private IncomingNotificationUpdater notificationUpdater;
-
-	
+		
 	public static final int MAX_MSN_SESSION_NUMBER =10; 
 	
-	private MsnSessionManager(){
+	private MsnSessionManager(){		
 		sessionMap = new HashMap<String, MsnSession>(MAX_MSN_SESSION_NUMBER);
 		chatActivityUpdater = null;
 	}
@@ -70,11 +69,10 @@ public class MsnSessionManager {
 	
 	//This will create and register a new session initiated by another contact
 	public MsnSession createNewMsnSession(String sessionId){
-		
-		MsnSession session = new MsnSession(sessionId); 
+		int sessionCounter= sessionMap.size()+1;
+		MsnSession session = new MsnSession(sessionId, sessionCounter); 
 		//register it
-		registerSession(sessionId, session);
-		
+		registerSession(sessionId, session);		
 		return session;
 	}
 	

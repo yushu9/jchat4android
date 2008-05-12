@@ -7,20 +7,13 @@
         <item name="android:textColor">@color/blue</item>
     </style>
         
-        <style name="MessagesStyle">
-        <item name="android:textSize">22sp</item>
+        <style name="TitleStyle">
+        <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textStyle">bold</item> 
         <item name="android:typeface">sans</item>
     </style>
-    
-    <style name="ToStyle">
-        <item name="android:textSize">22sp</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textStyle">bold</item> 
-        <item name="android:typeface">sans</item>
-    </style>
-    
+            
     <style name="Contact_nameStyle">
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item> 

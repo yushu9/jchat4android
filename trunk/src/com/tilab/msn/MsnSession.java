@@ -15,13 +15,21 @@ public class MsnSession {
 	//TODO: Must check RFC 3296 compliance!!!!!
 	private final String SESSION_ID_URI_SCHEME="content";
 	private final String SESSION_ID_URI_SSP="sessionId";
+	private final String NOTIFICATION_TITLE ="Conversation ";
 	
-	private String sessionId;	
+	private String conversation;
+	private String sessionId;
+	private int sessionCounter;
 	
-	MsnSession(String sessionId){
+	
+	MsnSession(String sessionId, int sessionCounter){
 		participants = new ArrayList<Contact>();
 		messageList = new ArrayList<MsnSessionMessage>();
-		this.sessionId =sessionId;
+		this.sessionId =sessionId;	
+		
+		StringBuffer buffer= new StringBuffer(NOTIFICATION_TITLE);
+		buffer.append(sessionCounter);
+		conversation= buffer.toString();
 	}	
 	
 	//This shall be used as intent data. 
@@ -60,5 +68,10 @@ public class MsnSession {
 		String id = null;		
 		id = sessionId;		
 		return id;
+	}
+
+	public String toString(){		
+		return conversation;	
+	  
 	}
 }

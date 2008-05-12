@@ -73,7 +73,7 @@ class IncomingNotificationUpdater {
 			public void run() {
 				MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
 				List<Contact> participants = session.getAllParticipants();
-				String title = concatNames(participants);
+				String title = session.toString();
 				
 				Intent viewChatIntent = new Intent(Intent.VIEW_ACTION);
 				viewChatIntent.addCategory(Intent.DEFAULT_CATEGORY);
