@@ -10,6 +10,7 @@ import jade.util.Logger;
 import jade.util.leap.Properties;
 
 
+
 import java.util.List;
 
 import android.app.Activity;
@@ -17,7 +18,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-
+import android.view.Window;
 import android.widget.ArrayAdapter;
 
 import android.widget.Button;
@@ -47,6 +48,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		Thread.currentThread().getId();
         myLogger.log(Logger.INFO, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
 		super.onCreate(icicle);
+	    requestWindowFeature(Window.FEATURE_LEFT_ICON);
+        setFeatureDrawable(Window.FEATURE_LEFT_ICON, getResources().getDrawable(R.drawable.bluemessage));		
 		myLogger.log(Logger.INFO, "onCreate called ...");
 		setContentView(R.layout.chat);
 		sessionAdapter = new MsnSessionAdapter(getViewInflate(), getResources());	
@@ -129,7 +132,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		String sessionId = sessionIdUri.getFragment();
 		
 		session = MsnSessionManager.getInstance().retrieveSession(sessionId);
-		
+		setTitle(session.toString());
 		List<Contact> participants = session.getAllParticipants();
 		ArrayAdapter aAdapter = new ArrayAdapter(this,R.layout.participant_layout, R.id.participantName, participants);
 		partsList.setAdapter(aAdapter);
