@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Random;
 
 import android.app.Activity;
+import android.app.ActivityPendingResult;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Resources;
@@ -69,12 +70,16 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	private final String CONTACTS_TAB_TAG="ContactsTab";
 	private final String MAPVIEW_TAB_TAG="MapViewTab";
 	
+	//Return codes 
+	public static final int CHAT_ACTIVITY_CLOSED = 777;
+	
 	
 	//Array of updaters
 	private Map<String, ContactsUIUpdater> updaters;
 	
 	public static final String OTHER_PARTICIPANTS = "com.tilab.msn.Prova";
 	public static final String MESSAGE = "com.tilab.msn.Message";
+	public static final String ID_ACTIVITY_PENDING_RESULT = "ID_ACTIVITY_PENDING_RESULT";
 	
 	private void initUI(){
 		//Setup the main tabhost
@@ -410,6 +415,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 					MsnSessionManager.getInstance().getNotificationUpdater().createSessionNotification(session.getSessionId());
 				}			
 				
+				//Add to the intent a mean to return a result back to the start activity
+				ActivityPendingResult activityResult = createActivityPendingResult(CHAT_ACTIVITY_CLOSED, false);
+				
 				//packet an intent. We'll try to add the session ID in the intent data in URI form
 				//We use intent resolution here, cause the ChatActivity should be selected cause matching ACTION and CATEGORY
 				Intent it = new Intent(Intent.VIEW_ACTION);
@@ -417,7 +425,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				it.setData(session.getSessionIdAsUri());
 				it.setLaunchFlags(Intent.NEW_TASK_LAUNCH | Intent.SINGLE_TOP_LAUNCH);
 				it.addCategory(Intent.DEFAULT_CATEGORY);
-		
+				it.putExtra(ID_ACTIVITY_PENDING_RESULT, activityResult);
 				startActivity(it);
 				
 				break;
@@ -488,5 +496,19 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	protected void onStart() {		
 		super.onStart();
 		myLogger.log(Logger.INFO, "OnStart called: This activity has Task ID: " + getTaskId());
+	}
+
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode,
+			String data, Bundle extras) {
+		// TODO Auto-generated method stub
+		myLogger.log(Logger.INFO, "onActivityResult() was called! ChatActivity should have been closed!!");
+		
+		switch (requestCode){
+			case CHAT_ACTIVITY_CLOSED:
+				this.contactsListView.uncheckAllSelectedItems();
+			break;
+		}
 	}	
 }

@@ -7,6 +7,7 @@ import jade.lang.acl.ACLMessage;
 import jade.util.Logger;
 
 import android.app.Activity;
+import android.app.ActivityPendingResult;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -81,6 +82,8 @@ class IncomingNotificationUpdater {
 				viewChatIntent.setData(session.getSessionIdAsUri());
 				
 				int numParticipants = participants.size() +1;
+				ActivityPendingResult result = activity.createActivityPendingResult(ContactListActivity.CHAT_ACTIVITY_CLOSED, false);
+				viewChatIntent.putExtra(ContactListActivity.ID_ACTIVITY_PENDING_RESULT, result);
 				
 				Notification notif = new Notification(activity,
 							 R.drawable.incoming,
@@ -143,6 +146,8 @@ class IncomingNotificationUpdater {
 				String phoneNumber= message.getSender().getLocalName();
 				Contact cont = ContactManager.getInstance().getContact(phoneNumber);
 				
+				ActivityPendingResult result = activity.createActivityPendingResult(ContactListActivity.CHAT_ACTIVITY_CLOSED, false);
+				viewChatIntent.putExtra(ContactListActivity.ID_ACTIVITY_PENDING_RESULT, result);
 				
 				Toast.makeText(activity, "New Message arrived from " + cont.getName() , 3000).show();
 				

@@ -46,6 +46,12 @@ public class ContactListAdapter extends BaseAdapter {
 	}
 
 	
+	public void uncheckAll(){
+		for (ContactViewInfo cview : contactViewInfoList) {
+			cview.uncheck();
+		} 
+	}
+	
 	public Object getItem(int arg0) {
 		ContactViewInfo cvi = contactViewInfoList.get(arg0);		
 		return ContactManager.getInstance().getContact(cvi.contactId);
@@ -145,7 +151,10 @@ public class ContactListAdapter extends BaseAdapter {
 			return retVal;
 		}
 
-	
+		public void uncheck(){
+			CheckBox contactCheckBox = (CheckBox) contactView.findViewById(R.id.contact_check_box);
+			contactCheckBox.setChecked(false);
+		}
 	
 		public ContactViewInfo(String contactId){
 			this.contactId = contactId;	

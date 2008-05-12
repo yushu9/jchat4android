@@ -14,6 +14,7 @@ import jade.util.leap.Properties;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.ActivityPendingResult;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	private JadeGateway gateway;
 	private MsnSession session;
 	private MsnSessionAdapter sessionAdapter;
+	private ActivityPendingResult activityPendingResult;
 	
 	public MsnSession getMsnSession(){
 		return session;
@@ -131,6 +133,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		Uri sessionIdUri = i.getData();
 		String sessionId = sessionIdUri.getFragment();
 		
+		activityPendingResult = (ActivityPendingResult) i.getParcelableExtra(ContactListActivity.ID_ACTIVITY_PENDING_RESULT);
+		
 		session = MsnSessionManager.getInstance().retrieveSession(sessionId);
 		setTitle(session.toString());
 		List<Contact> participants = session.getAllParticipants();
@@ -158,11 +162,16 @@ public class ChatActivity extends Activity implements ConnectionListener{
 
 	@Override
 	protected void onDestroy() {
-		super.onDestroy();					
+		super.onDestroy();		
+		
+		
+		
 		if (gateway != null){
 			gateway.disconnect(this);
 			myLogger.log(Logger.FINER, "ChatActivity.onDestroy() : disconnected from MicroRuntimeService");
 		}		
+		
+		activityPendingResult.sendResult(ContactListActivity.CHAT_ACTIVITY_CLOSED, null, null);
 	}
 	
 	public void onConnected(JadeGateway arg0) {

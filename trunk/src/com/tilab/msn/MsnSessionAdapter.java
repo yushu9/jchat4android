@@ -96,7 +96,7 @@ public class MsnSessionAdapter extends BaseAdapter {
 		}
 		
 		private void loadPalette(Resources res){
-			colorPalette[0] = res.getColor(R.color.chat_ocean_blue);
+			colorPalette[0] = res.getColor(R.color.chat_dark_yellow);
 			colorPalette[1] = res.getColor(R.color.chat_dark_orange);
 			colorPalette[2] = res.getColor(R.color.chat_grass_green);
 			colorPalette[3] = res.getColor(R.color.chat_pale_yellow);
