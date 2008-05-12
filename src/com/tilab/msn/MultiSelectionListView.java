@@ -22,6 +22,10 @@ public class MultiSelectionListView extends ListView{
 		return ((ContactListAdapter) getAdapter()).getAllSelectedItems();
 	}
 	
+	public void uncheckAllSelectedItems(){
+		((ContactListAdapter) getAdapter()).uncheckAll();	
+		invalidate();
+	}
 		
 }
  
