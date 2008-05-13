@@ -4,7 +4,7 @@
     
     <style name="ParticipantStyle">
         <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/blue</item>
+        <item name="android:textColor">@color/light_blue</item>
     </style>
         
         <style name="TitleStyle">
