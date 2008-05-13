@@ -51,11 +51,11 @@ public class ChatActivity extends Activity implements ConnectionListener{
         myLogger.log(Logger.INFO, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
 		super.onCreate(icicle);
 	    requestWindowFeature(Window.FEATURE_LEFT_ICON);
-        setFeatureDrawable(Window.FEATURE_LEFT_ICON, getResources().getDrawable(R.drawable.bluemessage));		
+        
+	    setFeatureDrawable(Window.FEATURE_LEFT_ICON, getResources().getDrawable(R.drawable.bluemessage));		
 		myLogger.log(Logger.INFO, "onCreate called ...");
 		setContentView(R.layout.chat);
 		sessionAdapter = new MsnSessionAdapter(getViewInflate(), getResources());	
-		
 		sendButton = (ImageButton) findViewById(R.id.sendBtn);		
 		sendButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -63,13 +63,14 @@ public class ChatActivity extends Activity implements ConnectionListener{
             	myLogger.log(Logger.INFO,"onClick(): send message:" + msgContent);
             	if(msgContent.length()>0){
             		sendMessageToParticipants(msgContent);
-				}	
+            		}	
             }
         });		
 		//retrieve the list
 		partsList = (ListView) findViewById(R.id.partsList);		
 		messageToBeSent = (EditText)findViewById(R.id.edit);
 		messagesSentList = (ListView) findViewById(R.id.messagesListView);
+		
 
 		closeButton = (ImageButton) findViewById(R.id.closeBtn);
 		closeButton.setOnClickListener(new View.OnClickListener(){
@@ -140,6 +141,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		List<Contact> participants = session.getAllParticipants();
 		ArrayAdapter aAdapter = new ArrayAdapter(this,R.layout.participant_layout, R.id.participantName, participants);
 		partsList.setAdapter(aAdapter);
+		
 		
 		messageToBeSent.setText("");
 		

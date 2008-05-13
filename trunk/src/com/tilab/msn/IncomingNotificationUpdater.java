@@ -153,10 +153,10 @@ class IncomingNotificationUpdater {
 				
 				Notification notif = new Notification(activity,
 							 R.drawable.incoming,
-							 "Instant Message is arrived",
+							 "A Message is arrived",
 							 System.currentTimeMillis(),
-							 cont.getName(),
-							 "New message from  " + cont.getName(),
+							 session.toString(),
+							 "Msg from " + cont.getName(),
 							 viewChatIntent,
 							 android.R.drawable.app_icon_background,
 							 null,
