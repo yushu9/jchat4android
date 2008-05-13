@@ -17,7 +17,6 @@ android:layout_height="fill_parent"
 	android:id="@+id/partsList"
 	android:layout_width="wrap_content"
 	android:layout_height="80px"
-	android:background="@android:drawable/editbox_background"
 	android:listSelector="@android:drawable/list_highlight_background_blue"
 	/>
 	

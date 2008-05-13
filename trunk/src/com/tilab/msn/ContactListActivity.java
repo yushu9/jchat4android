@@ -147,6 +147,10 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		mainTabHost.setCurrentTabByTag(CONTACTS_TAB_TAG);
 		
 		contactsListView = (MultiSelectionListView) findViewById(R.id.contactsList);
+		int[] selectorColors= new int[] {res.getColor(R.color.light_green), res.getColor(R.color.dark_green)};
+		GradientDrawable selectorDrawable = new GradientDrawable(Orientation.TL_BR, selectorColors);
+		contactsListView.setSelector(selectorDrawable);
+		
 		//added ContextMenu
 		contactsListView.setOnPopulateContextMenuListener(
 				new View.OnPopulateContextMenuListener(){
