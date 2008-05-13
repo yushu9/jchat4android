@@ -238,10 +238,11 @@ public class MsnAgent extends GatewayAgent {
 							} else {
 								//If here we received a notification for a session that is present but not the one associated
 								//to the current activity
+								session.addMessage(sessionMessage);
 								notificationUpdater.updateSessionNotification(msg);
 							}
 							
-							session.addMessage(sessionMessage);
+							
 						}
 					}
 
