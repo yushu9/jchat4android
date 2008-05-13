@@ -243,9 +243,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
 			
 			if (parameter instanceof MsnSessionMessage){
 				//retrieve the SessionMessage
-				myLogger.log(Logger.INFO, "Received an order of UI update: updating GUI with new message");
-				MsnSessionMessage msg = (MsnSessionMessage) parameter;				
-				sessionAdapter.addMessageView(msg);
+				myLogger.log(Logger.INFO, "Received an order of UI update: updating GUI with new message");		
+				sessionAdapter.setNewSession(session);
 				messagesSentList.setAdapter(sessionAdapter);
 			} 
 			
