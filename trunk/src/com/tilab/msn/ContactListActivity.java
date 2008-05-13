@@ -67,7 +67,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	private final int CONTEXT_MENU_ITEM_SMS = Menu.FIRST+3;
 	
 	//NEEDED TAGS FOR THE TABHOST (to address them)
-	private final String CONTACTS_TAB_TAG="ContactsTab";
+	private final String CONTACTS_TAB_TAG="ContTab";
 	private final String MAPVIEW_TAB_TAG="MapViewTab";
 	
 	//Return codes 
@@ -75,7 +75,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	
 	
 	//Array of updaters
-	private Map<String, ContactsUIUpdater> updaters;
+	private  ContactListActivityUpdater activityUpdater;
 	
 	public static final String OTHER_PARTICIPANTS = "com.tilab.msn.Prova";
 	public static final String MESSAGE = "com.tilab.msn.Message";
@@ -142,42 +142,10 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		});
 		
 		//Create the updater array
-        updaters = new HashMap<String, ContactsUIUpdater>(2);
-        updaters.put(CONTACTS_TAB_TAG, new ContactListUpdater(this)); 
-        updaters.put(MAPVIEW_TAB_TAG, new MapUpdater(this));
-	        
+            
 		//Select default tab
 		mainTabHost.setCurrentTabByTag(CONTACTS_TAB_TAG);
 		
-		
-	     //Set the handler for the click on the tab host
-		mainTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
-
-				
-				public void onTabChanged(String arg0) {
-					
-					myLogger.log(Logger.FINER, "Tab was switched! Current tab is "+ arg0 + " Changing the updater...");
-					
-					//FIXME: must understand what's wrong with this! Why do I receive null when the tab is clicked???
-			            if (arg0 == null){
-						try{
-							gateway.execute(updaters.get(CONTACTS_TAB_TAG));
-						}catch(Exception e){
-							myLogger.log(Logger.SEVERE, e.getMessage());
-						}
-						
-						contactsListView.setAdapter(ContactManager.getInstance().getAdapter());
-						
-					} else {
-						try{
-							gateway.execute(updaters.get(MAPVIEW_TAB_TAG));
-						}catch(Exception e){
-							myLogger.log(Logger.SEVERE, e.getMessage());
-						}
-					}
-				}        	
-	});
-
 		contactsListView = (MultiSelectionListView) findViewById(R.id.contactsList);
 		//added ContextMenu
 		contactsListView.setOnPopulateContextMenuListener(
@@ -242,6 +210,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         GeoNavigator.setLocationProviderName(getText(R.string.location_provider_name).toString());
         GeoNavigator.getInstance(this).initialize();
         GeoNavigator.getInstance(this).startLocationUpdate();
+     
+        activityUpdater = new ContactListActivityUpdater(this);
         
         //Initialize the UI
         initUI();
@@ -327,10 +297,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		MsnSessionManager.getInstance().registerNotificationUpdater(new IncomingNotificationUpdater(this));
 		
 		try {
-			gateway.execute(updaters.get(CONTACTS_TAB_TAG));
+			gateway.execute(activityUpdater);
 			//put my contact online			
-			
-		
 		} catch(Exception e){
 			Toast.makeText(this, e.toString(), 1000).show();
 			myLogger.log(Logger.SEVERE, "Exception in onConnected",e);
@@ -436,15 +404,10 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		return false;
 	}
 	
-	private void refreshContactList(ContactListChanges changes){
-		
-		int selPos = contactsListView.getSelectedItemPosition();
-
+	private void updateListAdapter(ContactListChanges changes){
 		ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
 		//FIXME: if this works we should try to use the DataSetObserver pattern 
-		adapter.update(changes);
-		contactsListView.setAdapter(adapter);
-		contactsListView.setSelection(selPos);
+		adapter.update(changes);		
 	}
 	
 	private void initializeContactList(){
@@ -453,43 +416,42 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		contactsListView.setAdapter(adapter);
 	}
 	
-	/**
-	 * This class perform the GUI update
-	 * @author s.semeria
-	 *
-	 */
+		
+	private class ContactListActivityUpdater extends ContactsUIUpdater{
 
-	private class ContactListUpdater extends ContactsUIUpdater{
-
-		public ContactListUpdater(Activity act) {
+		public ContactListActivityUpdater(Activity act) {
 			super(act);
-			}
-
-		protected void handleUpdate(Object parameter) {
-				if (parameter instanceof ContactListChanges){		
-				ContactListChanges changes = (ContactListChanges) parameter;
-				refreshContactList(changes);	
-			}
-		}		
-	}	
-	
-	private class MapUpdater extends ContactsUIUpdater{
-
-		public MapUpdater(Activity act) {
-			super(act);
-			}			
+		}			
 			
-			protected void handleUpdate(Object parameter) {
-				if (ContactManager.getInstance().movingContacts()){
-					MapView mapView = (MapView) activity.findViewById(R.id.myMapView);
-					mapView.invalidate();
-				}
+		protected void handleUpdate(Object parameter) {
+				
+				boolean anyChanges = false;
 				
 				if (parameter instanceof ContactListChanges){		
 					ContactListChanges changes = (ContactListChanges) parameter;
-					refreshContactList(changes);	
+					anyChanges = true;
+					updateListAdapter(changes);	
 				}
-			}		
+				
+				//refresh the screen: if the map is visible refresh it
+				//It seems that using the tab tag does not work
+				if (mainTabHost.getCurrentTab() > 0){
+					//if any contact has moved
+					if (ContactManager.getInstance().movingContacts()){
+						//redraw the map
+						mapView.invalidate();
+					}
+				} else {
+					if (anyChanges || ContactManager.getInstance().movingContacts()){
+						// if here the contact list is visible
+						int selPos = contactsListView.getSelectedItemPosition();
+						ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
+						contactsListView.setAdapter(adapter);
+						contactsListView.setSelection(selPos);
+					}
+				}
+		}		
+		
 	}
 
 	@Override
