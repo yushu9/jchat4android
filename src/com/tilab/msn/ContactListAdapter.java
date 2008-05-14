@@ -3,29 +3,23 @@ package com.tilab.msn;
 import jade.util.Logger;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import com.google.android.maps.MyLocationOverlay;
+import java.util.List;
 
 import android.content.Context;
 import android.content.Resources;
-import android.graphics.Typeface;
+
 import android.location.Location;
-import android.telephony.gsm.stk.TextAttribute;
+
 import android.util.TypedValue;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewInflate;
-import android.webkit.WebSettings.TextSize;
+
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextSetting;
+
 import android.widget.TextView;
 
 public class ContactListAdapter extends BaseAdapter {

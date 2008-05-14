@@ -15,7 +15,7 @@ android:layout_height="fill_parent"
 	
 <ListView
 	android:id="@+id/partsList"
-	android:layout_width="wrap_content"
+	android:layout_width="fill_parent"
 	android:layout_height="80px"
 	android:listSelector="@android:drawable/list_highlight_background_blue"
 	/>

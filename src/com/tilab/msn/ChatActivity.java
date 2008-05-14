@@ -49,11 +49,10 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		Thread.currentThread().getId();
         myLogger.log(Logger.INFO, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
 		super.onCreate(icicle);
-	    requestWindowFeature(Window.FEATURE_LEFT_ICON);
-        
+	    requestWindowFeature(Window.FEATURE_LEFT_ICON); 
+	    setContentView(R.layout.chat);
 	    setFeatureDrawable(Window.FEATURE_LEFT_ICON, getResources().getDrawable(R.drawable.bluemessage));		
 		myLogger.log(Logger.INFO, "onCreate called ...");
-		setContentView(R.layout.chat);
 		sessionAdapter = new MsnSessionAdapter(getViewInflate(), getResources());	
 		sendButton = (ImageButton) findViewById(R.id.sendBtn);		
 		sendButton.setOnClickListener(new View.OnClickListener() {
