@@ -10,9 +10,9 @@ import jade.util.Logger;
 import jade.util.leap.Properties;
 
 import java.net.ConnectException;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
+
 import java.util.Random;
 
 import android.app.Activity;
