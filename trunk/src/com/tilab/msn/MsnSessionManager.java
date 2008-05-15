@@ -13,7 +13,7 @@ import java.util.Set;
 public class MsnSessionManager {
 	
 	private static MsnSessionManager instance = new MsnSessionManager(); 
-	private Map <String,MsnSession> sessionMap; 
+	private Map<String,MsnSession> sessionMap; 
 	private ContactsUIUpdater chatActivityUpdater;
 	private IncomingNotificationUpdater notificationUpdater;
 		
@@ -29,12 +29,12 @@ public class MsnSessionManager {
 		return instance;
 	}
 	
-	public void registerNotificationUpdater(IncomingNotificationUpdater updater){
+	public synchronized void  registerNotificationUpdater(IncomingNotificationUpdater updater){
 		notificationUpdater = updater;
 	}
 
 	
-	public IncomingNotificationUpdater getNotificationUpdater(){
+	public synchronized IncomingNotificationUpdater getNotificationUpdater(){
 		return notificationUpdater;
 	}
 	

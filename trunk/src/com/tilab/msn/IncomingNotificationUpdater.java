@@ -152,7 +152,7 @@ class IncomingNotificationUpdater {
 				Toast.makeText(activity, "New Message arrived from " + cont.getName() , 3000).show();
 				
 				Notification notif = new Notification(activity,
-							 R.drawable.incoming,
+							 R.drawable.chat,
 							 "A Message is arrived",
 							 System.currentTimeMillis(),
 							 session.toString(),

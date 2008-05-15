@@ -152,6 +152,7 @@ public class MsnAgent extends GatewayAgent {
 
 					
 					
+					synchronized (MsnSessionManager.getInstance()) {
 					//If we have no activity we need to add a notification
 					if (updater == null) {
 
@@ -227,21 +228,25 @@ public class MsnAgent extends GatewayAgent {
 							session.addMessage(sessionMessage);
 							notificationUpdater.createSessionNotification(sessionId);
 						} else {
-							
-							//We must check that the updater is updating the same session this message refers to
-							MsnSession updatedSession = (MsnSession) updater.retrieveExtraData();
-							
-							if (updatedSession.equals(session)){
-								session.addMessage(sessionMessage);
-								myLogger.log(Logger.INFO, "Posting UI update on the retrieved updater");
-								updater.postUIUpdate(sessionMessage);
-							} else {
-								//If here we received a notification for a session that is present but not the one associated
-								//to the current activity
-								session.addMessage(sessionMessage);
-								notificationUpdater.updateSessionNotification(msg);
+
+							//FIXME: this is really bad: should refactor code
+								
+								if (updater != null){
+									//We must check that the updater is updating the same session this message refers to
+									MsnSession updatedSession = (MsnSession) updater.retrieveExtraData();
+									
+									if (updatedSession.equals(session)){
+										session.addMessage(sessionMessage);
+										myLogger.log(Logger.INFO, "Posting UI update on the retrieved updater");
+										updater.postUIUpdate(sessionMessage);
+									} else {
+										//If here we received a notification for a session that is present but not the one associated
+										//to the current activity
+										session.addMessage(sessionMessage);
+										notificationUpdater.updateSessionNotification(msg);
+									}
+								}
 							}
-							
 							
 						}
 					}
