@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- APPLICATION SPECIFIC PARAMETERS -->
+    <string name="app_name">Tilab Msn</string>
+    <string name="msn_service_desc_name">android-msn-service</string>
+    <string name="msn_service_desc_type">android-msn</string>
+    <string name="contacts_update_time">5000</string>
+    
+    <!-- UI SPECIFIC PARAMETERS -->
+   	<string name="toast_duration">2000</string>
+   	
+   	<!-- TAB NAMES -->
+   	<string name="contacts_tab_name"> Contacts</string>
+   	<string name="mapview_tab_name"> Map</string>
+   	
+   	<!-- MENU ITEM PARAMETERS -->
+   	<string name="menuitem_listview">List mode</string>
+   	<string name="menuitem_exit">Exit</string>
+   	
+   	<!--  CONTEXT MENU CONTACT LIST -->
+   	<string name="menu_item_chat">Chat</string>
+   	<string name="menu_item_call">Call</string>
+   	<string name="menu_item_sms">SMS</string>
+   
+    <string name="menuitem_zoom">Zoom Dialog</string>
+    
+    <!-- LOCATION PROVIDER NAME -->
+    <string name="location_provider_name">mygps </string>
+    
+	<!-- JADE PLATFORM CONNECTION PARAMETERS -->    
+    <string name="jade_platform_host">163.162.244.25</string>
+	<string name="jade_platform_port">1099</string>
+	
+	<!-- TEXT LABELS -->
+	  <string name="label_for_offline">Offline</string>
+	  <string name="label_toggle_satellite">Toggle satellite mode</string>
+	  <string name="label_toggle_map">Toggle map mode</string>
+
+    <!-- ERROR MESSAGES -->
+    <string name="error_msg_jadegw_connection">Error connecting to Jade Gateway</string>
+
+	<!-- MISSING FEATURES -->
+	<string name="missing_feature_sms">Sending SMS is not supported at the moment!</string>
+
+</resources>
