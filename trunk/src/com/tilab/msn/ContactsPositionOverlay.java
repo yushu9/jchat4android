@@ -4,6 +4,7 @@ import jade.util.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import android.content.Resources;
@@ -44,8 +45,8 @@ public class ContactsPositionOverlay extends Overlay {
 	private final float SCROLL_AREA_HEIGHT_RATIO= 0.70f;
 	
 	//This ratio is referred to SCREEN WIDTH
-	private final float UPPER_THRESHOLD_RATIO = 0.6f;
-	private final float LOWER_THRESHOLD_RATIO = 0.4f;
+	private final float UPPER_THRESHOLD_RATIO = 0.46f;
+	private final float LOWER_THRESHOLD_RATIO = 0.35f;
 	
 	private int SCROLL_AREA_WIDTH=-1;
 	private int SCROLL_AREA_HEIGHT=-1;
@@ -246,8 +247,7 @@ public class ContactsPositionOverlay extends Overlay {
 			tmpThresh = (int) (WIDTH * LOWER_THRESHOLD_RATIO);
 			LOWER_THRESHOLD = tmpThresh * tmpThresh;
 			doScrolling(params);
-			int howToZoom = zoomChangeIsNeeded(params);
-			doZoom(params, howToZoom);
+			doZoom(params, RECOMPUTE_ZOOM);
 	
 	}
 	private PointClusterParams extractParams(List<Contact> contacts, Contact myContact, PixelCalculator calc){
@@ -260,9 +260,10 @@ public class ContactsPositionOverlay extends Overlay {
 		int midPointX=0;
 		int midPointY=0;
 		
+		Map<String, ContactLocation> locationMap = ContactManager.getInstance().getAllContactLocations();
 		PointClusterParams params = new PointClusterParams();
 		params.contactPoints = new ArrayList<ContactLayoutData>();
-
+		
 		//Compute needed params for my contact
 		Location myContactLoc = ContactManager.getInstance().getMyContactLocation(); 			
 		maxLat = (int)(myContactLoc.getLatitude() * 1E6);
@@ -287,23 +288,24 @@ public class ContactsPositionOverlay extends Overlay {
 			
 				contactsOnLine++;
 				
-				ContactLocation contactLoc = ContactManager.getInstance().getContactLocation(ctn.getPhoneNumber());
-				
-				int tmpLat = (int)(contactLoc.getLatitude() * 1E6);
-				int tmpLong = (int)(contactLoc.getLongitude() * 1E6);
-				
-				maxLat = (tmpLat > maxLat)? tmpLat : maxLat;
-				maxLong = (tmpLong > maxLong)? tmpLong : maxLong;
-				minLong = (tmpLong < minLong)? tmpLong : minLong;
-				minLat = (tmpLat < minLat)? tmpLat : minLat;
-				
-				
-				ContactLayoutData pointData = new ContactLayoutData(ctn.getName(),ctn.getPhoneNumber(),contactLoc ,calc );
-				
-				midPointX += pointData.positionOnScreen[0];
-				midPointY += pointData.positionOnScreen[1];
-				
-				params.contactPoints.add(pointData);
+				ContactLocation contactLoc = locationMap.get(ctn.getPhoneNumber());
+				if (contactLoc != null) {
+					int tmpLat = (int)(contactLoc.getLatitude() * 1E6);
+					int tmpLong = (int)(contactLoc.getLongitude() * 1E6);
+					
+					maxLat = (tmpLat > maxLat)? tmpLat : maxLat;
+					maxLong = (tmpLong > maxLong)? tmpLong : maxLong;
+					minLong = (tmpLong < minLong)? tmpLong : minLong;
+					minLat = (tmpLat < minLat)? tmpLat : minLat;
+					
+					
+					ContactLayoutData pointData = new ContactLayoutData(ctn.getName(),ctn.getPhoneNumber(),contactLoc ,calc );
+					
+					midPointX += pointData.positionOnScreen[0];
+					midPointY += pointData.positionOnScreen[1];
+					
+					params.contactPoints.add(pointData);
+				}
 			}
 		}
 		
