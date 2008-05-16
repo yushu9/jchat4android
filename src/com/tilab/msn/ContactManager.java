@@ -177,7 +177,7 @@ public class ContactManager {
 
 	//FIXME: Discuss if here we should return the map or a copy
 	public Map<String, ContactLocation> getAllContactLocations(){
-		return contactLocationMap;
+		return new HashMap<String, ContactLocation>(contactLocationMap);
 	}
 	
 	public void addMyContact(String phoneNumber) {
@@ -193,5 +193,6 @@ public class ContactManager {
 	public ContactLocation getMyContactLocation(){
 		return new ContactLocation(myContactLocation);
 	}
+	
 }
 
