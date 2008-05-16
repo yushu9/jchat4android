@@ -39,4 +39,7 @@
     <!-- ERROR MESSAGES -->
     <string name="error_msg_jadegw_connection">Error connecting to Jade Gateway</string>
 
+	<!-- MISSING FEATURES -->
+	<string name="missing_feature_sms">Sending SMS is not supported at the moment!</string>
+
 </resources>

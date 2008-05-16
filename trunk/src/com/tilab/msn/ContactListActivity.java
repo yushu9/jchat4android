@@ -402,6 +402,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				
 				break;
 			case CONTEXT_MENU_ITEM_SMS:
+				Toast.makeText(this, R.string.missing_feature_sms, 3000).show();
 				break;
 			default:
 		}

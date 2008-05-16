@@ -173,4 +173,22 @@ class IncomingNotificationUpdater {
 			
 		}
 	
+		public void showDisconnectionToast(String contactName){
+			activity.runOnUIThread(new DisconnectionToastRunnable(contactName));
+		}
+		
+		private class DisconnectionToastRunnable implements Runnable{
+
+			private String contactName;
+			
+			public DisconnectionToastRunnable(String contactName){
+				this.contactName = contactName;
+			}
+			
+			public void run() {
+				// TODO Auto-generated method stub				
+				Toast.makeText(activity, contactName + " is now offline!", 3000).show();
+			}
+			
+		}
 }
