@@ -44,10 +44,8 @@ public class ContactsPositionOverlay extends Overlay {
 	private final float SCROLL_AREA_HEIGHT_RATIO= 0.70f;
 	
 	//This ratio is referred to SCREEN WIDTH
-	private final float UPPER_THRESHOLD_RATIO = 0.5f;
-	private final float LOWER_THRESHOLD_RATIO = 0.2f;
-	
-	
+	private final float UPPER_THRESHOLD_RATIO = 0.6f;
+	private final float LOWER_THRESHOLD_RATIO = 0.4f;
 	
 	private int SCROLL_AREA_WIDTH=-1;
 	private int SCROLL_AREA_HEIGHT=-1;
