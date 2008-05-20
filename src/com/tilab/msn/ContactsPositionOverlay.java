@@ -138,7 +138,7 @@ public class ContactsPositionOverlay extends Overlay {
         int blueBaloonOffsetX = 4;
         myPaint.setTextSize(18);
         
-        Set<Contact> allParticipants = MsnSessionManager.getInstance().getAllParticipants();
+        Set<String> allParticipants = MsnSessionManager.getInstance().getAllParticipantIds();
 		int color=0;
 		int iconToTextOffsetY= 5;
 		
@@ -157,7 +157,7 @@ public class ContactsPositionOverlay extends Overlay {
 			} 
 			else {			
 				//Here blueBaloon for people you're chatting with				 
-				if(allParticipants.contains(ContactManager.getInstance().getContact(cData.idContact))){																
+				if(allParticipants.contains(cData.idContact)){																
 					bitmapOriginX = cData.positionOnScreen[0]-blueBaloonOffsetX;
 					bitmapOriginY = cData.positionOnScreen[1]-blueBaloonOffsetY;
 					bitmapToBeDrawn = blueBaloon;
@@ -189,6 +189,7 @@ public class ContactsPositionOverlay extends Overlay {
          }
 		
 	}	
+	
 	@Override
 	public void draw(Canvas canvas, PixelCalculator calculator, boolean shadow) {		
 		super.draw(canvas, calculator, shadow);

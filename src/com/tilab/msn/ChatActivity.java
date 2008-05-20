@@ -73,7 +73,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		closeButton = (ImageButton) findViewById(R.id.closeBtn);
 		closeButton.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View view){
-				MsnSessionManager.getInstance().getNotificationUpdater().removeSessionNotification(session.getSessionId());
+				MsnSessionManager.getInstance().getNotificationManager().removeSessionNotification(session.getSessionId());
 				MsnSessionManager.getInstance().removeMsnSession(session.getSessionId());
 				finish();
 			}
@@ -136,7 +136,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		
 		session = MsnSessionManager.getInstance().retrieveSession(sessionId);
 		setTitle(session.toString());
-		List<Contact> participants = session.getAllParticipants();
+		List<String> participants = session.getAllParticipantIds();
 		ArrayAdapter aAdapter = new ArrayAdapter(this,R.layout.participant_layout, R.id.participantName, participants);
 		partsList.setAdapter(aAdapter);
 		MsnSessionManager.getInstance().getNotificationUpdater().removeSessionNotification(sessionId);
@@ -173,6 +173,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		}		
 		MsnSessionManager.getInstance().registerChatActivityUpdater(null);
 		activityPendingResult.sendResult(ContactListActivity.CHAT_ACTIVITY_CLOSED, null, null);
+		MsnSessionManager.getInstance().registerChatActivityUpdater(null);
+		
 	}
 	
 	public void onConnected(JadeGateway arg0) {
@@ -187,13 +189,13 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		
 		
 		//set all participants as receivers
-		List<Contact> receivers = session.getAllParticipants();
+		List<String> receivers = session.getAllParticipantIds();
 		
 		try{
 			gateway.execute(new SenderBehaviour(session.getSessionId(), msgContent, receivers));
 			Contact myContact = ContactManager.getInstance().getMyContact();
-    		MsnSessionMessage message = new MsnSessionMessage(msgContent,myContact.getName(),myContact.getPhoneNumber(),false);
-    		session.addMessage(message);
+    		MsnSessionMessage message = new MsnSessionMessage(msgContent,myContact.getName(),myContact.getPhoneNumber());
+    		MsnSessionManager.getInstance().addMessageToSession(session.getSessionId(), message);
     		//Add a new view to the adapter
     		sessionAdapter.addMessageView(message);
     		//refresh the list
@@ -207,16 +209,15 @@ public class ChatActivity extends Activity implements ConnectionListener{
 
 		private ACLMessage theMsg;
 		
-		public SenderBehaviour(String convId, String content, List<Contact> receivers) {
+		public SenderBehaviour(String convId, String content, List<String> receivers) {
 			theMsg = new ACLMessage(ACLMessage.INFORM);
 			theMsg.setContent(content);
 			theMsg.setOntology(MsnAgent.CHAT_ONTOLOGY);
 			theMsg.setConversationId(convId);
 			
 			for(int i=0; i<receivers.size(); i++){
-				Contact c = receivers.get(i);
-				String agentContact = c.getPhoneNumber();
-				theMsg.addReceiver(new AID(agentContact, AID.ISLOCALNAME));
+				String cId = receivers.get(i);
+				theMsg.addReceiver(new AID(cId, AID.ISLOCALNAME));
 			}
 			
 		}

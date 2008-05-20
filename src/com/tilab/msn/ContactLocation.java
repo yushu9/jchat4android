@@ -5,9 +5,13 @@ import android.location.Location;
 public class ContactLocation extends Location {
 
 	private final boolean hasMoved;
+	public static final ContactLocation INVALID_LOCATION=new ContactLocation();
 
 	public ContactLocation(){
 		hasMoved = false;
+		setLatitude(Double.NEGATIVE_INFINITY);
+		setLongitude(Double.NEGATIVE_INFINITY);
+		setAltitude(Double.NEGATIVE_INFINITY);
 	}
 	
 	public ContactLocation( ContactLocation toBeCopied){

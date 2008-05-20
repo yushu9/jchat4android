@@ -87,6 +87,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         mainTabHost = (TabHost) findViewById(R.id.main_tabhost);
         mainTabHost.setup();
     
+        
       //Fill the contacts tab
         TabSpec contactsTabSpecs = mainTabHost.newTabSpec(CONTACTS_TAB_TAG);
         TabSpec mapTabSpecs = mainTabHost.newTabSpec(MAPVIEW_TAB_TAG);
@@ -106,7 +107,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		int[] colors= new int[] {res.getColor(R.color.white), res.getColor(R.color.dark_grey)};
 		int[] colors1 = new int[] {res.getColor(R.color.white), res.getColor(R.color.blue)};
 		GradientDrawable gd1 = new GradientDrawable(Orientation.LEFT_RIGHT, colors);
+		gd1.setCornerRadii(new float[]{10.0f,10.0f,10.0f,10.0f,0.0f,0.0f,0.0f,0.0f});
 		GradientDrawable gd2 = new GradientDrawable(Orientation.LEFT_RIGHT, colors1);
+		gd2.setCornerRadii(new float[]{4.0f,4.0f,4.0f,4.0f,0.0f,0.0f,0.0f,0.0f});
 		contactView.setBackground(gd1);
 		mapViewTab.setBackground(gd2);
 		
@@ -159,12 +162,13 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 						ContextMenuInfo info = (ContextMenuInfo) menuInfo;
 						myLv.setSelection(info.position);
 						
-						Contact selectedC = (Contact)myLv.getSelectedItem();
-						List<Contact>  checkedContacts =myLv.getAllSelectedItems();
+						String selectedCId = (String)myLv.getSelectedItem();
+						List<String>  checkedContacts =myLv.getAllSelectedItems();
 						
 						//If the selected item is also checked
-						if (checkedContacts.contains(selectedC)) {
+						if (checkedContacts.contains(selectedCId)) {
 							//Let the menu appear
+							Contact selectedC = ContactManager.getInstance().getContact(selectedCId);
 							if (selectedC.isOnline())
 								menu.add(0, CONTEXT_MENU_ITEM_CHAT, R.string.menu_item_chat);
 							menu.add(0, CONTEXT_MENU_ITEM_CALL, R.string.menu_item_call);
@@ -184,7 +188,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	    });
 		
 
-				
 		
 		ContactManager.getInstance().readPhoneContacts(this);
 		contactsListView.setAdapter(ContactManager.getInstance().getAdapter());
@@ -204,6 +207,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         super.onCreate(icicle);
         ContactListAdapter cla = new ContactListAdapter(this);
         ContactManager.getInstance().addAdapter(cla);
+        MsnSessionManager.getInstance().initialize(this);
         
       //fill Jade connection properties
         Properties jadeProperties = getJadeProperties(this);
@@ -264,7 +268,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		myLogger.log(Logger.INFO, "onDestroy called ...");
 		GeoNavigator.getInstance(this).shutdown();
 		
-		IncomingNotificationUpdater notifUpd = MsnSessionManager.getInstance().getNotificationUpdater();
+		ChatSessionNotificationManager notifUpd = MsnSessionManager.getInstance().getNotificationManager();
 		
 		if (notifUpd != null)	
 			notifUpd.removeAllNotifications();
@@ -298,7 +302,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		this.gateway = arg0;
 	
 		myLogger.log(Logger.INFO, "onConnected(): SUCCESS!");
-		MsnSessionManager.getInstance().registerNotificationUpdater(new IncomingNotificationUpdater(this));
 		
 		try {
 			gateway.execute(activityUpdater);
@@ -376,17 +379,15 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		
 				break;
 			case CONTEXT_MENU_ITEM_CHAT:
-				List<Contact> participantList = contactsListView.getAllSelectedItems();
+				List<String> participantIds = contactsListView.getAllSelectedItems();
+				//start a new session or retrieve it If the session already exists. its Id is retrieved
+				String sessionId = MsnSessionManager.getInstance().startMsnSession(participantIds);
 				
-				MsnSession session = MsnSessionManager.getInstance().getSessionByParticipantList(participantList);
-				
-				//If no session available, we must add a notification
-				if (session == null){
-					//creates a new session filling it with participants (or retrieve the existing one)
-					session = MsnSessionManager.getInstance().createNewMsnSession(participantList);
-					MsnSessionManager.getInstance().getNotificationUpdater().createSessionNotification(session.getSessionId());
-				}			
-				
+				//retrieve a copy of the session
+				MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
+				//Add a notification for the new session
+				MsnSessionManager.getInstance().getNotificationManager().addNewSessionNotification(sessionId);
+							
 				//Add to the intent a mean to return a result back to the start activity
 				ActivityPendingResult activityResult = createActivityPendingResult(CHAT_ACTIVITY_CLOSED, false);
 				
@@ -422,6 +423,27 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 	
 		
+	@Override
+	protected void onStart() {		
+		super.onStart();
+		myLogger.log(Logger.INFO, "OnStart called: This activity has Task ID: " + getTaskId());
+	}
+
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode,
+			String data, Bundle extras) {
+		// TODO Auto-generated method stub
+		myLogger.log(Logger.INFO, "onActivityResult() was called! ChatActivity should have been closed!!");
+		
+		switch (requestCode){
+			case CHAT_ACTIVITY_CLOSED:
+				this.contactsListView.uncheckAllSelectedItems();
+			break;
+		}
+	}	
+	
+	
 	private class ContactListActivityUpdater extends ContactsUIUpdater{
 
 		public ContactListActivityUpdater(Activity act) {
@@ -458,24 +480,4 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		}		
 		
 	}
-
-	@Override
-	protected void onStart() {		
-		super.onStart();
-		myLogger.log(Logger.INFO, "OnStart called: This activity has Task ID: " + getTaskId());
-	}
-
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode,
-			String data, Bundle extras) {
-		// TODO Auto-generated method stub
-		myLogger.log(Logger.INFO, "onActivityResult() was called! ChatActivity should have been closed!!");
-		
-		switch (requestCode){
-			case CHAT_ACTIVITY_CLOSED:
-				this.contactsListView.uncheckAllSelectedItems();
-			break;
-		}
-	}	
 }
