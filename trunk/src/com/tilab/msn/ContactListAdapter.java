@@ -48,7 +48,7 @@ public class ContactListAdapter extends BaseAdapter {
 	
 	public Object getItem(int arg0) {
 		ContactViewInfo cvi = contactViewInfoList.get(arg0);		
-		return ContactManager.getInstance().getContact(cvi.contactId);
+		return cvi.contactId;
 	}
 	
 	public long getItemId(int position) {
@@ -73,19 +73,18 @@ public class ContactListAdapter extends BaseAdapter {
 		return v;
 	}
 
-	public List<Contact> getAllSelectedItems(){
-		List<Contact> contactsSelected = new ArrayList<Contact>();
+	public List<String> getAllSelectedItemIds(){
+		List<String> contactsSelectedIds = new ArrayList<String>();
 		
 		for (ContactViewInfo contactViewInfo : contactViewInfoList) {
 			View v = contactViewInfo.contactView;
 			CheckBox cb = (CheckBox) v.findViewById(R.id.contact_check_box);
 			if (cb.isChecked()){
-				Contact cont = ContactManager.getInstance().getContact(contactViewInfo.contactId);
-				contactsSelected.add(cont);
+				contactsSelectedIds.add(contactViewInfo.contactId);
 			}
 		}
 		
-		return contactsSelected;
+		return contactsSelectedIds;
 	}
 	
 	public void initialize(){

@@ -19,7 +19,6 @@ public class Contact  {
 	private final String name; //nome come appare sulla rubrica (se non è presente il numTel)	
 	private final boolean storedOnPhone;
 	
-	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 		
 	public Contact(String name, String phoneNumber, boolean stored){
 		this.name = name;

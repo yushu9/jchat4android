@@ -2,6 +2,7 @@ package com.tilab.msn;
 
 
 
+import jade.lang.acl.ACLMessage;
 import android.util.DateUtils;
 
 /**
@@ -15,24 +16,30 @@ public class MsnSessionMessage {
 	private long time;	
 	private String messageContent;
 	private String messageSenderName;
-	private String senderNumTel;
+	private String senderPhoneNum;
 	
 	//Stores the data and save the current date
-	public MsnSessionMessage(String message, String senderName, String senderTel, boolean received){
-		this(message,senderName,senderTel, System.currentTimeMillis(), received);
+	public MsnSessionMessage(String message, String senderName, String senderTel){
+		this(message,senderName,senderTel, System.currentTimeMillis());
 	}
 	
+	public MsnSessionMessage(ACLMessage msg){
+		this.senderPhoneNum = msg.getSender().getLocalName();
+		this.messageSenderName = ContactManager.getInstance().getContact(senderPhoneNum).getName();
+		this.messageContent = msg.getContent();
+		this.time = System.currentTimeMillis();
+	}
 	
 	//
-	public MsnSessionMessage(String message, String senderName, String senderTel, long timestamp, boolean received){
+	public MsnSessionMessage(String message, String senderName, String senderTel, long timestamp){
 		time = timestamp;
 		messageContent = message;
 		messageSenderName = senderName;
-		senderNumTel = senderTel;
+		senderPhoneNum = senderTel;
 	}
 
 	public String getSenderNumTel(){
-		return senderNumTel;
+		return senderPhoneNum;
 	}
 	
 	public long getTime() {

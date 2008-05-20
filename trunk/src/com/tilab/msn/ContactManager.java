@@ -3,12 +3,12 @@ package com.tilab.msn;
 
 
 import jade.util.Logger;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import android.database.Cursor;
 import android.location.Location;
@@ -94,6 +94,7 @@ public class ContactManager {
 		 contactsAdapter= cla;
 	}
 
+	
 	//This methods adds or updates a contact 
 	public void addOrUpdateOnlineContact(String phoneNumber, Location loc){
 			//Is the contact already there?
