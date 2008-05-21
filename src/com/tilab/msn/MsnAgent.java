@@ -134,134 +134,82 @@ public class MsnAgent extends GatewayAgent {
 				//If a message is received
 				if(msg != null){
 					myLogger.log(Logger.INFO, msg.toString());
-
+					MsnSessionManager sessionManager = MsnSessionManager.getInstance();
 					Contact myContact = ContactManager.getInstance().getMyContact();
-					
 					//retrieve the session id
 					String sessionId = msg.getConversationId();
 					myLogger.log(Logger.INFO, "Received Message... session ID is " + sessionId);
+					String senderPhoneNum = msg.getSender().getLocalName();	
+					Contact senderContact = ContactManager.getInstance().getContact(senderPhoneNum);
+					//Create a session Message from the received ACLMessage
+					MsnSessionMessage sessionMessage = new MsnSessionMessage(msg);
 
-					//check if there's an activity to update
-					ContactsUIUpdater updater = MsnSessionManager.getInstance().getChatActivityUpdater();
-					String phoneNum = msg.getSender().getLocalName();
-					Contact sender = ContactManager.getInstance().getContact(phoneNum);
-									
-										
-					IncomingNotificationUpdater notificationUpdater =MsnSessionManager.getInstance().getNotificationUpdater();
-					MsnSessionMessage sessionMessage = new MsnSessionMessage(msg.getContent(),sender.getName(),sender.getPhoneNumber(),true);
+					//Check if we can retrieve a session. If so we should have got a copy
+					MsnSession currentSession = MsnSessionManager.getInstance().retrieveSession(sessionId);
 
-					
-					
-					synchronized (MsnSessionManager.getInstance()) {
-					//If we have no activity we need to add a notification
-					if (updater == null) {
+					//If we have a new session
+					if (currentSession == null) {
+						//Create a new session with the specified ID
+						sessionManager.addMsnSession(sessionId, msg.getAllReceiver(), senderPhoneNum);						    
+						sessionManager.addMessageToSession(sessionId,sessionMessage);
+						sessionManager.getNotificationManager().postNewMsgNotification(sessionId, sessionMessage);
+						sessionManager.getNotificationManager().showToast("New message from " + senderContact.getName(),3000);
 
-						myLogger.log(Logger.INFO, "Updater not found... a notification must be added or updated");
-					
-						
-						//Check if this session is new or not
-						MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
-						
-						//If no session exist
-						if (session == null) {
-							//Create a new session with the specified ID
-						    session = MsnSessionManager.getInstance().createNewMsnSession(sessionId);						    
-							//Add all participants							
-							myLogger.log(Logger.INFO, "Adding sender " + sender.getName() + "as a session participant");
-							session.addParticipant(sender);
-							for (jade.util.leap.Iterator it = msg.getAllReceiver(); it.hasNext();) {
-								AID agentId = (AID) it.next();
-		
-								if (!agentId.getLocalName().equals(myContact.getPhoneNumber())){
-									String phoneNumber = agentId.getLocalName();										
-									Contact otherContact = ContactManager.getInstance().getContact(phoneNumber);	
-									myLogger.log(Logger.INFO, "Adding contact " + otherContact.getName() + "as a session participant");
-									session.addParticipant(otherContact);
-								}
-							}
-								
-							
-							session.addMessage(sessionMessage);
-							
-							myLogger.log(Logger.INFO, "Calling notification updater to add a new notification on status bar");
-							//FIXME: we should do it in one pass, there's no need to post two runnables for creation and modification
-							notificationUpdater.createSessionNotification(sessionId);
-							myLogger.log(Logger.INFO, "Calling notification updater to update the notification on status bar");
-							//We should see this update after a short delay
-							notificationUpdater.updateSessionNotificationDelayed(msg);
-						} else {
-							session.addMessage(sessionMessage);
-							myLogger.log(Logger.INFO, "Calling notification updater to update the notification on status bar");
-							notificationUpdater.updateSessionNotification(msg);
-						}
-						
-						
 					} else {
-						myLogger.log(Logger.INFO, "Updater found... retrieving existing session");
-						MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
-						
-						//We received a message for a new session
-						if (session == null){
-							myLogger.log(Logger.INFO, "No session found! Creating the new session");
-							
-							//Create a new session with the specified ID
-						    session = MsnSessionManager.getInstance().createNewMsnSession(sessionId);
-							//Add all participants
-							
-							myLogger.log(Logger.INFO, "Adding sender " + sender.getName() + "as a session participant");
-							session.addParticipant(sender);
-							for (jade.util.leap.Iterator it = msg.getAllReceiver(); it.hasNext();) {
-								AID agentId = (AID) it.next();
-		
-								if (!agentId.getLocalName().equals(myContact.getPhoneNumber())){	
-									String phoneNumber1 = agentId.getLocalName();										
-									Contact otherContact = ContactManager.getInstance().getContact(phoneNumber1);
-									myLogger.log(Logger.INFO, "Adding contact " + otherContact.getName() + "as a session participant");
-									session.addParticipant(otherContact);
-								}
-							}
-							
-							
-							//TODO: this instruction seems to be duplicated here but I feel that if we put this  after the if we can 
-							//have racing conditions problems (notification added but message not yet available). Check if we can move 
-							//this addMessage after the if
-							session.addMessage(sessionMessage);
-							notificationUpdater.createSessionNotification(sessionId);
-						} else {
 
-							//FIXME: this is really bad: should refactor code
-								
-								if (updater != null){
-									//We must check that the updater is updating the same session this message refers to
-									MsnSession updatedSession = (MsnSession) updater.retrieveExtraData();
-									
-									if (updatedSession.equals(session)){
-										session.addMessage(sessionMessage);
-										myLogger.log(Logger.INFO, "Posting UI update on the retrieved updater");
-										updater.postUIUpdate(sessionMessage);
-									} else {
-										//If here we received a notification for a session that is present but not the one associated
-										//to the current activity
-										session.addMessage(sessionMessage);
-										notificationUpdater.updateSessionNotification(msg);
-									}
-								}
-							}
-							
+						 
+						//We have two more possible cases: 
+						//1. We have a chat activity window opened for the session this message refers to -> update chat activity
+						//2. We have no opened chat activity or a chat activity for a session different from the one this message refers to
+						//   -> add a notification on status bar
+
+						Object theLock = sessionManager.getChatUpdaterLock();
+						synchronized(theLock) {
+							ContactsUIUpdater chatActivityUpdater = sessionManager.getChatActivityUpdater();
+							handleVisibleChat( sessionId, senderContact,sessionMessage, chatActivityUpdater, sessionManager.getNotificationManager());
 						}
-					}
 
-				}else{
+
+					}
+				} else{
 					block();
 				}				
-			}
-			catch(Throwable t) {
+
+			}catch(Throwable t) {
 				myLogger.log(Logger.SEVERE,"***  Uncaught Exception for agent " + myAgent.getLocalName() + "  ***",t);
 			}		
-	}
- }
-}
 
+		}
+
+		private void handleVisibleChat( String sessionId, Contact senderCtn, MsnSessionMessage sessionMessage, ContactsUIUpdater updater,
+										ChatSessionNotificationManager manager) {
+			
+			MsnSessionManager.getInstance().addMessageToSession(sessionId, sessionMessage);
+			
+			//If chat windows is visible
+			if ( updater != null ){
+				MsnSession updatedSession = (MsnSession)updater.retrieveExtraData();
+				
+				//check that the updated session is the same as the mesagge's one  
+				if (updatedSession.getSessionId().equals(sessionId)){
+					myLogger.log(Logger.INFO, "No session found! Creating the new session");
+					//update the gui
+					updater.postUIUpdate(sessionMessage);
+				} else {
+					//In this case we just need to add a notification for the message
+					manager.postNewMsgNotification(sessionId, sessionMessage);
+					MsnSessionManager.getInstance().getNotificationManager().showToast("New message from " + senderCtn.getName(),3000);
+				}
+				
+			} else {
+				
+				//if not visible we just add a notification
+				manager.postNewMsgNotification(sessionId, sessionMessage);
+				MsnSessionManager.getInstance().getNotificationManager().showToast("New message from " + senderCtn.getName(),3000);
+			}
+		}
+	}
+}
 
 
 

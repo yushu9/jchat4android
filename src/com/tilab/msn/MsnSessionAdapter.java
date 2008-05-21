@@ -40,6 +40,7 @@ public class MsnSessionAdapter extends BaseAdapter {
 		messageViews.clear();
 		
 		List<MsnSessionMessage> messages = theSession.getMessageList();
+		
 		for (MsnSessionMessage msnSessionMessage : messages) {
 			addMessageView(msnSessionMessage);
 		}

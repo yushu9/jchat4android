@@ -30,6 +30,7 @@ public class MsnSession {
 	MsnSession(String sessionId, Iterator recvIt, String senderPhone, int sessionCounter){
 		this.sessionId = sessionId;
 		this.participantIdList = new ArrayList<String>();
+		this.messageList = new ArrayList<MsnSessionMessage>();
 		fillParticipantList(recvIt, senderPhone);
 		//prepare the session title
 		StringBuffer buffer= new StringBuffer(NOTIFICATION_TITLE);
@@ -40,7 +41,7 @@ public class MsnSession {
 	MsnSession(String sessionId, List<String> participantsIds, int sessionCounter) {
 		this.sessionId = sessionId;
 		this.participantIdList = participantsIds;
-		
+		this.messageList = new ArrayList<MsnSessionMessage>();
 		//prepare the session title
 		StringBuffer buffer= new StringBuffer(NOTIFICATION_TITLE);
 		buffer.append(sessionCounter);
@@ -50,9 +51,15 @@ public class MsnSession {
 	public MsnSession(MsnSession session) {
 		this.sessionTitle = session.sessionTitle;
 		this.sessionId = session.sessionId;
-		this.messageList = new ArrayList<MsnSessionMessage>(session.messageList);
+		this.messageList = new ArrayList<MsnSessionMessage>();
+		
+		for (MsnSessionMessage msg : session.messageList) {
+			this.messageList.add( new MsnSessionMessage(msg));
+		}
+		
 		this.participantIdList = new ArrayList<String>(session.participantIdList);
 	}
+	 
 	
 	//Fill the list of participants (Me is not included)
 	private void fillParticipantList(Iterator receiversIt, String senderPhoneNum){
@@ -111,7 +118,7 @@ public class MsnSession {
 	}
 	
 	public int getParticipantCount(){
-		return participantIdList.size();
+		return participantIdList.size()+1;
 	}
 
 	public String getSessionId() {			

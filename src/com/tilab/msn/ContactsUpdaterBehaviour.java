@@ -167,7 +167,10 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 								String phoneNumber = contactAID.getLocalName();
 								Contact c = ContactManager.getInstance().getContact(phoneNumber);
 								ContactManager.getInstance().setContactOffline(phoneNumber);
-								MsnSessionManager.getInstance().getNotificationUpdater().showDisconnectionToast(c.getName());
+								StringBuffer strBuf = new StringBuffer("Contact ");
+								strBuf.append(c.getName());
+								strBuf.append(" is now disconnected!");
+								MsnSessionManager.getInstance().getNotificationManager().showToast(strBuf.toString(),3000);
 								
 							}
 						}
