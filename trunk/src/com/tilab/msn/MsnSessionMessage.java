@@ -30,6 +30,13 @@ public class MsnSessionMessage {
 		this.time = System.currentTimeMillis();
 	}
 	
+	public MsnSessionMessage(MsnSessionMessage message){
+		this.senderPhoneNum = new String(message.senderPhoneNum);
+		this.messageSenderName = new String(message.messageSenderName);
+		this.messageContent = new String(message.messageContent);
+		this.time = message.time;
+	}
+	
 	//
 	public MsnSessionMessage(String message, String senderName, String senderTel, long timestamp){
 		time = timestamp;
@@ -70,6 +77,7 @@ public class MsnSessionMessage {
 	public String getRelativeTimeSpanAsString(){
 		return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString();
 	}
+	
 	
 	
 	@Override

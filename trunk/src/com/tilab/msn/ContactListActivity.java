@@ -20,6 +20,7 @@ import android.app.ActivityPendingResult;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.Bundle;
@@ -103,21 +104,30 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		mapTabSpecs.setContent(R.id.content2);
 		mainTabHost.addTab(contactsTabSpecs);
 		mainTabHost.addTab(mapTabSpecs);
-		Resources res= getResources();		
+		Resources res= getResources();
+		
 		int[] colors= new int[] {res.getColor(R.color.white), res.getColor(R.color.dark_grey)};
+		int midColor = Color.rgb((Color.red(colors[0]) + Color.red(colors[1]))/2,
+							(Color.green(colors[0]) + Color.green(colors[1]))/2,
+							(Color.blue(colors[0]) + Color.blue(colors[1]))/2);
 		int[] colors1 = new int[] {res.getColor(R.color.white), res.getColor(R.color.blue)};
-		GradientDrawable gd1 = new GradientDrawable(Orientation.LEFT_RIGHT, colors);
+		int[] colors2 = new int[] {res.getColor(R.color.white), midColor};
+		GradientDrawable gd1 = new GradientDrawable(Orientation.LEFT_RIGHT, colors2);
 		gd1.setCornerRadii(new float[]{10.0f,10.0f,10.0f,10.0f,0.0f,0.0f,0.0f,0.0f});
 		GradientDrawable gd2 = new GradientDrawable(Orientation.LEFT_RIGHT, colors1);
-		gd2.setCornerRadii(new float[]{4.0f,4.0f,4.0f,4.0f,0.0f,0.0f,0.0f,0.0f});
+		gd2.setCornerRadii(new float[]{10.0f,10.0f,10.0f,10.0f,0.0f,0.0f,0.0f,0.0f});
+		
+		GradientDrawable gd3 = new GradientDrawable(Orientation.LEFT_RIGHT, colors);
 		contactView.setBackground(gd1);
+		GradientDrawable gd4 = new GradientDrawable(Orientation.LEFT_RIGHT, colors1);
+
+		
 		mapViewTab.setBackground(gd2);
 		
-        
         View homeTab = (View) findViewById(R.id.content1);
-        homeTab.setBackground(gd1);
+        homeTab.setBackground(gd3);
         View homeTab1 = (View) findViewById(R.id.content2);
-        homeTab1.setBackground(gd2);
+        homeTab1.setBackground(gd4);
         		
 		//init the map view
 		mapView = (MapView) findViewById(R.id.myMapView);
@@ -181,7 +191,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	    	public void  onItemClick(AdapterView parent, View v, int position, long id) {
 	    		CheckBox cb= (CheckBox)v.findViewById(R.id.contact_check_box);	
 	    		ContactListAdapter  adapter = (ContactListAdapter) parent.getAdapter();
-	    		Contact selC = (Contact) adapter.getItem(position);
+	    		String selCId = (String) adapter.getItem(position);
+	    		Contact selC = ContactManager.getInstance().getContact(selCId);
 	    		if (selC.isOnline())
 	    			cb.setChecked(!cb.isChecked());
 	    	}
@@ -359,7 +370,6 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 
 	public boolean onContextItemSelected(Item item) {
-		
 		
 		switch(item.getId()) {
 			case CONTEXT_MENU_ITEM_CALL:

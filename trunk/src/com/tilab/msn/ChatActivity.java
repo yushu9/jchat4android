@@ -37,12 +37,12 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	private ListView messagesSentList;
 	private EditText messageToBeSent;
 	private JadeGateway gateway;
-	private MsnSession session;
+	private String sessionId;
 	private MsnSessionAdapter sessionAdapter;
 	private ActivityPendingResult activityPendingResult;
 	
-	public MsnSession getMsnSession(){
-		return session;
+	public String getMsnSession(){
+		return sessionId;
 	}
 	
 	protected void onCreate(Bundle icicle) {
@@ -73,8 +73,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		closeButton = (ImageButton) findViewById(R.id.closeBtn);
 		closeButton.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View view){
-				MsnSessionManager.getInstance().getNotificationManager().removeSessionNotification(session.getSessionId());
-				MsnSessionManager.getInstance().removeMsnSession(session.getSessionId());
+				MsnSessionManager.getInstance().getNotificationManager().removeSessionNotification(sessionId);
+				MsnSessionManager.getInstance().removeMsnSession(sessionId);
 				finish();
 			}
 		});
@@ -130,18 +130,15 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		myLogger.log(Logger.INFO, "onResume() was called!" );
 		Intent i = getIntent();
 		Uri sessionIdUri = i.getData();
-		String sessionId = sessionIdUri.getFragment();
+		sessionId = sessionIdUri.getFragment();
 		
 		activityPendingResult = (ActivityPendingResult) i.getParcelableExtra(ContactListActivity.ID_ACTIVITY_PENDING_RESULT);
-		
-		session = MsnSessionManager.getInstance().retrieveSession(sessionId);
+		MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
 		setTitle(session.toString());
 		List<String> participants = session.getAllParticipantIds();
 		ArrayAdapter aAdapter = new ArrayAdapter(this,R.layout.participant_layout, R.id.participantName, participants);
 		partsList.setAdapter(aAdapter);
-		MsnSessionManager.getInstance().getNotificationUpdater().removeSessionNotification(sessionId);
-		MsnSessionManager.getInstance().getNotificationUpdater().createSessionNotification(sessionId);
-		
+		MsnSessionManager.getInstance().getNotificationManager().addNewSessionNotification(sessionId);
 		messageToBeSent.setText("");
 		
 		//register an updater for this session
@@ -189,6 +186,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		
 		
 		//set all participants as receivers
+		MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
 		List<String> receivers = session.getAllParticipantIds();
 		
 		try{
@@ -234,7 +232,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		public MessageReceivedUpdater(Activity act) {
 			super(act);
 			ChatActivity chatAct = (ChatActivity) act;
-			data = chatAct.getMsnSession();
+			String sessionId = chatAct.getMsnSession();
+			data = MsnSessionManager.getInstance().retrieveSession(sessionId);
 		}		
 		
 		//This method updates the GUI and receives the MsnSessionMessage object 
@@ -244,6 +243,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 			if (parameter instanceof MsnSessionMessage){
 				//retrieve the SessionMessage
 				myLogger.log(Logger.INFO, "Received an order of UI update: updating GUI with new message");		
+				MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
 				sessionAdapter.setNewSession(session);
 				messagesSentList.setAdapter(sessionAdapter);
 			} 

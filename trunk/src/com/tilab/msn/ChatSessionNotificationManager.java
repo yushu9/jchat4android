@@ -10,6 +10,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 
 class ChatSessionNotificationManager {
@@ -31,6 +32,10 @@ class ChatSessionNotificationManager {
 			int index = Integer.parseInt(sessionId);
 			Notification sessionNotif = makeSessionNotification(sessionId);
 			activity.runOnUIThread(new NotificationRunnable(index,sessionNotif));
+		}
+		
+		public void showToast(String msg, int duration){
+			activity.runOnUIThread(new ToastRunnable(msg,duration));
 		}
 		
 		public void postNewMsgNotification(String sessionId, MsnSessionMessage msg) {
@@ -99,9 +104,9 @@ class ChatSessionNotificationManager {
 			
 			ActivityPendingResult result = activity.createActivityPendingResult(ContactListActivity.CHAT_ACTIVITY_CLOSED, false);
 			viewChatIntent.putExtra(ContactListActivity.ID_ACTIVITY_PENDING_RESULT, result);
-						
+			
 			Notification notif = new Notification(activity,
-						 R.drawable.incoming,
+						 R.drawable.chat,
 						 "A Message is arrived",
 						 System.currentTimeMillis(),
 						 title,
@@ -138,6 +143,7 @@ class ChatSessionNotificationManager {
 			
 			public NotificationRunnable(int index, Notification notif){
 				this.notifId = index;
+				this.notif = notif;
 			}
 			
 			public void run() {
@@ -146,5 +152,21 @@ class ChatSessionNotificationManager {
 			
 		}
 		
+		
+		private class ToastRunnable implements Runnable {
+
+			private int duration;
+			private String message;
 			
+			public ToastRunnable(String msg, int duration) {
+				this.message = msg;
+				this.duration = duration;
+			}
+			
+			@Override
+			public void run() {
+				Toast.makeText(activity, message, duration).show();
+			}
+			
+		}
 }

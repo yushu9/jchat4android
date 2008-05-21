@@ -115,10 +115,16 @@ public class MsnSessionManager {
 	public MsnSession retrieveSession(String sessionId){		
 	
 		MsnSession session=null;
+		MsnSession copyOfSession = null;
+		
 		synchronized (this) {
 			session = sessionMap.get(sessionId);
+			if (session != null)
+				copyOfSession = new MsnSession(session);
 		}
-		return new MsnSession(session);
+		
+		return copyOfSession;
+			
 	}
 	
 	public synchronized void addMessageToSession(String sessionId, MsnSessionMessage msg){
