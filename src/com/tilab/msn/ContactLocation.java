@@ -8,6 +8,9 @@ public class ContactLocation extends Location {
 
 	public ContactLocation(){
 		hasMoved = false;
+		setLatitude(Double.POSITIVE_INFINITY);
+		setLongitude(Double.POSITIVE_INFINITY);
+		setAltitude(Double.POSITIVE_INFINITY);
 	
 	}
 	

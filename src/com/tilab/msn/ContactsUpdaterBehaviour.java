@@ -161,8 +161,14 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 								Iterator propertyIt = serviceDesc.getAllProperties(); 
 								Location loc = Helper.extractLocation(propertyIt);
-                                String phoneNum = contactAID.getLocalName();                                 
-								ContactManager.getInstance().addOrUpdateOnlineContact(phoneNum, loc);								
+								
+								if (loc.getAltitude() != Double.POSITIVE_INFINITY && 
+									loc.getLongitude() != Double.POSITIVE_INFINITY && 
+									loc.getLatitude()!=Double.POSITIVE_INFINITY){
+									String phoneNum = contactAID.getLocalName();                                 
+									ContactManager.getInstance().addOrUpdateOnlineContact(phoneNum, loc);								
+								}
+								
 							} else {
 								String phoneNumber = contactAID.getLocalName();
 								Contact c = ContactManager.getInstance().getContact(phoneNumber);
