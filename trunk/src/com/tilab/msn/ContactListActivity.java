@@ -87,7 +87,19 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         setContentView(R.layout.homepage);
         mainTabHost = (TabHost) findViewById(R.id.main_tabhost);
         mainTabHost.setup();
-    
+      /*  mainTabHost.setOnTabChangedListener( new TabHost.OnTabChangeListener(){
+
+			@Override
+			public void onTabChanged(String arg0) {
+				// TODO Auto-generated method stub
+				int[] colors= new int[] {Color.MAGENTA, Color.RED};
+				GradientDrawable gd1 = new GradientDrawable(Orientation.LEFT_RIGHT, colors);
+				gd1.setCornerRadii(new float[]{10.0f,10.0f,10.0f,10.0f,0.0f,0.0f,0.0f,0.0f});
+				
+				mainTabHost.add
+			}
+        	
+        });*/
         
       //Fill the contacts tab
         TabSpec contactsTabSpecs = mainTabHost.newTabSpec(CONTACTS_TAB_TAG);
@@ -472,13 +484,13 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				
 				//refresh the screen: if the map is visible refresh it
 				//It seems that using the tab tag does not work
-				if (mainTabHost.getCurrentTab() > 0){
+			//	if (mainTabHost.getCurrentTab() > 0){
 					//if any contact has moved
 					if (ContactManager.getInstance().movingContacts()){
 						//redraw the map
 						mapView.invalidate();
 					}
-				} else {
+			//	} else {
 					if (anyChanges || ContactManager.getInstance().movingContacts()){
 						// if here the contact list is visible
 						int selPos = contactsListView.getSelectedItemPosition();
@@ -486,7 +498,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 						contactsListView.setAdapter(adapter);
 						contactsListView.setSelection(selPos);
 					}
-				}
+			//	}
 		}		
 		
 	}
