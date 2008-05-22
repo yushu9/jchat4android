@@ -26,7 +26,14 @@ public class Contact  {
 		isOnline = false;	
 		storedOnPhone = stored;
 	}
-		
+	
+	public Contact(Contact c){
+		this.name = new String(c.name);
+		this.phoneNumber = new String(c.phoneNumber);
+		this.isOnline = c.isOnline;
+		this.storedOnPhone = c.storedOnPhone;
+	}
+	
 	public  String getPhoneNumber(){
 		return phoneNumber;
 	}

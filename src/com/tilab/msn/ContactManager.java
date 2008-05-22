@@ -173,13 +173,22 @@ public class ContactManager {
 	//We cannot modify the contacts from this list, we copy the list to avoid race conditions
 	public List<Contact> getContactList() {
 		ArrayList<Contact> list;
-		list = new ArrayList<Contact>(contactsMap.values());
+		list = new ArrayList<Contact>();
+		for (Contact contact : contactsMap.values()) {
+			list.add(new Contact(contact));
+		}
 		return list;
 	}
 
 	//FIXME: Discuss if here we should return the map or a copy
 	public Map<String, ContactLocation> getAllContactLocations(){
-		return new HashMap<String, ContactLocation>(contactLocationMap);
+		Map<String,ContactLocation> location = new HashMap<String, ContactLocation>();
+		
+		for (String s : contactLocationMap.keySet()) {
+			location.put(new String(s), new ContactLocation(contactLocationMap.get(s)));
+		}
+		
+		return location;
 	}
 	
 	public void addMyContact(String phoneNumber) {
