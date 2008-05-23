@@ -140,11 +140,12 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         homeTab.setBackground(gd3);
         View homeTab1 = (View) findViewById(R.id.content2);
         homeTab1.setBackground(gd4);
+       
         		
 		//init the map view
 		mapView = (MapView) findViewById(R.id.myMapView);
 		overlayCtrl = mapView.createOverlayController();
-		overlayCtrl.add(new ContactsPositionOverlay(mapView,getResources()),true);
+		overlayCtrl.add(new ContactsPositionOverlay(mapView,getResources(), this),true);
 		
 		//Button for switching map mode
 		Button switchButton = (Button) findViewById(R.id.switchMapBtn);
@@ -192,7 +193,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 							//Let the menu appear
 							Contact selectedC = ContactManager.getInstance().getContact(selectedCId);
 							if (selectedC.isOnline())
-								menu.add(0, CONTEXT_MENU_ITEM_CHAT, R.string.menu_item_chat);
+							menu.add(0, CONTEXT_MENU_ITEM_CHAT, R.string.menu_item_chat);
 							menu.add(0, CONTEXT_MENU_ITEM_CALL, R.string.menu_item_call);
 							menu.add(0, CONTEXT_MENU_ITEM_SMS, R.string.menu_item_sms);
 						}
