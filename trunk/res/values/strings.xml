@@ -28,7 +28,7 @@
     <string name="location_provider_name">mygps </string>
     
 	<!-- JADE PLATFORM CONNECTION PARAMETERS -->    
-    <string name="jade_platform_host">10.0.2.2</string>
+    <string name="jade_platform_host">163.162.244.25</string>
 	<string name="jade_platform_port">1099</string>
 	
 	<!-- TEXT LABELS -->
@@ -41,5 +41,5 @@
 
 	<!-- MISSING FEATURES -->
 	<string name="missing_feature_sms">Sending SMS is not supported at the moment!</string>
-
+    <string name="Hello">HELLO!!!!!</string>
 </resources>

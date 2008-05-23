@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import android.content.Context;
 import android.content.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -18,25 +19,30 @@ import android.graphics.RectF;
 import android.graphics.Paint.FontMetrics;
 
 import android.location.Location;
+import android.widget.Toast;
 
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 
 import com.google.android.maps.Overlay;
 import com.google.android.maps.Point;
+import com.google.android.maps.MapView.DeviceType;
 
 public class ContactsPositionOverlay extends Overlay {
 	
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	private int UPPER_THRESHOLD = 0;
 	private  int LOWER_THRESHOLD = 0;
-	
+	private PointClusterParams params;
 	private MapController mapController; 
 	private Paint myPaint;
 	private Bitmap ylwPaddle;
 	private Bitmap blueBaloon;
 	private Bitmap bluePaddle;
 	private Resources appRes;
+	private Context hi;
+	private List<String> selectedContactIdList;
+	
 	
 	//The SCROLL area represents the area that finds when points are going out of the screen 
 	//If one of them is out of the hot area we need to recenter the map to follow the point.
@@ -66,13 +72,14 @@ public class ContactsPositionOverlay extends Overlay {
 	
 	private Rect scrollingArea;
 	
-	public ContactsPositionOverlay(MapView myMapView, Resources ctn){
+	public ContactsPositionOverlay(MapView myMapView, Resources ctn, Context hello){
+		hi = hello;
 		mapController = myMapView.getController();
 		appRes= ctn;
 		myPaint = new Paint();
 		this.myMapView = myMapView;
-		scrollingArea= new Rect();
-		
+		scrollingArea= new Rect();			
+		selectedContactIdList = new ArrayList<String>() ;
 		ylwPaddle = BitmapFactory.decodeResource(appRes,R.drawable.ylw_circle); 
 		blueBaloon = BitmapFactory.decodeResource(appRes,R.drawable.bluemessage);
 		bluePaddle = BitmapFactory.decodeResource(appRes,R.drawable.blu_circle);		
@@ -199,7 +206,7 @@ public class ContactsPositionOverlay extends Overlay {
 		List<Contact> contacts = ContactManager.getInstance().getContactList();	
 			
 		//Compute params needed for further computations on the point cluster
-		PointClusterParams params = extractParams(contacts, myCont, calculator);
+		params = extractParams(contacts, myCont, calculator);
 		
 		//Things we do just the first time
 		if (WIDTH == -1){
@@ -415,4 +422,32 @@ public class ContactsPositionOverlay extends Overlay {
 	   }
 	   return (int) sumvalues; 	    
        }
+	
+		
+	public boolean onTap(DeviceType deviceType, android.graphics.Point p, PixelCalculator calculator) {
+				String str= checkClickedPosition(p); 
+		        if (str!=null){					
+				Toast.makeText(hi, str,3000).show();
+			}
+		
+       return true;
+	}
+	
+     private String checkClickedPosition (android.graphics.Point p)
+     { 
+    	 int width= bluePaddle.getWidth();
+    	 int height= bluePaddle.getHeight();
+    	 for (ContactLayoutData contact : params.contactPoints){
+    		Rect r= new Rect(contact.positionOnScreen[0]- width/2, contact.positionOnScreen[1]-height, contact.positionOnScreen[0]+width/2, contact.positionOnScreen[1] );
+    		if(r.contains(p.x, p.y)){
+    			selectedContactIdList.add(contact.idContact); 
+    			return contact.idContact;    			
+    		}
+    		   		
+    	 }
+    	 return null;
+    	
+     }
+       
+	
 	}
