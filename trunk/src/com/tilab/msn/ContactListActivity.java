@@ -24,6 +24,7 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.IServiceManager;
 import android.os.ServiceManagerNative;
 import android.os.SystemProperties;
@@ -226,6 +227,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 	
     public void onCreate(Bundle icicle) {
+    	Debug.startMethodTracing("/tmp/profile");
     	Thread.currentThread().getId();
         myLogger.log(Logger.INFO, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
         super.onCreate(icicle);
@@ -312,6 +314,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		
 		MsnSessionManager.getInstance().shutdown();
 		ContactManager.getInstance().shutdown();
+		Debug.stopMethodTracing();
 		super.onDestroy();
 	}
 	
