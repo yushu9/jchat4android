@@ -19,6 +19,7 @@ import android.graphics.RectF;
 import android.graphics.Paint.FontMetrics;
 
 import android.location.Location;
+import android.view.MotionEvent;
 import android.widget.Toast;
 
 import com.google.android.maps.MapController;
@@ -131,6 +132,7 @@ public class ContactsPositionOverlay extends Overlay {
 		if (howToZoom == RECOMPUTE_ZOOM)
 			mapController.zoomToSpan(params.coordMaxSpan[0],params.coordMaxSpan[1]);
 	}	
+	
 	
 	private void drawOnlineContacts(Canvas c, Paint p, List<ContactLayoutData> layoutDataList){
 		
@@ -356,6 +358,22 @@ public class ContactsPositionOverlay extends Overlay {
 		return maxDist;
 	}	
 
+	
+	public boolean onTap(DeviceType deviceType, Point p, PixelCalculator calculator) {
+
+		int[] pointOnScreen = new int[2];
+		calculator.getPointXY(p, pointOnScreen);
+		
+		String str= checkClickedPosition(pointOnScreen); 
+		  
+		if (str!=null){					
+			Toast.makeText(hi, str,3000).show();	
+		}
+		
+        return true;
+	}
+	
+	
 	//Converts a point on screen (pixel coordinates) into  point on the map (Lat/Long Coordinated)
 	
 	private Point screenToMap(int [] point) {
@@ -424,22 +442,14 @@ public class ContactsPositionOverlay extends Overlay {
        }
 	
 		
-	public boolean onTap(DeviceType deviceType, android.graphics.Point p, PixelCalculator calculator) {
-				String str= checkClickedPosition(p); 
-		        if (str!=null){					
-				Toast.makeText(hi, str,3000).show();
-			}
-		
-       return true;
-	}
 	
-     private String checkClickedPosition (android.graphics.Point p)
+     private String checkClickedPosition (int[] point)
      { 
     	 int width= bluePaddle.getWidth();
     	 int height= bluePaddle.getHeight();
     	 for (ContactLayoutData contact : params.contactPoints){
     		Rect r= new Rect(contact.positionOnScreen[0]- width/2, contact.positionOnScreen[1]-height, contact.positionOnScreen[0]+width/2, contact.positionOnScreen[1] );
-    		if(r.contains(p.x, p.y)){
+    		if(r.contains(point[0], point[1])){
     			selectedContactIdList.add(contact.idContact); 
     			return contact.idContact;    			
     		}
