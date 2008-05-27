@@ -191,6 +191,18 @@ public class ContactManager {
 		return location;
 	}
 	
+	
+	public Map<String, Contact> getAllContacts(){
+		Map<String,Contact> cMap = new HashMap<String, Contact>();
+		
+		for (String s : contactsMap.keySet()) {
+			cMap.put(new String(s), new Contact(contactsMap.get(s)));
+		}
+		
+		return cMap;
+	}
+	
+	
 	public void addMyContact(String phoneNumber) {
 		// TODO Auto-generated method stub
 		myContact = new Contact(MY_CONTACT_NAME,phoneNumber,true);
