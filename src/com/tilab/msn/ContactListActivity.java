@@ -56,6 +56,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	private TabHost mainTabHost;
 	private MultiSelectionListView contactsListView;
 	private OverlayController overlayCtrl;
+	private ContactsPositionOverlay overlay;
 	private MapView mapView;
 	private static String numTel;
 	
@@ -146,7 +147,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		//init the map view
 		mapView = (MapView) findViewById(R.id.myMapView);
 		overlayCtrl = mapView.createOverlayController();
-		overlayCtrl.add(new ContactsPositionOverlay(mapView,getResources(), this),true);
+		overlay = new ContactsPositionOverlay(mapView,getResources());
+		overlayCtrl.add(overlay,true);
 		
 		//Button for switching map mode
 		Button switchButton = (Button) findViewById(R.id.switchMapBtn);
@@ -483,7 +485,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				if (parameter instanceof ContactListChanges){		
 					ContactListChanges changes = (ContactListChanges) parameter;
 					anyChanges = true;
-					updateListAdapter(changes);	
+					updateListAdapter(changes);
+					overlay.update(changes);
 				}
 				
 				//refresh the screen: if the map is visible refresh it
@@ -491,7 +494,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			//	if (mainTabHost.getCurrentTab() > 0){
 					//if any contact has moved
 					if (ContactManager.getInstance().movingContacts()){
-						//redraw the map
+						//redraw the map						
 						mapView.invalidate();
 					}
 			//	} else {
@@ -499,7 +502,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 						// if here the contact list is visible
 						int selPos = contactsListView.getSelectedItemPosition();
 						ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
-						contactsListView.setAdapter(adapter);
+					
+						//contactsListView.setAdapter(adapter);
+						contactsListView.invalidate();
 						contactsListView.setSelection(selPos);
 					}
 			//	}
