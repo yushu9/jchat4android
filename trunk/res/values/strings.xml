@@ -38,6 +38,7 @@
 
     <!-- ERROR MESSAGES -->
     <string name="error_msg_jadegw_connection">Error connecting to Jade Gateway</string>
+    <string name="error_msg_multiple_phonecalls">You cannot call more than one contact a time </string>
 
 	<!-- MISSING FEATURES -->
 	<string name="missing_feature_sms">Sending SMS is not supported at the moment!</string>

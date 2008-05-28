@@ -37,7 +37,6 @@ public class ContactsPositionOverlay extends Overlay {
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	private int UPPER_THRESHOLD = 0;
 	private  int LOWER_THRESHOLD = 0;
-	private PointClusterParams params;
 	private MapController mapController; 
 	private Paint myPaint;
 	private Bitmap ylwPaddle;
@@ -89,8 +88,7 @@ public class ContactsPositionOverlay extends Overlay {
 		contactPositionMap.put(myCont.getPhoneNumber(), myCData);
 		ylwPaddle = BitmapFactory.decodeResource(appRes,R.drawable.ylw_circle); 
 		blueBaloon = BitmapFactory.decodeResource(appRes,R.drawable.bluemessage);
-		bluePaddle = BitmapFactory.decodeResource(appRes,R.drawable.blu_circle);
-		
+		bluePaddle = BitmapFactory.decodeResource(appRes,R.drawable.blu_circle);		
 	}	
 	
 	private boolean scrollingIsNeeded(){
@@ -215,11 +213,7 @@ public class ContactsPositionOverlay extends Overlay {
          
           
           myPaint.setARGB(255, 255, 0, 0);
-		}{        			
-    		
- 
-         }
-		
+		}		
 	}	
 	
 	@Override
@@ -228,25 +222,27 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		updateOnScreenPosition(calculator);
 		//Compute params needed for further computations on the point cluster
-		extractParams(calculator);
+		PointClusterParams params = extractParams(calculator);
 		
 		//Things we do just the first time
 		if (WIDTH == -1){
-			initialize(params, calculator);
-		} 
-		
-		//if any pixel is out our scrolling area
-		if (scrollingIsNeeded()){
-			//change map center
+			initialize(calculator);
 			doScrolling(params);
-		}
+			doZoom(params, RECOMPUTE_ZOOM);
+		} else {
 		
-		int howToZoom = zoomChangeIsNeeded(params);
-		
-		if (howToZoom != NO_ZOOM)	{
-			doZoom(params,howToZoom);
+			//if any pixel is out our scrolling area
+			if (scrollingIsNeeded()){
+				//change map center
+				doScrolling(params);
+			}
+			
+			int howToZoom = zoomChangeIsNeeded(params);
+			
+			if (howToZoom != NO_ZOOM)	{
+				doZoom(params,howToZoom);
+			}
 		}
-	
 		//Draw all the contacts
 		drawOnlineContacts(canvas, myPaint);
 	
@@ -254,7 +250,7 @@ public class ContactsPositionOverlay extends Overlay {
 	
 	
 	
-	private void initialize(PointClusterParams params, PixelCalculator calculator) {
+	private void initialize( PixelCalculator calculator ) {
 			WIDTH = calculator.getMapWidth();
 			HEIGHT = calculator.getMapHeight();
 			centerScreenX = WIDTH / 2;
@@ -276,8 +272,7 @@ public class ContactsPositionOverlay extends Overlay {
 			UPPER_THRESHOLD = tmpThresh * tmpThresh;
 			tmpThresh = (int) (WIDTH * LOWER_THRESHOLD_RATIO);
 			LOWER_THRESHOLD = tmpThresh * tmpThresh;
-			doScrolling(params);
-			doZoom(params, RECOMPUTE_ZOOM);
+			extractParams(calculator);
 	
 	}
 	
@@ -296,9 +291,9 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		int midPointX=0;
 		int midPointY=0;
+	
 		
 		PointClusterParams params = new PointClusterParams();
-	
 		
 		//Compute needed params for my contact
 		Location myContactLoc = ContactManager.getInstance().getMyContactLocation(); 			
@@ -346,16 +341,16 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		
 		int contactsOnLine = contactPositionMap.size();
+		params.midpointOnScreen = new int[2];
+		params.coordMaxSpan = new int[2];
 		
 		for (Iterator<ContactLayoutData> iterator = contactPositionMap.values().iterator(); iterator.hasNext();) {
 			ContactLayoutData clData = (ContactLayoutData) iterator.next();
-			params.midpointOnScreen = new int[2];
+			
 			params.midpointOnScreen[0] += clData.positionOnScreen[0];
 			params.midpointOnScreen[1] += clData.positionOnScreen[1];
 			
-			//test
-			
-			params.coordMaxSpan = new int[2];			
+						
 
 			maxLat = (clData.latitudeE6> maxLat)? clData.latitudeE6 : maxLat;
 			maxLong = (clData.longitudeE6 > maxLong)? clData.longitudeE6 : maxLong;
@@ -379,9 +374,8 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		params.midpointOnMap = screenToMap(params.midpointOnScreen);
 		
-		
-		
 		return params;
+	
 	}
 	
 	private int getMaxDistSquared(Collection<ContactLayoutData> points,int[] midpoint){
@@ -506,17 +500,33 @@ public class ContactsPositionOverlay extends Overlay {
 	
      private void checkClickedPosition (int[] point)
      { 
+    	 
+    	 
     	 int width= bluePaddle.getWidth();
     	 int height= bluePaddle.getHeight();
+    	 String myId = ContactManager.getInstance().getMyContact().getPhoneNumber();
+    	 
     	 for (ContactLayoutData contact : contactPositionMap.values()){
     		Rect r= new Rect(contact.positionOnScreen[0]- width/2, contact.positionOnScreen[1]-height, contact.positionOnScreen[0]+width/2, contact.positionOnScreen[1] );
-    		if(r.contains(point[0], point[1])){    			
-    		    ContactLayoutData cdata= contactPositionMap.get(contact.idContact); 
-    		    cdata.isChecked=true;
+    		if(r.contains(point[0], point[1]) && !contact.idContact.equals(myId) ){    			
+    		    contact.isChecked = !contact.isChecked;    		   
     		}
     		   		
     	 }
     	 	
+     }
+     
+     public List<String> getSelectedItems(){
+    	 
+    	 List<String> ids = new ArrayList<String>();
+    	 
+    	 for (ContactLayoutData cdata : contactPositionMap.values()) {
+    		 if (cdata.isChecked){
+    			 ids.add(cdata.idContact);
+    		 }
+    	 }
+    	 
+    	 return ids;
      }
      
      public void update(ContactListChanges changes){ 
