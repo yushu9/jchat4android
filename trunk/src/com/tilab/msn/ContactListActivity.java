@@ -529,7 +529,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		
 		switch (requestCode){
 			case CHAT_ACTIVITY_CLOSED:
+				this.overlay.uncheckAllContacts();
 				this.contactsListView.uncheckAllSelectedItems();
+			//	this.overlay.uncheckAllContacts();
 			break;
 		}
 	}	
