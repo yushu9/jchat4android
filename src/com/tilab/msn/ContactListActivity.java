@@ -65,9 +65,12 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	private final int MENUITEM_ID_EXIT=Menu.FIRST;
 	
 	//Menu entries
-	private final int CONTEXT_MENU_ITEM_CHAT = Menu.FIRST+1;
-	private final int CONTEXT_MENU_ITEM_CALL = Menu.FIRST+2;
-	private final int CONTEXT_MENU_ITEM_SMS = Menu.FIRST+3;
+	private final int CONTEXT_MENU_ITEM_CHAT_LIST = Menu.FIRST+1;
+	private final int CONTEXT_MENU_ITEM_CALL_LIST = Menu.FIRST+2;
+	private final int CONTEXT_MENU_ITEM_SMS_LIST = Menu.FIRST+3;
+	private final int CONTEXT_MENU_ITEM_CHAT_MAP = Menu.FIRST+4;
+	private final int CONTEXT_MENU_ITEM_CALL_MAP = Menu.FIRST+5;
+	private final int CONTEXT_MENU_ITEM_SMS_MAP = Menu.FIRST+6;
 	
 	//NEEDED TAGS FOR THE TABHOST (to address them)
 	private final String CONTACTS_TAB_TAG="ContTab";
@@ -146,9 +149,33 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         		
 		//init the map view
 		mapView = (MapView) findViewById(R.id.myMapView);
+		mapView.setOnLongPressListener(new MapView.OnLongPressListener(){
+			  
+			public boolean  onLongPress(View v, float x, float y) {
+				  boolean retVal = false;
+				  
+				  if (overlay.getSelectedItems().size() > 0){
+					  v.getParent().showContextMenuForChild(v);
+					  retVal=true;
+				  }  
+					
+				  return retVal;
+			  }
+		});
+	
+		mapView.setOnPopulateContextMenuListener(new View.OnPopulateContextMenuListener(){
+			public void  onPopulateContextMenu(ContextMenu menu, View v, Object menuInfo) {
+				//Let the menu appear
+				menu.add(0, CONTEXT_MENU_ITEM_CHAT_MAP, R.string.menu_item_chat);
+				menu.add(0, CONTEXT_MENU_ITEM_CALL_MAP, R.string.menu_item_call);
+				menu.add(0, CONTEXT_MENU_ITEM_SMS_MAP, R.string.menu_item_sms);
+			}
+		});
+		
 		overlayCtrl = mapView.createOverlayController();
 		overlay = new ContactsPositionOverlay(mapView,getResources());
 		overlayCtrl.add(overlay,true);
+
 		
 		//Button for switching map mode
 		Button switchButton = (Button) findViewById(R.id.switchMapBtn);
@@ -158,14 +185,16 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			public void onClick(View arg0) {
 				Button clickedBtn = (Button) arg0;
 				
-				mapView.toggleSatellite();
-				mapView.getController().stopAnimation(true);
+			
 				
 				if (mapView.isSatellite()){
 					clickedBtn.setText(ContactListActivity.this.getText(R.string.label_toggle_map));
 				} else {
 					clickedBtn.setText(ContactListActivity.this.getText(R.string.label_toggle_satellite));
 				}
+				
+				mapView.toggleSatellite();
+			
 			}
 			
 		});
@@ -196,13 +225,14 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 							//Let the menu appear
 							Contact selectedC = ContactManager.getInstance().getContact(selectedCId);
 							if (selectedC.isOnline())
-							menu.add(0, CONTEXT_MENU_ITEM_CHAT, R.string.menu_item_chat);
-							menu.add(0, CONTEXT_MENU_ITEM_CALL, R.string.menu_item_call);
-							menu.add(0, CONTEXT_MENU_ITEM_SMS, R.string.menu_item_sms);
+							menu.add(0, CONTEXT_MENU_ITEM_CHAT_LIST, R.string.menu_item_chat);
+							menu.add(0, CONTEXT_MENU_ITEM_CALL_LIST, R.string.menu_item_call);
+							menu.add(0, CONTEXT_MENU_ITEM_SMS_LIST, R.string.menu_item_sms);
 						}
 					}
 				}
-		);		
+		);
+		
 	    contactsListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 	    	public void  onItemClick(AdapterView parent, View v, int position, long id) {
 	    		CheckBox cb= (CheckBox)v.findViewById(R.id.contact_check_box);	
@@ -213,8 +243,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	    			cb.setChecked(!cb.isChecked());
 	    	}
 	    });
-		
-
+	
 		
 		ContactManager.getInstance().readPhoneContacts(this);
 		contactsListView.setAdapter(ContactManager.getInstance().getAdapter());
@@ -229,7 +258,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 	
     public void onCreate(Bundle icicle) {
-    	Debug.startMethodTracing("/tmp/profile");
+    //	Debug.startMethodTracing("/tmp/profile");
     	Thread.currentThread().getId();
         myLogger.log(Logger.INFO, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
         super.onCreate(icicle);
@@ -316,7 +345,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		
 		MsnSessionManager.getInstance().shutdown();
 		ContactManager.getInstance().shutdown();
-		Debug.stopMethodTracing();
+		//Debug.stopMethodTracing();
 		super.onDestroy();
 	}
 	
@@ -390,52 +419,86 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	public boolean onContextItemSelected(Item item) {
 		
 		switch(item.getId()) {
-			case CONTEXT_MENU_ITEM_CALL:
-				IPhone phoneService = null; 
-		          try { 
-		               IServiceManager sm = ServiceManagerNative.getDefault(); 
-		               phoneService = IPhone.Stub.asInterface(sm.getService("phone")); 
-		          } catch (Exception e) { 
-		          } 
-		          
-		           
-		          try { 
-		        	  Contact selectedC = (Contact) contactsListView.getSelectedItem();
-		              phoneService.call(selectedC.getPhoneNumber());
-		          } catch (Exception e) { 
-		          }
-		
-				break;
-			case CONTEXT_MENU_ITEM_CHAT:
+			case CONTEXT_MENU_ITEM_CALL_LIST:
+			{
+				List<String> selectedIds= contactsListView.getAllSelectedItems();
+				if (selectedIds.size() == 1){
+					callContact(selectedIds.get(0));
+				} else {
+					Toast.makeText(this, R.string.error_msg_multiple_phonecalls, 2000);
+				}
+				
+			}
+			break;
+			
+			case CONTEXT_MENU_ITEM_CALL_MAP:
+			{
+				List<String> selectedIds= overlay.getSelectedItems();
+				if (selectedIds.size() == 1){
+					callContact(selectedIds.get(0));
+				} else {
+					Toast.makeText(this, R.string.error_msg_multiple_phonecalls, 2000);
+				}
+			}
+			break;
+			
+			case CONTEXT_MENU_ITEM_CHAT_LIST:
+			{
 				List<String> participantIds = contactsListView.getAllSelectedItems();
-				//start a new session or retrieve it If the session already exists. its Id is retrieved
-				String sessionId = MsnSessionManager.getInstance().startMsnSession(participantIds);
-				
-				//retrieve a copy of the session
-				MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
-				//Add a notification for the new session
-				MsnSessionManager.getInstance().getNotificationManager().addNewSessionNotification(sessionId);
-							
-				//Add to the intent a mean to return a result back to the start activity
-				ActivityPendingResult activityResult = createActivityPendingResult(CHAT_ACTIVITY_CLOSED, false);
-				
-				//packet an intent. We'll try to add the session ID in the intent data in URI form
-				//We use intent resolution here, cause the ChatActivity should be selected cause matching ACTION and CATEGORY
-				Intent it = new Intent(Intent.VIEW_ACTION);
-				//set the data as an URI (content://sessionId#<sessionIdValue>)
-				it.setData(session.getSessionIdAsUri());
-				it.setLaunchFlags(Intent.NEW_TASK_LAUNCH | Intent.SINGLE_TOP_LAUNCH);
-				it.addCategory(Intent.DEFAULT_CATEGORY);
-				it.putExtra(ID_ACTIVITY_PENDING_RESULT, activityResult);
-				startActivity(it);
-				
-				break;
-			case CONTEXT_MENU_ITEM_SMS:
+				launchChatSession(participantIds);
+			}
+			break;
+			
+			case CONTEXT_MENU_ITEM_CHAT_MAP:
+			{
+				List<String> participantIds = overlay.getSelectedItems();
+				launchChatSession(participantIds);
+			}
+			break;
+			
+			case CONTEXT_MENU_ITEM_SMS_LIST:
+			case CONTEXT_MENU_ITEM_SMS_MAP:
 				Toast.makeText(this, R.string.missing_feature_sms, 3000).show();
 				break;
 			default:
 		}
 		return false;
+	}
+
+
+	private void callContact(String selectedCPhoneNumber) {
+		IPhone phoneService = null; 
+		  try { 
+		      IServiceManager sm = ServiceManagerNative.getDefault(); 
+		      phoneService = IPhone.Stub.asInterface(sm.getService("phone")); 
+		      phoneService.call(selectedCPhoneNumber);
+		  } catch (Exception e) { 
+			  myLogger.log(Logger.SEVERE, e.getMessage(), e);
+		  }
+	}
+	
+	private void launchChatSession(List<String> participantIds){
+		//start a new session or retrieve it If the session already exists. its Id is retrieved
+		String sessionId = MsnSessionManager.getInstance().startMsnSession(participantIds);
+		
+		//retrieve a copy of the session
+		MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
+		//Add a notification for the new session
+		MsnSessionManager.getInstance().getNotificationManager().addNewSessionNotification(sessionId);
+					
+		//Add to the intent a mean to return a result back to the start activity
+		ActivityPendingResult activityResult = createActivityPendingResult(CHAT_ACTIVITY_CLOSED, false);
+		
+		//packet an intent. We'll try to add the session ID in the intent data in URI form
+		//We use intent resolution here, cause the ChatActivity should be selected cause matching ACTION and CATEGORY
+		Intent it = new Intent(Intent.VIEW_ACTION);
+		//set the data as an URI (content://sessionId#<sessionIdValue>)
+		it.setData(session.getSessionIdAsUri());
+		it.setLaunchFlags(Intent.NEW_TASK_LAUNCH | Intent.SINGLE_TOP_LAUNCH);
+		it.addCategory(Intent.DEFAULT_CATEGORY);
+		it.putExtra(ID_ACTIVITY_PENDING_RESULT, activityResult);
+		startActivity(it);
+
 	}
 	
 	private void updateListAdapter(ContactListChanges changes){
@@ -502,9 +565,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 						// if here the contact list is visible
 						int selPos = contactsListView.getSelectedItemPosition();
 						ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
-					
-						//contactsListView.setAdapter(adapter);
-						contactsListView.invalidate();
+						contactsListView.setAdapter(adapter);
 						contactsListView.setSelection(selPos);
 					}
 			//	}
