@@ -425,7 +425,7 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 				if (selectedIds.size() == 1){
 					callContact(selectedIds.get(0));
 				} else {
-					Toast.makeText(this, R.string.error_msg_multiple_phonecalls, 2000);
+					Toast.makeText(this, R.string.error_msg_multiple_phonecalls, 2000).show();
 				}
 				
 			}
