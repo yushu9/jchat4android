@@ -20,6 +20,7 @@ import android.graphics.Rect;
 import android.graphics.BitmapFactory;
 import android.graphics.RectF;
 import android.graphics.Paint.FontMetrics;
+import android.graphics.drawable.BitmapDrawable;
 
 import android.location.Location;
 import android.view.MotionEvent;
@@ -41,7 +42,9 @@ public class ContactsPositionOverlay extends Overlay {
 	private Paint myPaint;
 	private Bitmap ylwPaddle;
 	private Bitmap blueBaloon;
+	private Bitmap highlight;
 	private Bitmap bluePaddle;
+	
 	private Resources appRes;
 	private Map<String, ContactLayoutData> contactPositionMap;
 	
@@ -87,6 +90,7 @@ public class ContactsPositionOverlay extends Overlay {
 		myCData.isMyContact=true;
 		contactPositionMap.put(myCont.getPhoneNumber(), myCData);
 		ylwPaddle = BitmapFactory.decodeResource(appRes,R.drawable.ylw_circle); 
+		highlight = BitmapFactory.decodeResource(appRes,R.drawable.green_highlight);
 		blueBaloon = BitmapFactory.decodeResource(appRes,R.drawable.bluemessage);
 		bluePaddle = BitmapFactory.decodeResource(appRes,R.drawable.blu_circle);		
 	}	
@@ -194,15 +198,17 @@ public class ContactsPositionOverlay extends Overlay {
 		  RectF rect = new RectF(textOriginX - 2, textOriginY + (int) fm.top - 2, textOriginX +this.getStringLength(cData.name, myPaint) + 2,textOriginY + (int) fm.bottom + 2);		  
 		  int width = bluePaddle.getWidth();
 		  int height = bluePaddle.getHeight();
-		  if (cData.isChecked)
-			  myPaint.setColor(Color.GREEN);
-		  else 
-			  myPaint.setColor(Color.BLUE);
-          myPaint.setAlpha(100);
-        
-		  c.drawRect(new Rect(cData.positionOnScreen[0]- width/2, cData.positionOnScreen[1]-height, cData.positionOnScreen[0]+width/2, cData.positionOnScreen[1]),myPaint);
+		  
+		  //Draws the debugging rct for collision
+          //myPaint.setAlpha(100);
+		 // c.drawRect(new Rect(cData.positionOnScreen[0]- width/2, cData.positionOnScreen[1]-height, cData.positionOnScreen[0]+width/2, cData.positionOnScreen[1]),myPaint);
 		  //Draw the right bitmap icon
 		  c.drawBitmap(bitmapToBeDrawn, bitmapOriginX, bitmapOriginY, myPaint);
+		  
+		  if (cData.isChecked){
+			  c.drawBitmap(highlight, bitmapOriginX, bitmapOriginY, myPaint);
+		  }
+		  
 		  //Change color for background rectangle
 		  myPaint.setColor(Color.argb(100, 0,0, 0));		 	
 		  c.drawRoundRect(rect, 4.0f, 4.0f, myPaint);// Rect(rect, myPaint);		  
@@ -527,6 +533,17 @@ public class ContactsPositionOverlay extends Overlay {
     	 }
     	 
     	 return ids;
+     }
+     
+     public void uncheckAllContacts(){
+    	 int width = bluePaddle.getWidth();
+    	 int height = bluePaddle.getHeight();
+    	 
+    	 for (ContactLayoutData data : contactPositionMap.values()) {
+    		 data.isChecked=false;
+    	//	 Rect r= new Rect(data.positionOnScreen[0]- width/2, data.positionOnScreen[1]-height, data.positionOnScreen[0]+width/2, data.positionOnScreen[1] );
+    		 myMapView.invalidate();
+    	 }
      }
      
      public void update(ContactListChanges changes){ 
