@@ -383,6 +383,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	
 		enableUI();
 		
+		
+		
 		myLogger.log(Logger.INFO, "onConnected(): SUCCESS!");
 		
 		try {
@@ -432,6 +434,19 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		return true;
 	}
 	
+	
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		// TODO Auto-generated method stub
+		Item menuItemConnect = menu.findItem(MENUITEM_ID_CONNECT);
+		menuItemConnect.setShown((gateway == null));
+		Item menuItemSettings = menu.findItem(MENUITEM_ID_SETTINGS);
+		menuItemSettings.setShown((gateway == null));
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+
 	public boolean onMenuItemSelected(int featureId, Item item) {
 		super.onMenuItemSelected(featureId, item);
 		
