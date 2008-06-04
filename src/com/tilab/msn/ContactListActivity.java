@@ -58,19 +58,22 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	private OverlayController overlayCtrl;
 	private ContactsPositionOverlay overlay;
 	private MapView mapView;
-	private static String numTel;
-	
+	private View contactView; 
+    private View mapViewTab; 
+	private static JadeParameterDialog parameterDialog;
 	
 	//MENUITEM CONSTANT
 	private final int MENUITEM_ID_EXIT=Menu.FIRST;
+	private final int MENUITEM_ID_SETTINGS=Menu.FIRST+1;
+	private final int MENUITEM_ID_CONNECT=Menu.FIRST+2;
 	
-	//Menu entries
-	private final int CONTEXT_MENU_ITEM_CHAT_LIST = Menu.FIRST+1;
-	private final int CONTEXT_MENU_ITEM_CALL_LIST = Menu.FIRST+2;
-	private final int CONTEXT_MENU_ITEM_SMS_LIST = Menu.FIRST+3;
-	private final int CONTEXT_MENU_ITEM_CHAT_MAP = Menu.FIRST+4;
-	private final int CONTEXT_MENU_ITEM_CALL_MAP = Menu.FIRST+5;
-	private final int CONTEXT_MENU_ITEM_SMS_MAP = Menu.FIRST+6;
+	//Context Menu entries
+	private final int CONTEXT_MENU_ITEM_CHAT_LIST = Menu.FIRST+3;
+	private final int CONTEXT_MENU_ITEM_CALL_LIST = Menu.FIRST+4;
+	private final int CONTEXT_MENU_ITEM_SMS_LIST = Menu.FIRST+5;
+	private final int CONTEXT_MENU_ITEM_CHAT_MAP = Menu.FIRST+6;
+	private final int CONTEXT_MENU_ITEM_CALL_MAP = Menu.FIRST+7;
+	private final int CONTEXT_MENU_ITEM_SMS_MAP = Menu.FIRST+8;
 	
 	//NEEDED TAGS FOR THE TABHOST (to address them)
 	private final String CONTACTS_TAB_TAG="ContTab";
@@ -78,7 +81,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	
 	//Return codes 
 	public static final int CHAT_ACTIVITY_CLOSED = 777;
-	
+	private GradientDrawable outOfFocusTabGradient;
+//	private GradientDrawable rightTabGradient;
+	private GradientDrawable selectedTabGradient;
 	
 	//Array of updaters
 	private  ContactListActivityUpdater activityUpdater;
@@ -88,29 +93,16 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	public static final String ID_ACTIVITY_PENDING_RESULT = "ID_ACTIVITY_PENDING_RESULT";
 	
 	private void initUI(){
+		
 		//Setup the main tabhost
         setContentView(R.layout.homepage);
         mainTabHost = (TabHost) findViewById(R.id.main_tabhost);
         mainTabHost.setup();
-      /*  mainTabHost.setOnTabChangedListener( new TabHost.OnTabChangeListener(){
-
-			@Override
-			public void onTabChanged(String arg0) {
-				// TODO Auto-generated method stub
-				int[] colors= new int[] {Color.MAGENTA, Color.RED};
-				GradientDrawable gd1 = new GradientDrawable(Orientation.LEFT_RIGHT, colors);
-				gd1.setCornerRadii(new float[]{10.0f,10.0f,10.0f,10.0f,0.0f,0.0f,0.0f,0.0f});
-				
-				mainTabHost.add
-			}
-        	
-        });*/
         
       //Fill the contacts tab
         TabSpec contactsTabSpecs = mainTabHost.newTabSpec(CONTACTS_TAB_TAG);
         TabSpec mapTabSpecs = mainTabHost.newTabSpec(MAPVIEW_TAB_TAG);
-        View contactView; 
-        View mapViewTab; 
+        
 		ViewInflate inflater;
 		inflater = (ViewInflate)getSystemService(Context.INFLATE_SERVICE);			
 		contactView = inflater.inflate(R.layout.contact_tab, null, null);
@@ -123,29 +115,51 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		mainTabHost.addTab(mapTabSpecs);
 		Resources res= getResources();
 		
-		int[] colors= new int[] {res.getColor(R.color.white), res.getColor(R.color.dark_grey)};
-		int midColor = Color.rgb((Color.red(colors[0]) + Color.red(colors[1]))/2,
+		int[] colors= new int[] {res.getColor(R.color.white), res.getColor(R.color.blue)};
+/*		int midColor = Color.rgb((Color.red(colors[0]) + Color.red(colors[1]))/2,
 							(Color.green(colors[0]) + Color.green(colors[1]))/2,
-							(Color.blue(colors[0]) + Color.blue(colors[1]))/2);
-		int[] colors1 = new int[] {res.getColor(R.color.white), res.getColor(R.color.blue)};
-		int[] colors2 = new int[] {res.getColor(R.color.white), midColor};
-		GradientDrawable gd1 = new GradientDrawable(Orientation.LEFT_RIGHT, colors2);
-		gd1.setCornerRadii(new float[]{10.0f,10.0f,10.0f,10.0f,0.0f,0.0f,0.0f,0.0f});
-		GradientDrawable gd2 = new GradientDrawable(Orientation.LEFT_RIGHT, colors1);
-		gd2.setCornerRadii(new float[]{10.0f,10.0f,10.0f,10.0f,0.0f,0.0f,0.0f,0.0f});
+							(Color.blue(colors[0]) + Color.blue(colors[1]))/2);*/
+		int[] selectedTabColors = new int[] {res.getColor(R.color.white), res.getColor(R.color.blue)};
+		int[] outOfFocusTabColors = new int[] {res.getColor(R.color.white), res.getColor(R.color.dark_grey)}; 
+		 
+		GradientDrawable contentGradient= new GradientDrawable(Orientation.LEFT_RIGHT, colors);
 		
-		GradientDrawable gd3 = new GradientDrawable(Orientation.LEFT_RIGHT, colors);
-		contactView.setBackground(gd1);
-		GradientDrawable gd4 = new GradientDrawable(Orientation.LEFT_RIGHT, colors1);
-
+	    //leftTabGradient = new GradientDrawable(Orientation.LEFT_RIGHT, leftTabColors);
+		//leftTabGradient.setCornerRadii(new float[]{10.0f,10.0f,10.0f,10.0f,0.0f,0.0f,0.0f,0.0f});
 		
-		mapViewTab.setBackground(gd2);
+		outOfFocusTabGradient  = new GradientDrawable(Orientation.LEFT_RIGHT, outOfFocusTabColors);
+		outOfFocusTabGradient.setCornerRadii(new float[]{10.0f,10.0f,10.0f,10.0f,0.0f,0.0f,0.0f,0.0f});
+		
+		selectedTabGradient = new GradientDrawable(Orientation.LEFT_RIGHT, selectedTabColors);
+		selectedTabGradient.setCornerRadii(new float[]{10.0f,10.0f,10.0f,10.0f,0.0f,0.0f,0.0f,0.0f});
+		
+		mapViewTab.setBackground(outOfFocusTabGradient);
+		contactView.setBackground(selectedTabGradient);
 		
         View homeTab = (View) findViewById(R.id.content1);
-        homeTab.setBackground(gd3);
+        homeTab.setBackground(contentGradient);
         View homeTab1 = (View) findViewById(R.id.content2);
-        homeTab1.setBackground(gd4);
+        homeTab1.setBackground(contentGradient);
        
+        
+        ///NEW PIECE OF CODE HEREEEE///
+        mainTabHost.setOnTabChangedListener( new TabHost.OnTabChangeListener(){
+
+			@Override
+			public void onTabChanged(String arg0) {
+				// TODO Auto-generated method stub
+				if (arg0 == null){
+					contactView.setBackground(ContactListActivity.this.selectedTabGradient);
+					mapViewTab.setBackground(ContactListActivity.this.outOfFocusTabGradient);
+				} else {
+					mapViewTab.setBackground(ContactListActivity.this.selectedTabGradient);
+					contactView.setBackground(ContactListActivity.this.outOfFocusTabGradient);
+				}
+			}
+        	
+        });
+        
+        ///NEW PIECE ENDS HERE!!!!!!////
         		
 		//init the map view
 		mapView = (MapView) findViewById(R.id.myMapView);
@@ -247,11 +261,13 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		
 		ContactManager.getInstance().readPhoneContacts(this);
 		contactsListView.setAdapter(ContactManager.getInstance().getAdapter());
+		parameterDialog = new JadeParameterDialog(this);
 		initializeContactList();
+
 	}		
     
 	
-	private static String getRandomNumber(){
+	private String getRandomNumber(){
 		Random rnd = new Random();
 		int randInt  = rnd.nextInt();
 		return "RND" + String.valueOf(randInt);
@@ -266,10 +282,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         ContactManager.getInstance().addAdapter(cla);
         MsnSessionManager.getInstance().initialize(this);
         
-      //fill Jade connection properties
-        Properties jadeProperties = getJadeProperties(this);
-      //Add my contact
-        ContactManager.getInstance().addMyContact(jadeProperties.getProperty(JICPProtocol.MSISDN_KEY));
+        String phoneNumber = getMyPhoneNumber();
+        ContactManager.getInstance().addMyContact(phoneNumber);
         
         //start updating myContact
         GeoNavigator.setLocationProviderName(getText(R.string.location_provider_name).toString());
@@ -280,44 +294,52 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         
         //Initialize the UI
         initUI();
+        disableUI();
         
-         
-        //try to get a JadeGateway
-        try {
-			JadeGateway.connect(MsnAgent.class.getName(), new String[]{getText(R.string.contacts_update_time).toString()}, jadeProperties, this, this);
-		} catch (Exception e) {
-			//troubles during connection
-			Toast.makeText(this, 
-						   getString(R.string.error_msg_jadegw_connection), 
-						   Integer.parseInt(getString(R.string.toast_duration))
-						   ).show();
-			myLogger.log(Logger.SEVERE, "Error in onCreate",e);
-			e.printStackTrace();
-		}
-		
-		
+    }
+    
+    private void enableUI(){
+    	View v = findViewById(R.id.main_view);
+    	contactsListView.setEnabled(true);
+    	contactView.setEnabled(true);
+    	mapViewTab.setEnabled(true);
+    	
+        v.setEnabled(true);
+    }
+    
+    private void disableUI(){
+    	View v = findViewById(R.id.main_view);
+    	contactsListView.setEnabled(false);
+    	contactView.setEnabled(false);
+    	mapViewTab.setEnabled(false);
+    	
+        v.setEnabled(false);
     }
 
-    private static Properties jadeProperties;
-    
-	public static Properties getJadeProperties(Activity act){
+   //Retrieve the JADE properties from Dialog or configuration file
+	public static Properties getJadeProperties(){
 		 //fill Jade connection properties
-        jadeProperties = new Properties(); 
-        jadeProperties.setProperty(Profile.MAIN_HOST, act.getString(R.string.jade_platform_host));
-        jadeProperties.setProperty(Profile.MAIN_PORT, act.getString(R.string.jade_platform_port));
-        //Get the phone number of my contact
-        numTel = SystemProperties.get("numtel");
-		
+        Properties jadeProperties = new Properties(); 
+        
+        jadeProperties.setProperty(Profile.MAIN_HOST, parameterDialog.getJadeAddress());
+        jadeProperties.setProperty(Profile.MAIN_PORT, parameterDialog.getJadePort());
+       
+       
+        jadeProperties.setProperty(JICPProtocol.MSISDN_KEY, ContactManager.getInstance().getMyContact().getPhoneNumber());
+        return jadeProperties;
+	}
+	
+	private String getMyPhoneNumber(){
+		 //Get the phone number of my contact
+        String numTel = SystemProperties.get("numtel");
 		//if number is not available
 		if (numTel.equals("")){
 			myLogger.log(Logger.WARNING, "Cannot access the numtel! A random number shall be used!!!");
 			numTel = getRandomNumber();
 		}
-       
-        jadeProperties.setProperty(JICPProtocol.MSISDN_KEY, numTel);
-        return jadeProperties;
+		return numTel;
 	}
-		
+	
 	protected void onDestroy() {
 		
 		GeoNavigator.getInstance(this).stopLocationUpdate();
@@ -359,6 +381,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	public void onConnected(JadeGateway arg0) {
 		this.gateway = arg0;
 	
+		enableUI();
+		
 		myLogger.log(Logger.INFO, "onConnected(): SUCCESS!");
 		
 		try {
@@ -382,7 +406,8 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	protected void onPause() {
 		myLogger.log(Logger.INFO, "onPause called...");
 		
-		super.onPause();	}
+		super.onPause();	
+	}
 
 	public void onDisconnected() {
 		// TODO Auto-generated method stub
@@ -401,7 +426,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, MENUITEM_ID_EXIT, R.string.menuitem_exit);
+		menu.add(0, MENUITEM_ID_CONNECT, R.string.menuitem_connect, R.drawable.connect);
+		menu.add(0, MENUITEM_ID_SETTINGS, R.string.menuitem_settings, R.drawable.settings);
+		menu.add(0, MENUITEM_ID_EXIT, R.string.menuitem_exit,R.drawable.stop);
 		return true;
 	}
 	
@@ -412,7 +439,29 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 			case MENUITEM_ID_EXIT:
 				finish();
 			break;			
+			case MENUITEM_ID_SETTINGS:
+				parameterDialog.show();
+			break;
+			case MENUITEM_ID_CONNECT:
+				 //try to get a JadeGateway
+		        try {
+		        	//fill Jade connection properties
+		            Properties jadeProperties = getJadeProperties();    
+					JadeGateway.connect(MsnAgent.class.getName(), new String[]{getText(R.string.contacts_update_time).toString()}, jadeProperties, this, this);
+				} catch (Exception e) {
+					//troubles during connection
+					Toast.makeText(this, 
+								   getString(R.string.error_msg_jadegw_connection), 
+								   Integer.parseInt(getString(R.string.toast_duration))
+								   ).show();
+					myLogger.log(Logger.SEVERE, "Error in onCreate",e);
+					e.printStackTrace();
+				}
+
+			break;
+				
 		}
+		
 		return true;
 	}
 
