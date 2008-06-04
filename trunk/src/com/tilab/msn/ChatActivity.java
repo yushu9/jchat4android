@@ -80,7 +80,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		});
 		
 		//fill Jade connection properties
-        Properties jadeProperties = ContactListActivity.getJadeProperties(this);
+        Properties jadeProperties = ContactListActivity.getJadeProperties();
         
         //try to get a JadeGateway
         try {

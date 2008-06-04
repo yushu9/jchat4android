@@ -16,6 +16,8 @@
    	<!-- MENU ITEM PARAMETERS -->
    	<string name="menuitem_listview">List mode</string>
    	<string name="menuitem_exit">Exit</string>
+   	<string name="menuitem_settings">Jade Settings</string>
+   	<string name="menuitem_connect">Connect to Jade!</string>
    	
    	<!--  CONTEXT MENU CONTACT LIST -->
    	<string name="menu_item_chat">Chat</string>
@@ -35,6 +37,7 @@
 	  <string name="label_for_offline">Offline</string>
 	  <string name="label_toggle_satellite">Toggle satellite mode</string>
 	  <string name="label_toggle_map">Toggle map mode</string>
+	  <string name="label_params_title">Jade Connection settings</string>
 
     <!-- ERROR MESSAGES -->
     <string name="error_msg_jadegw_connection">Error connecting to Jade Gateway</string>

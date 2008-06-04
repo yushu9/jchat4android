@@ -3,6 +3,7 @@ package com.tilab.msn;
 import jade.util.Logger;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import java.util.List;
 
@@ -88,12 +89,14 @@ public class ContactListAdapter extends BaseAdapter {
 	}
 	
 	public void initialize(){
-		List<Contact> localContactList = ContactManager.getInstance().getContactList();
+		Map<String, Contact> localContactMap = ContactManager.getInstance().getAllContacts();
 		Contact myContact = ContactManager.getInstance().getMyContact();
+		Map<String, ContactLocation> contactLocMap = ContactManager.getInstance().getAllContactLocations();
+		ContactLocation myCloc = ContactManager.getInstance().getMyContactLocation();
 		
-		for (Contact contact : localContactList) {
-			ContactViewInfo cvi = new ContactViewInfo(contact.getPhoneNumber());
-			cvi.updateView(contact, myContact);
+		for (String phoneNum : localContactMap.keySet()) {
+			ContactViewInfo cvi = new ContactViewInfo(phoneNum);
+			cvi.updateView(localContactMap.get(phoneNum), contactLocMap.get(phoneNum), myContact, myCloc);
 			contactViewInfoList.add(cvi);
 		}
 		
@@ -101,6 +104,10 @@ public class ContactListAdapter extends BaseAdapter {
 	
 	public void update(ContactListChanges changes){
 		Contact myContact = ContactManager.getInstance().getMyContact();
+		ContactLocation cMyLoc = ContactManager.getInstance().getMyContactLocation();
+		
+		Map<String,Contact> cMap = ContactManager.getInstance().getAllContacts();
+		Map<String,ContactLocation> cLocMap = ContactManager.getInstance().getAllContactLocations();
 		
 		if (changes.contactsAdded.size() > 0 || changes.contactsDeleted.size() > 0)
 			myLogger.log(Logger.INFO, "Modifications reported from updating thread...\n " +
@@ -122,7 +129,7 @@ public class ContactListAdapter extends BaseAdapter {
 		
 		//At the end update all contacts
 		for (ContactViewInfo viewInfo : contactViewInfoList) {
-			viewInfo.updateView(ContactManager.getInstance().getContact(viewInfo.contactId), myContact);
+			viewInfo.updateView(cMap.get(viewInfo.contactId), cLocMap.get(viewInfo.contactId), myContact, cMyLoc);
 		}
 	}
 	
@@ -179,7 +186,7 @@ public class ContactListAdapter extends BaseAdapter {
 			}
 		}
 		
-		public void updateView(Contact c, Contact myContact){
+		public void updateView(Contact c, ContactLocation cloc, Contact myContact, ContactLocation cMyLoc){
 			//this contact is new and has no view
 			if (contactView == null){
 				//create a new view and start filling it
@@ -194,9 +201,7 @@ public class ContactListAdapter extends BaseAdapter {
 			
 			if (c.isOnline()){
 				setStyle(ONLINE_STYLE);
-				Location myContactLoc = ContactManager.getInstance().getMyContactLocation();
-				Location otherLoc = ContactManager.getInstance().getContactLocation(c.getPhoneNumber());
-				float distInMeters  = myContactLoc.distanceTo(otherLoc);
+				float distInMeters  = cMyLoc.distanceTo(cloc);
 				float distInKm = distInMeters / 1000.0f;
 				String distKmAsString = String.valueOf(distInKm);
 				StringBuffer buf = new StringBuffer(distKmAsString);

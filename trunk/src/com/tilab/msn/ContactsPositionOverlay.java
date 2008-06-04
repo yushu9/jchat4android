@@ -90,7 +90,7 @@ public class ContactsPositionOverlay extends Overlay {
 		myCData.isMyContact=true;
 		contactPositionMap.put(myCont.getPhoneNumber(), myCData);
 		ylwPaddle = BitmapFactory.decodeResource(appRes,R.drawable.ylw_circle); 
-		highlight = BitmapFactory.decodeResource(appRes,R.drawable.green_highlight);
+		highlight = BitmapFactory.decodeResource(appRes,R.drawable.checked);
 		blueBaloon = BitmapFactory.decodeResource(appRes,R.drawable.bluemessage);
 		bluePaddle = BitmapFactory.decodeResource(appRes,R.drawable.blu_circle);		
 	}	
@@ -203,10 +203,12 @@ public class ContactsPositionOverlay extends Overlay {
           //myPaint.setAlpha(100);
 		 // c.drawRect(new Rect(cData.positionOnScreen[0]- width/2, cData.positionOnScreen[1]-height, cData.positionOnScreen[0]+width/2, cData.positionOnScreen[1]),myPaint);
 		  //Draw the right bitmap icon
-		  c.drawBitmap(bitmapToBeDrawn, bitmapOriginX, bitmapOriginY, myPaint);
+		  
 		  
 		  if (cData.isChecked){
 			  c.drawBitmap(highlight, bitmapOriginX, bitmapOriginY, myPaint);
+		  } else {
+			  c.drawBitmap(bitmapToBeDrawn, bitmapOriginX, bitmapOriginY, myPaint);  
 		  }
 		  
 		  //Change color for background rectangle
@@ -295,8 +297,6 @@ public class ContactsPositionOverlay extends Overlay {
 		int maxLong;
 		int minLong;
 		
-		int midPointX=0;
-		int midPointY=0;
 	
 		
 		PointClusterParams params = new PointClusterParams();
@@ -307,43 +307,6 @@ public class ContactsPositionOverlay extends Overlay {
 		maxLong = (int)(myContactLoc.getLongitude() * 1E6);
 		minLong = (int)(myContactLoc.getLongitude() * 1E6);
 		minLat = (int)(myContactLoc.getLatitude() * 1E6);
-	
-	
-	/*	ContactLayoutData myPointData = new ContactLayoutData(myContact.getName(), myContact.getPhoneNumber(),myContactLoc ,calc );
-		myPointData.isMyContact = true;
-		
-		//Compute mid x and y
-		midPointX += myPointData.positionOnScreen[0];
-		midPointY += myPointData.positionOnScreen[1];
-		
-		params.contactPoints.add(myPointData);*/
-		
-		
-		//compute params for all the others
-//		for (int i = 0; i < contacts.size(); i++) {
-	//		Contact ctn = contacts.get(i);
-			//only online contacts are drawn on the map
-	//		if (ctn.isOnline()){
-			
-		//		contactsOnLine++;
-				
-		//		ContactLocation contactLoc = locationMap.get(ctn.getPhoneNumber());
-		
-		//if (contactLoc != null) {
-		/*			int tmpLat = (int)(contactLoc.getLatitude() * 1E6);
-					int tmpLong = (int)(contactLoc.getLongitude() * 1E6);
-					
-					
-					
-					ContactLayoutData pointData = new ContactLayoutData(ctn.getName(),ctn.getPhoneNumber(),contactLoc ,calc );
-					
-					midPointX += pointData.positionOnScreen[0];
-					midPointY += pointData.positionOnScreen[1];
-					
-					params.contactPoints.add(pointData);
-				}
-			}
-		}*/
 		
 		
 		int contactsOnLine = contactPositionMap.size();
@@ -536,8 +499,6 @@ public class ContactsPositionOverlay extends Overlay {
      }
      
      public void uncheckAllContacts(){
-    	 int width = bluePaddle.getWidth();
-    	 int height = bluePaddle.getHeight();
     	 
     	 for (ContactLayoutData data : contactPositionMap.values()) {
     		 data.isChecked=false;
