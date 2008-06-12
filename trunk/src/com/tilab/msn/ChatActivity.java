@@ -28,23 +28,72 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+/**
+ * Represents the activity that allows sending and receiving messages to other contacts.
+ * It is launched when a user clicks a notification on the status bar (for reading a message
+ * sent by a contact) or when starts a conversation himself. 
+ * <p>
+ * Please note that only a single activity is used also for managing multiple conversation at a time,
+ * that is the user always sees a single activity also when he switches from one to another: activity is
+ * simply redrawn.
+ * <p>
+ * Implements the ConnectionListener interface to be able to connect to the MicroRuntime service for communication 
+ * with agent.  
+ *  
+ * @author Cristina Cuccè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0    
+ */
 public class ChatActivity extends Activity implements ConnectionListener{
 
+	/** Instance of Jade Logger, for debugging purpose. */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
+	
+	/** ListView showing participants to this chat session. */
 	private ListView partsList;
+	
+	/** Button for sending data. */
 	private ImageButton sendButton;	
+	
+	/** Button for closing this activity and session. */
 	private ImageButton closeButton;
+	
+	/** List of already sent messages. */
 	private ListView messagesSentList;
+	
+	/** Edit text for editing the message that must be sent. */
 	private EditText messageToBeSent;
+	
+	/** Instance of jade gateway necessary to work with Jade add-on. */
 	private JadeGateway gateway;
+	
+	/** Id of the session this activity is related to*/
 	private String sessionId;
+	
+	/** Adapter used to fill up the message list */
 	private MsnSessionAdapter sessionAdapter;
+	
+	/** object used to report to the main activity (we need to know when a chat activity is closed to clear
+	 *  check on contacts list) 
+	 */
 	private ActivityPendingResult activityPendingResult;
 	
+	/**
+	 * Retrieves the id of the chat session this activity refers to.
+	 * 
+	 * @return Id of the session
+	 */
 	public String getMsnSession(){
 		return sessionId;
 	}
 	
+	/**
+	 * Initializes basic GUI components and listeners. Also performs connection to add-on's Jade Gateway
+	 *  
+	 * @param icicle Bundle of data if we are resuming a frozen state (not used)
+	 */
 	protected void onCreate(Bundle icicle) {
 		Thread.currentThread().getId();
         myLogger.log(Logger.INFO, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
@@ -96,35 +145,11 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		}
 	}
 	
-	protected void onStart() {
-		myLogger.log(Logger.INFO, "OnStart was called! This Activity has task ID: " + getTaskId());
-		super.onStart();		
-	}
-
-	@Override
-	protected void onPause() {
-		myLogger.log(Logger.INFO, "onPause() was called!" );
-		super.onPause();
-	}
-
-	@Override
-	protected void onPostCreate(Bundle icicle) {
-		myLogger.log(Logger.INFO, "onPostCreate() was called!" );
-		super.onPostCreate(icicle);
-	}
-
-	@Override
-	protected void onPostResume() {
-		myLogger.log(Logger.INFO, "onPostResume() was called!" );
-		super.onPostResume();
-	}
-
-	@Override
-	protected void onRestart() {
-		myLogger.log(Logger.INFO, "onRestart() was called!" );
-		super.onRestart();
-	}
-
+	
+	/**
+	 * 
+	 * @see android.app.Activity#onResume()
+	 */
 	@Override
 	protected void onResume() {
 		myLogger.log(Logger.INFO, "onResume() was called!" );
@@ -151,6 +176,9 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		super.onResume();
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onNewIntent(android.content.Intent)
+	 */
 	@Override
 	protected void onNewIntent(Intent intent) {
 		myLogger.log(Logger.INFO, "WOW: onNewIntent was called!! \n Intent received was: " + intent.toString());
@@ -158,6 +186,9 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		super.onNewIntent(intent);
 	}
 
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onDestroy()
+	 */
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();		
@@ -174,14 +205,34 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		
 	}
 	
-	public void onConnected(JadeGateway arg0) {
-		this.gateway = arg0;
+	/**
+	 * Gets the instance to the add-on's JadeGateway to be able to send messages to be sent to the 
+	 * Jade agent. It's a callback, called after the connection to add-on's MicroRuntimeService
+	 * 
+	 * @param gw Instance of the JadeGateway retrieved after the connection
+	 * @see ConnectionListener
+	 * @see MicroRuntimeService
+	 */
+	public void onConnected(JadeGateway gw) {
+		this.gateway = gw;
 		myLogger.log(Logger.INFO, "onConnected(): SUCCESS!");
 	}
 	
+	/**
+	 * Dummy implementation for the ConnectionListener's onDisconnected
+	 * 
+	 * @param gw Instance of the JadeGateway retrieved after the connection
+	 * @see ConnectionListener
+	 * @see MicroRuntimeService
+	 */
 	public void onDisconnected() {
 		}
 	
+	/**
+	 * Send message to participants.
+	 * 
+	 * @param msgContent the msg content
+	 */
 	private void sendMessageToParticipants(String msgContent){
 		
 		
@@ -203,10 +254,21 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		}
 	}
 	
+	/**
+	 * The Class SenderBehaviour.
+	 */
 	private class SenderBehaviour extends OneShotBehaviour {
 
+		/** The msg. */
 		private ACLMessage theMsg;
 		
+		/**
+		 * Instantiates a new sender behaviour.
+		 * 
+		 * @param convId the conv id
+		 * @param content the content
+		 * @param receivers the receivers
+		 */
 		public SenderBehaviour(String convId, String content, List<String> receivers) {
 			theMsg = new ACLMessage(ACLMessage.INFORM);
 			theMsg.setContent(content);
@@ -220,6 +282,9 @@ public class ChatActivity extends Activity implements ConnectionListener{
 			
 		}
 		
+		/* (non-Javadoc)
+		 * @see jade.core.behaviours.Behaviour#action()
+		 */
 		public void action() {
 			myLogger.log(Logger.INFO, "Sending msg " +  theMsg.toString());
 			myAgent.send(theMsg);
@@ -227,8 +292,16 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	}
 	
 	
+	/**
+	 * The Class MessageReceivedUpdater.
+	 */
 	private class MessageReceivedUpdater extends ContactsUIUpdater {
 		
+		/**
+		 * Instantiates a new message received updater.
+		 * 
+		 * @param act the act
+		 */
 		public MessageReceivedUpdater(Activity act) {
 			super(act);
 			ChatActivity chatAct = (ChatActivity) act;
@@ -238,6 +311,9 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		
 		//This method updates the GUI and receives the MsnSessionMessage object 
 		//that should be added
+		/* (non-Javadoc)
+		 * @see com.tilab.msn.ContactsUIUpdater#handleUpdate(java.lang.Object)
+		 */
 		protected void handleUpdate(Object parameter) {
 			
 			if (parameter instanceof MsnSessionMessage){

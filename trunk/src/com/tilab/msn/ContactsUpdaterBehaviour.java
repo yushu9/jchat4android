@@ -17,17 +17,35 @@ import jade.util.Logger;
 import jade.util.leap.Iterator;
 import android.location.Location;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ContactsUpdaterBehaviour.
+ */
 public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
+	/** The msn update time. */
 	private long msnUpdateTime;
+	
+	/** The updater. */
 	private ContactsUIUpdater updater;
 
+	/** The my logger. */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 
+	/**
+	 * Instantiates a new contacts updater behaviour.
+	 * 
+	 * @param updateTime the update time
+	 */
 	public ContactsUpdaterBehaviour(long updateTime){
 		msnUpdateTime = updateTime;
 	}
 
+	/**
+	 * Sets the contacts updater.
+	 * 
+	 * @param up the new contacts updater
+	 */
 	public void setContactsUpdater(ContactsUIUpdater up) {
 		synchronized (this) {
 			updater = up;
@@ -35,6 +53,9 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 	}
 
 
+	/* (non-Javadoc)
+	 * @see jade.core.behaviours.Behaviour#action()
+	 */
 	@Override
 	public void action()  {
 		try {
@@ -76,6 +97,11 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 	}
 
 
+	/**
+	 * Update contact list.
+	 * 
+	 * @param onlineContactsDescs the online contacts descs
+	 */
 	private void updateContactList(DFAgentDescription[] onlineContactsDescs) {
 		// TODO Auto-generated method stub
 
@@ -101,8 +127,18 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 	}
 
 
+	/**
+	 * The Class Helper.
+	 */
 	private static class Helper {	
 
+		/**
+		 * Extract location.
+		 * 
+		 * @param it the it
+		 * 
+		 * @return the location
+		 */
 		public static Location extractLocation(Iterator it){
 			Location loc= new Location();
 
@@ -128,14 +164,26 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 	}
 
 
+	/**
+	 * The Class DFSubscriptionBehaviour.
+	 */
 	private class DFSubscriptionBehaviour extends SubscriptionInitiator 
 	{
 
+		/**
+		 * Instantiates a new dF subscription behaviour.
+		 * 
+		 * @param agent the agent
+		 * @param msg the msg
+		 */
 		public DFSubscriptionBehaviour(Agent agent, ACLMessage msg) {
 			super(agent, msg);
 		}
 
 
+		/* (non-Javadoc)
+		 * @see jade.proto.SubscriptionInitiator#handleInform(jade.lang.acl.ACLMessage)
+		 */
 		protected void handleInform(ACLMessage inform) {
 		
 			myLogger.log(Logger.FINE, " Notification received from DF");
@@ -201,19 +249,37 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 
 
+	/**
+	 * The Class DFUpdaterBehaviour.
+	 */
 	private class DFUpdaterBehaviour extends TickerBehaviour {
 
+		/** The my logger. */
 		private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 
+		/** The Constant PROPERTY_NAME_LOCATION_LAT. */
 		public static final String PROPERTY_NAME_LOCATION_LAT="Latitude";
+		
+		/** The Constant PROPERTY_NAME_LOCATION_LONG. */
 		public static final String PROPERTY_NAME_LOCATION_LONG="Longitude";
+		
+		/** The Constant PROPERTY_NAME_LOCATION_ALT. */
 		public static final String PROPERTY_NAME_LOCATION_ALT="Altitude";
 
 
+		/**
+		 * Instantiates a new dF updater behaviour.
+		 * 
+		 * @param a the a
+		 * @param period the period
+		 */
 		public DFUpdaterBehaviour(Agent a, long period) {
 			super(a, period);
 		}
 
+		/* (non-Javadoc)
+		 * @see jade.core.behaviours.TickerBehaviour#onTick()
+		 */
 		@Override
 		protected void onTick() {
 

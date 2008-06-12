@@ -14,19 +14,39 @@ import android.view.ViewInflate;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class MsnSessionAdapter.
+ */
 public class MsnSessionAdapter extends BaseAdapter {
 
+	/** The message views. */
 	private LinkedList<View> messageViews;
+	
+	/** The inflater. */
 	private ViewInflate theInflater;
+	
+	/** The session. */
 	private MsnSession theSession;
+	
+	/** The color generator. */
 	private ContactColorGenerator colorGenerator;
 	
+	/**
+	 * Instantiates a new msn session adapter.
+	 * 
+	 * @param vi the vi
+	 * @param res the res
+	 */
 	public MsnSessionAdapter(ViewInflate vi, Resources res){
 		theInflater = vi;
 		messageViews = new LinkedList<View>();
 		colorGenerator = new ContactColorGenerator(res);
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.widget.Adapter#getCount()
+	 */
 	@Override
 	public int getCount() {
 		// TODO Auto-generated method stub
@@ -35,6 +55,11 @@ public class MsnSessionAdapter extends BaseAdapter {
 	
 	//Set a new Session
 	//Each time a session is set we clear the list of messages and rebuild it using messages in the new session
+	/**
+	 * Sets the new session.
+	 * 
+	 * @param session the new new session
+	 */
 	public void setNewSession(MsnSession session){
 		theSession = session;
 		messageViews.clear();
@@ -47,6 +72,11 @@ public class MsnSessionAdapter extends BaseAdapter {
 	}
 	
 	//Create a new view for the given message
+	/**
+	 * Adds the message view.
+	 * 
+	 * @param msg the msg
+	 */
 	public void addMessageView(MsnSessionMessage msg){
 		View messageView = theInflater.inflate(R.layout.session_msg_layout, null, null);
 	
@@ -61,6 +91,9 @@ public class MsnSessionAdapter extends BaseAdapter {
 		messageViews.addFirst(messageView);
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.widget.Adapter#getItem(int)
+	 */
 	@Override
 	public Object getItem(int arg0) {
 		// TODO Auto-generated method stub
@@ -69,12 +102,18 @@ public class MsnSessionAdapter extends BaseAdapter {
 		return msg;
 	}
 
+	/* (non-Javadoc)
+	 * @see android.widget.Adapter#getItemId(int)
+	 */
 	@Override
 	public long getItemId(int arg0) {
 		
 		return 0;
 	}
 
+	/* (non-Javadoc)
+	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+	 */
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		
@@ -83,11 +122,25 @@ public class MsnSessionAdapter extends BaseAdapter {
 	}
 
 	//This inner class generates a random color for a given contact phone number 
+	/**
+	 * The Class ContactColorGenerator.
+	 */
 	private class  ContactColorGenerator{
+		
+		/** The contact color map. */
 		private Map<String,Integer>  contactColorMap; 
+		
+		/** The color palette. */
 		private int[] colorPalette;
+		
+		/** The counter. */
 		private int counter;
 		
+		/**
+		 * Instantiates a new contact color generator.
+		 * 
+		 * @param res the res
+		 */
 		public ContactColorGenerator(Resources res){
 			contactColorMap = new HashMap<String, Integer>();
 			colorPalette = new int[10];
@@ -96,6 +149,11 @@ public class MsnSessionAdapter extends BaseAdapter {
 			
 		}
 		
+		/**
+		 * Load palette.
+		 * 
+		 * @param res the res
+		 */
 		private void loadPalette(Resources res){
 			colorPalette[0] = res.getColor(R.color.chat_dark_yellow);
 			colorPalette[1] = res.getColor(R.color.chat_dark_orange);
@@ -109,6 +167,13 @@ public class MsnSessionAdapter extends BaseAdapter {
 			colorPalette[9] = res.getColor(R.color.chat_strong_purple);
 		}
 		
+		/**
+		 * Gets the color.
+		 * 
+		 * @param contactName the contact name
+		 * 
+		 * @return the color
+		 */
 		public int getColor(String contactName){
 			Integer color = contactColorMap.get(contactName);
 			int colAsInt=0;

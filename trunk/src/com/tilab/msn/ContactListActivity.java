@@ -49,49 +49,104 @@ import com.google.android.maps.OverlayController;
 
 
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ContactListActivity.
+ */
 public class ContactListActivity extends MapActivity implements ConnectionListener {
    
+	/** The gateway. */
 	private JadeGateway gateway;
+	
+	/** The Constant myLogger. */
 	private static final Logger myLogger = Logger.getMyLogger(ContactListActivity.class.getName());
+	
+	/** The main tab host. */
 	private TabHost mainTabHost;
+	
+	/** The contacts list view. */
 	private MultiSelectionListView contactsListView;
+	
+	/** The overlay ctrl. */
 	private OverlayController overlayCtrl;
+	
+	/** The overlay. */
 	private ContactsPositionOverlay overlay;
+	
+	/** The map view. */
 	private MapView mapView;
+	
+	/** The contact view. */
 	private View contactView; 
+    
+    /** The map view tab. */
     private View mapViewTab; 
+	
+	/** The parameter dialog. */
 	private static JadeParameterDialog parameterDialog;
 	
 	//MENUITEM CONSTANT
+	/** The MENUITE m_ i d_ exit. */
 	private final int MENUITEM_ID_EXIT=Menu.FIRST;
+	
+	/** The MENUITE m_ i d_ settings. */
 	private final int MENUITEM_ID_SETTINGS=Menu.FIRST+1;
+	
+	/** The MENUITE m_ i d_ connect. */
 	private final int MENUITEM_ID_CONNECT=Menu.FIRST+2;
 	
 	//Context Menu entries
+	/** The CONTEX t_ men u_ ite m_ cha t_ list. */
 	private final int CONTEXT_MENU_ITEM_CHAT_LIST = Menu.FIRST+3;
+	
+	/** The CONTEX t_ men u_ ite m_ cal l_ list. */
 	private final int CONTEXT_MENU_ITEM_CALL_LIST = Menu.FIRST+4;
+	
+	/** The CONTEX t_ men u_ ite m_ sm s_ list. */
 	private final int CONTEXT_MENU_ITEM_SMS_LIST = Menu.FIRST+5;
+	
+	/** The CONTEX t_ men u_ ite m_ cha t_ map. */
 	private final int CONTEXT_MENU_ITEM_CHAT_MAP = Menu.FIRST+6;
+	
+	/** The CONTEX t_ men u_ ite m_ cal l_ map. */
 	private final int CONTEXT_MENU_ITEM_CALL_MAP = Menu.FIRST+7;
+	
+	/** The CONTEX t_ men u_ ite m_ sm s_ map. */
 	private final int CONTEXT_MENU_ITEM_SMS_MAP = Menu.FIRST+8;
 	
 	//NEEDED TAGS FOR THE TABHOST (to address them)
+	/** The CONTACT s_ ta b_ tag. */
 	private final String CONTACTS_TAB_TAG="ContTab";
+	
+	/** The MAPVIE w_ ta b_ tag. */
 	private final String MAPVIEW_TAB_TAG="MapViewTab";
 	
 	//Return codes 
+	/** The Constant CHAT_ACTIVITY_CLOSED. */
 	public static final int CHAT_ACTIVITY_CLOSED = 777;
+	
+	/** The out of focus tab gradient. */
 	private GradientDrawable outOfFocusTabGradient;
 //	private GradientDrawable rightTabGradient;
-	private GradientDrawable selectedTabGradient;
+	/** The selected tab gradient. */
+private GradientDrawable selectedTabGradient;
 	
 	//Array of updaters
+	/** The activity updater. */
 	private  ContactListActivityUpdater activityUpdater;
 	
+	/** The Constant OTHER_PARTICIPANTS. */
 	public static final String OTHER_PARTICIPANTS = "com.tilab.msn.Prova";
+	
+	/** The Constant MESSAGE. */
 	public static final String MESSAGE = "com.tilab.msn.Message";
+	
+	/** The Constant ID_ACTIVITY_PENDING_RESULT. */
 	public static final String ID_ACTIVITY_PENDING_RESULT = "ID_ACTIVITY_PENDING_RESULT";
 	
+	/**
+	 * Inits the ui.
+	 */
 	private void initUI(){
 		
 		//Setup the main tabhost
@@ -267,12 +322,20 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}		
     
 	
+	/**
+	 * Gets the random number.
+	 * 
+	 * @return the random number
+	 */
 	private String getRandomNumber(){
 		Random rnd = new Random();
 		int randInt  = rnd.nextInt();
 		return "RND" + String.valueOf(randInt);
 	}
 	
+    /* (non-Javadoc)
+     * @see com.google.android.maps.MapActivity#onCreate(android.os.Bundle)
+     */
     public void onCreate(Bundle icicle) {
     //	Debug.startMethodTracing("/tmp/profile");
     	Thread.currentThread().getId();
@@ -298,6 +361,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         
     }
     
+    /**
+     * Enable ui.
+     */
     private void enableUI(){
     	View v = findViewById(R.id.main_view);
     	contactsListView.setEnabled(true);
@@ -307,6 +373,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         v.setEnabled(true);
     }
     
+    /**
+     * Disable ui.
+     */
     private void disableUI(){
     	View v = findViewById(R.id.main_view);
     	contactsListView.setEnabled(false);
@@ -317,7 +386,12 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
     }
 
    //Retrieve the JADE properties from Dialog or configuration file
-	public static Properties getJadeProperties(){
+	/**
+    * Gets the jade properties.
+    * 
+    * @return the jade properties
+    */
+   public static Properties getJadeProperties(){
 		 //fill Jade connection properties
         Properties jadeProperties = new Properties(); 
         
@@ -329,6 +403,11 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
         return jadeProperties;
 	}
 	
+	/**
+	 * Gets the my phone number.
+	 * 
+	 * @return the my phone number
+	 */
 	private String getMyPhoneNumber(){
 		 //Get the phone number of my contact
         String numTel = SystemProperties.get("numtel");
@@ -340,6 +419,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		return numTel;
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.google.android.maps.MapActivity#onDestroy()
+	 */
 	protected void onDestroy() {
 		
 		GeoNavigator.getInstance(this).stopLocationUpdate();
@@ -372,12 +454,18 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 	
 
+	/* (non-Javadoc)
+	 * @see com.google.android.maps.MapActivity#onStop()
+	 */
 	protected void onStop() {
 		myLogger.log(Logger.INFO, "onStop called ...");
 		super.onStop();
 	}
 
 
+	/* (non-Javadoc)
+	 * @see jade.android.ConnectionListener#onConnected(jade.android.JadeGateway)
+	 */
 	public void onConnected(JadeGateway arg0) {
 		this.gateway = arg0;
 	
@@ -398,6 +486,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 
 
+	/* (non-Javadoc)
+	 * @see com.google.android.maps.MapActivity#onResume()
+	 */
 	protected void onResume() {
 		myLogger.log(Logger.INFO, "onResume called...");	
 		super.onResume();
@@ -405,18 +496,27 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 
 	
 	
+	/* (non-Javadoc)
+	 * @see com.google.android.maps.MapActivity#onPause()
+	 */
 	protected void onPause() {
 		myLogger.log(Logger.INFO, "onPause called...");
 		
 		super.onPause();	
 	}
 
+	/* (non-Javadoc)
+	 * @see jade.android.ConnectionListener#onDisconnected()
+	 */
 	public void onDisconnected() {
 		// TODO Auto-generated method stub
 	}
 
 	
 
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onFreeze(android.os.Bundle)
+	 */
 	protected void onFreeze(Bundle outState) {
 		// TODO Auto-generated method stub
 		myLogger.log(Logger.INFO, "onFreeze called...");
@@ -426,6 +526,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 
 
 
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+	 */
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, MENUITEM_ID_CONNECT, R.string.menuitem_connect, R.drawable.connect);
@@ -436,6 +539,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	
 	
 	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
+	 */
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		// TODO Auto-generated method stub
@@ -447,6 +553,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 
 
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onMenuItemSelected(int, android.view.Menu.Item)
+	 */
 	public boolean onMenuItemSelected(int featureId, Item item) {
 		super.onMenuItemSelected(featureId, item);
 		
@@ -480,6 +589,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onContextItemSelected(android.view.Menu.Item)
+	 */
 	public boolean onContextItemSelected(Item item) {
 		
 		switch(item.getId()) {
@@ -530,6 +642,11 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 
 
+	/**
+	 * Call contact.
+	 * 
+	 * @param selectedCPhoneNumber the selected c phone number
+	 */
 	private void callContact(String selectedCPhoneNumber) {
 		IPhone phoneService = null; 
 		  try { 
@@ -541,6 +658,11 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 		  }
 	}
 	
+	/**
+	 * Launch chat session.
+	 * 
+	 * @param participantIds the participant ids
+	 */
 	private void launchChatSession(List<String> participantIds){
 		//start a new session or retrieve it If the session already exists. its Id is retrieved
 		String sessionId = MsnSessionManager.getInstance().startMsnSession(participantIds);
@@ -565,12 +687,20 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 
 	}
 	
+	/**
+	 * Update list adapter.
+	 * 
+	 * @param changes the changes
+	 */
 	private void updateListAdapter(ContactListChanges changes){
 		ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
 		//FIXME: if this works we should try to use the DataSetObserver pattern 
 		adapter.update(changes);		
 	}
 	
+	/**
+	 * Initialize contact list.
+	 */
 	private void initializeContactList(){
 		ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
 		adapter.initialize();
@@ -578,6 +708,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 	
 		
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onStart()
+	 */
 	@Override
 	protected void onStart() {		
 		super.onStart();
@@ -585,6 +718,9 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}
 
 
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onActivityResult(int, int, java.lang.String, android.os.Bundle)
+	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode,
 			String data, Bundle extras) {
@@ -601,12 +737,23 @@ public class ContactListActivity extends MapActivity implements ConnectionListen
 	}	
 	
 	
+	/**
+	 * The Class ContactListActivityUpdater.
+	 */
 	private class ContactListActivityUpdater extends ContactsUIUpdater{
 
+		/**
+		 * Instantiates a new contact list activity updater.
+		 * 
+		 * @param act the act
+		 */
 		public ContactListActivityUpdater(Activity act) {
 			super(act);
 		}			
 			
+		/* (non-Javadoc)
+		 * @see com.tilab.msn.ContactsUIUpdater#handleUpdate(java.lang.Object)
+		 */
 		protected void handleUpdate(Object parameter) {
 				
 				boolean anyChanges = false;

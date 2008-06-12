@@ -16,24 +16,46 @@ import android.location.Location;
 import android.provider.Contacts.People;
 
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ContactManager.
+ */
 public class ContactManager {
 
+	/** The manager. */
 	private static ContactManager manager = new ContactManager();
 	//The key of this map is the local name (phone number)	
+	/** The contacts map. */
 	private final Map<String, Contact> contactsMap;
+	
+	/** The contact location map. */
 	private final Map<String, ContactLocation> contactLocationMap;
 	
+	/** The my contact. */
 	private Contact myContact;
+	
+	/** The my contact location. */
 	private volatile ContactLocation myContactLocation;
 	
+	/** The my logger. */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	//Adapter for the contacts list
+	/** The contacts adapter. */
 	private ContactListAdapter contactsAdapter;
+	
+	/** The modifications. */
 	private ContactListChanges modifications;	
+	
+	/** The M y_ contac t_ name. */
 	private final String MY_CONTACT_NAME="Me";
 	
 	
 
+	/**
+	 * Moving contacts.
+	 * 
+	 * @return true, if successful
+	 */
 	public boolean movingContacts(){
 		boolean moving= true;
 		
@@ -50,25 +72,46 @@ public class ContactManager {
 
 
 	
+	/**
+	 * Instantiates a new contact manager.
+	 */
 	private ContactManager() { 
 		contactsMap = new HashMap<String, Contact>();
 		contactLocationMap = new HashMap<String, ContactLocation>();
 		modifications = new ContactListChanges();
 	}	
 	
+	/**
+	 * Reset modifications.
+	 */
 	public synchronized void resetModifications(){
 		modifications.resetChanges();
 	}
 	
+	/**
+	 * Gets the modifications.
+	 * 
+	 * @return the modifications
+	 */
 	public synchronized ContactListChanges getModifications() {
 		return new ContactListChanges(modifications);
 	}	
 	
+	/**
+	 * Gets the adapter.
+	 * 
+	 * @return the adapter
+	 */
 	public  ContactListAdapter getAdapter(){		
 		
 		return contactsAdapter;
 	}
 
+	/**
+	 * Read phone contacts.
+	 * 
+	 * @param act the act
+	 */
 	public void readPhoneContacts(ContactListActivity act){
 		//perform a query on contacts database returning all contacts data in name ascending order
 		Cursor c = act.getContentResolver().query(People.CONTENT_URI, null, null, null, People.NAME + " DESC");
@@ -93,12 +136,23 @@ public class ContactManager {
 		}		
 	}	
 	
+	/**
+	 * Adds the adapter.
+	 * 
+	 * @param cla the cla
+	 */
 	public void addAdapter(ContactListAdapter cla){	
 		 contactsAdapter= cla;
 	}
 
 	
 	//This methods adds or updates a contact 
+	/**
+	 * Adds the or update online contact.
+	 * 
+	 * @param phoneNumber the phone number
+	 * @param loc the loc
+	 */
 	public void addOrUpdateOnlineContact(String phoneNumber, Location loc){
 			//Is the contact already there?
 		synchronized(this){	
@@ -134,6 +188,11 @@ public class ContactManager {
 	}
 				
 				
+	/**
+	 * Sets the contact offline.
+	 * 
+	 * @param phoneNumber the new contact offline
+	 */
 	public void setContactOffline(String phoneNumber) {		 
 			
 
@@ -152,29 +211,61 @@ public class ContactManager {
 	}
 
 	//Agent Id is the AID.getLocalName()
+	/**
+	 * Gets the contact.
+	 * 
+	 * @param phoneNumber the phone number
+	 * 
+	 * @return the contact
+	 */
 	public Contact getContact(String phoneNumber){
 		return contactsMap.get(phoneNumber);
 	}
 	
+	/**
+	 * Gets the contact location.
+	 * 
+	 * @param phoneNumber the phone number
+	 * 
+	 * @return the contact location
+	 */
 	public ContactLocation getContactLocation(String phoneNumber){
 		return contactLocationMap.get(phoneNumber);
 	}
 
+	/**
+	 * Gets the my contact.
+	 * 
+	 * @return the my contact
+	 */
 	public Contact getMyContact() {
 		return myContact;
 	}
  
+	/**
+	 * Gets the single instance of ContactManager.
+	 * 
+	 * @return single instance of ContactManager
+	 */
 	public static ContactManager getInstance() {
 		return manager;
 	}
 
 
+	/**
+	 * Shutdown.
+	 */
 	public void shutdown() {
 		contactsMap.clear();
 		contactsAdapter.clear();
 	}
 
 	//We cannot modify the contacts from this list, we copy the list to avoid race conditions
+	/**
+	 * Gets the contact list.
+	 * 
+	 * @return the contact list
+	 */
 	public List<Contact> getContactList() {
 		ArrayList<Contact> list;
 		list = new ArrayList<Contact>();
@@ -185,6 +276,11 @@ public class ContactManager {
 	}
 
 	//FIXME: Discuss if here we should return the map or a copy
+	/**
+	 * Gets the all contact locations.
+	 * 
+	 * @return the all contact locations
+	 */
 	public Map<String, ContactLocation> getAllContactLocations(){
 		Map<String,ContactLocation> location = new HashMap<String, ContactLocation>();
 		
@@ -199,6 +295,11 @@ public class ContactManager {
 	}
 	
 	
+	/**
+	 * Gets the all contacts.
+	 * 
+	 * @return the all contacts
+	 */
 	public Map<String, Contact> getAllContacts(){
 		Map<String,Contact> cMap = new HashMap<String, Contact>();
 
@@ -212,16 +313,31 @@ public class ContactManager {
 	}
 	
 	
+	/**
+	 * Adds the my contact.
+	 * 
+	 * @param phoneNumber the phone number
+	 */
 	public void addMyContact(String phoneNumber) {
 		// TODO Auto-generated method stub
 		myContact = new Contact(MY_CONTACT_NAME,phoneNumber,true);
 		myContactLocation = new ContactLocation();
 	}
 	
+	/**
+	 * Update my contact location.
+	 * 
+	 * @param loc the loc
+	 */
 	public void updateMyContactLocation(Location loc) {
 		myContactLocation = myContactLocation.changeLocation(loc);
 	}
 	
+	/**
+	 * Gets the my contact location.
+	 * 
+	 * @return the my contact location
+	 */
 	public ContactLocation getMyContactLocation(){
 		return new ContactLocation(myContactLocation);
 	}
