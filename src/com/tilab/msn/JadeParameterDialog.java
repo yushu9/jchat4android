@@ -11,16 +11,36 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class JadeParameterDialog.
+ */
 public class JadeParameterDialog extends Dialog {
 
+	/** The jade address. */
 	private String jadeAddress;
+	
+	/** The jade port. */
 	private String jadePort;
+	
+	/** The jade address edt. */
 	private EditText jadeAddressEdt;
+	
+	/** The jade port edt. */
 	private EditText jadePortEdt;
+	
+	/** The Constant JADE_DLG_OK. */
 	public static final int JADE_DLG_OK=0;
+	
+	/** The Constant JADE_DLG_CANCEL. */
 	public static final int JADE_DLG_CANCEL=1;
 	
 	
+	/**
+	 * Instantiates a new jade parameter dialog.
+	 * 
+	 * @param context the context
+	 */
 	public JadeParameterDialog(Context context) {
 		super(context);
 		View v = initUI(context);
@@ -31,6 +51,11 @@ public class JadeParameterDialog extends Dialog {
 	}
 	
 	//Default values should be retrieved from resource file and phone cfgs
+	/**
+	 * Fill with defaults.
+	 * 
+	 * @param ctx the ctx
+	 */
 	private void fillWithDefaults(Context ctx){
 		jadeAddress = ctx.getString(R.string.jade_platform_host);
 		jadePort = ctx.getString(R.string.jade_platform_port);
@@ -38,15 +63,32 @@ public class JadeParameterDialog extends Dialog {
 		jadePortEdt.setText(jadePort);
 	}
 	
+	/**
+	 * Gets the jade address.
+	 * 
+	 * @return the jade address
+	 */
 	public String getJadeAddress(){
 		return jadeAddress;
 	}
 	
+	/**
+	 * Gets the jade port.
+	 * 
+	 * @return the jade port
+	 */
 	public String getJadePort(){
 		return jadePort;
 	}
 	
 	
+	/**
+	 * Inits the ui.
+	 * 
+	 * @param ctx the ctx
+	 * 
+	 * @return the view
+	 */
 	private View initUI(Context ctx){
 		RelativeLayout layout = new RelativeLayout(ctx);
 		layout.setPreferredHeight(LayoutParams.WRAP_CONTENT);

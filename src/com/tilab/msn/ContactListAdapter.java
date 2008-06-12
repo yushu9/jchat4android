@@ -23,43 +23,77 @@ import android.widget.CheckBox;
 
 import android.widget.TextView;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ContactListAdapter.
+ */
 public class ContactListAdapter extends BaseAdapter {
 	
+	/** The my logger. */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
+	
+	/** The contact view info list. */
 	private List<ContactViewInfo> contactViewInfoList;
+	
+	/** The context. */
 	private Context context;
+	
+	/** The inflater. */
 	private ViewInflate inflater;	
 	
+	/**
+	 * Instantiates a new contact list adapter.
+	 * 
+	 * @param c the c
+	 */
 	public ContactListAdapter(Context c){
 		context = c;
 	    inflater = (ViewInflate)context.getSystemService(Context.INFLATE_SERVICE);		
 	    contactViewInfoList = new ArrayList<ContactViewInfo>();
 	}
 		
+	/* (non-Javadoc)
+	 * @see android.widget.Adapter#getCount()
+	 */
 	public int getCount() {		
 		return contactViewInfoList.size();
 	}
 
 	
+	/**
+	 * Uncheck all.
+	 */
 	public void uncheckAll(){
 		for (ContactViewInfo cview : contactViewInfoList) {
 			cview.uncheck();
 		} 
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.widget.Adapter#getItem(int)
+	 */
 	public Object getItem(int arg0) {
 		ContactViewInfo cvi = contactViewInfoList.get(arg0);		
 		return cvi.contactId;
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.widget.Adapter#getItemId(int)
+	 */
 	public long getItemId(int position) {
 		return position;
 	}
 
+	/**
+	 * Clear.
+	 */
 	public void clear(){
 		contactViewInfoList.clear();
 	}	
 	
+	/* (non-Javadoc)
+	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+	 */
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View v= null;
 		//FIXME: sometimes I get -1 as position from the callback! Is this an Android bug?
@@ -74,6 +108,11 @@ public class ContactListAdapter extends BaseAdapter {
 		return v;
 	}
 
+	/**
+	 * Gets the all selected item ids.
+	 * 
+	 * @return the all selected item ids
+	 */
 	public List<String> getAllSelectedItemIds(){
 		List<String> contactsSelectedIds = new ArrayList<String>();
 		
@@ -88,6 +127,9 @@ public class ContactListAdapter extends BaseAdapter {
 		return contactsSelectedIds;
 	}
 	
+	/**
+	 * Initialize.
+	 */
 	public void initialize(){
 		Map<String, Contact> localContactMap = ContactManager.getInstance().getAllContacts();
 		Contact myContact = ContactManager.getInstance().getMyContact();
@@ -102,6 +144,11 @@ public class ContactListAdapter extends BaseAdapter {
 		
 	}
 	
+	/**
+	 * Update.
+	 * 
+	 * @param changes the changes
+	 */
 	public void update(ContactListChanges changes){
 		Contact myContact = ContactManager.getInstance().getMyContact();
 		ContactLocation cMyLoc = ContactManager.getInstance().getMyContactLocation();
@@ -133,13 +180,26 @@ public class ContactListAdapter extends BaseAdapter {
 		}
 	}
 	
+	/**
+	 * The Class ContactViewInfo.
+	 */
 	private class ContactViewInfo {
 		
+		/** The Constant ONLINE_STYLE. */
 		public static final int ONLINE_STYLE=-2;
+		
+		/** The Constant OFFLINE_STYLE. */
 		public static final int OFFLINE_STYLE=-3;
+		
+		/** The contact view. */
 		public View contactView;
+		
+		/** The contact id. */
 		public String contactId;
 
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
 		public boolean equals(Object o) {
 			boolean retVal =false;
 			
@@ -151,16 +211,29 @@ public class ContactListAdapter extends BaseAdapter {
 			return retVal;
 		}
 
+		/**
+		 * Uncheck.
+		 */
 		public void uncheck(){
 			CheckBox contactCheckBox = (CheckBox) contactView.findViewById(R.id.contact_check_box);
 			contactCheckBox.setChecked(false);
 		}
 	
+		/**
+		 * Instantiates a new contact view info.
+		 * 
+		 * @param contactId the contact id
+		 */
 		public ContactViewInfo(String contactId){
 			this.contactId = contactId;	
 		}
 		
 		
+		/**
+		 * Sets the style.
+		 * 
+		 * @param style the new style
+		 */
 		private void setStyle(int style){
 			TextView contactName = (TextView) contactView.findViewById(R.id.contact_name);
 			TextView contactDist = (TextView) contactView.findViewById(R.id.contact_dist);
@@ -186,6 +259,14 @@ public class ContactListAdapter extends BaseAdapter {
 			}
 		}
 		
+		/**
+		 * Update view.
+		 * 
+		 * @param c the c
+		 * @param cloc the cloc
+		 * @param myContact the my contact
+		 * @param cMyLoc the c my loc
+		 */
 		public void updateView(Contact c, ContactLocation cloc, Contact myContact, ContactLocation cMyLoc){
 			//this contact is new and has no view
 			if (contactView == null){

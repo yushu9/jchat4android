@@ -15,25 +15,49 @@ import jade.wrapper.gateway.GatewayAgent;
 import android.location.Location;
 
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class MsnAgent.
+ */
 public class MsnAgent extends GatewayAgent {
 
+	/** The Constant msnDescName. */
 	public static final String msnDescName = "android-msn-service";
+	
+	/** The Constant msnDescType. */
 	public static final String msnDescType = "android-msn";
 
+	/** The Constant PROPERTY_NAME_LOCATION_LAT. */
 	public static final String PROPERTY_NAME_LOCATION_LAT="Latitude";
+	
+	/** The Constant PROPERTY_NAME_LOCATION_LONG. */
 	public static final String PROPERTY_NAME_LOCATION_LONG="Longitude";
+	
+	/** The Constant PROPERTY_NAME_LOCATION_ALT. */
 	public static final String PROPERTY_NAME_LOCATION_ALT="Altitude";
 
+	/** The Constant CHAT_ONTOLOGY. */
 	public static final String CHAT_ONTOLOGY= "chat_ontology";
 
+	/** The my description. */
 	private DFAgentDescription myDescription;
+	
+	/** The subscription message. */
 	private ACLMessage subscriptionMessage;
+	
+	/** The contacts updater b. */
 	private ContactsUpdaterBehaviour contactsUpdaterB;
+	
+	/** The message recv b. */
 	private MessageReceiverBehaviour messageRecvB;
 
+	/** The my logger. */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 
 	//In this method we shall register to df and subscribe
+	/* (non-Javadoc)
+	 * @see jade.wrapper.gateway.GatewayAgent#setup()
+	 */
 	protected void setup() {
 		super.setup();
 		Thread.currentThread().getId();
@@ -74,16 +98,29 @@ public class MsnAgent extends GatewayAgent {
 		addBehaviour(contactsUpdaterB);
 	}
 
+	/**
+	 * Gets the subscription message.
+	 * 
+	 * @return the subscription message
+	 */
 	public ACLMessage getSubscriptionMessage(){
 		return subscriptionMessage;
 	}
 
+	/**
+	 * Gets the agent description.
+	 * 
+	 * @return the agent description
+	 */
 	public DFAgentDescription getAgentDescription(){
 		return myDescription;
 	}
 	
 
 	//Here we will deregister and unsubscribe
+	/* (non-Javadoc)
+	 * @see jade.core.Agent#takeDown()
+	 */
 	protected void takeDown() {
 		myLogger.log(Logger.INFO, "Starting agent takeDown() ");
 
@@ -114,6 +151,9 @@ public class MsnAgent extends GatewayAgent {
 	}
 
 	//used to pass data to agent
+	/* (non-Javadoc)
+	 * @see jade.wrapper.gateway.GatewayAgent#processCommand(java.lang.Object)
+	 */
 	protected void processCommand(final Object command) {
 	    if (command instanceof Behaviour){
 			addBehaviour( (Behaviour) command);
@@ -124,8 +164,14 @@ public class MsnAgent extends GatewayAgent {
 		} 
 	}
 
+	/**
+	 * The Class MessageReceiverBehaviour.
+	 */
 	private class MessageReceiverBehaviour extends CyclicBehaviour{
 
+		/* (non-Javadoc)
+		 * @see jade.core.behaviours.Behaviour#action()
+		 */
 		public void action() {
 
 			try {
@@ -181,6 +227,15 @@ public class MsnAgent extends GatewayAgent {
 
 		}
 
+		/**
+		 * Handle visible chat.
+		 * 
+		 * @param sessionId the session id
+		 * @param senderCtn the sender ctn
+		 * @param sessionMessage the session message
+		 * @param updater the updater
+		 * @param manager the manager
+		 */
 		private void handleVisibleChat( String sessionId, Contact senderCtn, MsnSessionMessage sessionMessage, ContactsUIUpdater updater,
 										ChatSessionNotificationManager manager) {
 			
