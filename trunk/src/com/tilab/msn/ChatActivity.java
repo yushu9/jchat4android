@@ -90,7 +90,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	}
 	
 	/**
-	 * Initializes basic GUI components and listeners. Also performs connection to add-on's Jade Gateway
+	 * Initializes basic GUI components and listeners. Also performs connection to add-on's Jade Gateway.
 	 *  
 	 * @param icicle Bundle of data if we are resuming a frozen state (not used)
 	 */
@@ -147,8 +147,12 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	
 	
 	/**
-	 * 
-	 * @see android.app.Activity#onResume()
+	 * Populates the GUI retrieving the sessionId from the intent that initiates the activity itself.
+	 * The session Id is saved in the intent as an URI, whose fragment is the part we are interested in.
+	 * <p>
+	 * Please note that this method shall be called both when the activity is created for the first time and 
+	 * when it is resumed from the background (that is, when it is in the foreground and the user switches to a new session
+	 * by clicking the status bar notifications)
 	 */
 	@Override
 	protected void onResume() {
@@ -176,8 +180,13 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		super.onResume();
 	}
 	
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onNewIntent(android.content.Intent)
+	/**
+	 * Called only when resuming  an activity by clicking the status bar, just before <code> onResume() </code>
+	 * <p>
+	 * Sets the retrieved intent (containing info about the new session selected by the user) as the current one, to make 
+	 * <code> onResume() </code> able to populate the GUI with the new data.
+	 * 
+	 * @param intent the intent launched when clicking on status bar notification (no new activity is created but the new intent is passed anyway)
 	 */
 	@Override
 	protected void onNewIntent(Intent intent) {
@@ -186,23 +195,27 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		super.onNewIntent(intent);
 	}
 
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onDestroy()
+	
+
+	/**
+	 * Called only when destroying  the chat activity when closing the chat window (both when clicking the close button or when going back 
+	 * in activity stack with the back arrow).
+	 * <p>
+	 * It basically performs a disconnection from the service, sends the closing message to the main activity and resets the ChatActivityUpdater
+	 * to null (so the agent is aware that the chat activity is not visible). 
+	 * 
+	 * @param intent the intent launched when clicking on status bar notification (no new activity is created but the new intent is passed anyway)
 	 */
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();		
-		
-		
-		
+				
 		if (gateway != null){
 			gateway.disconnect(this);
 			myLogger.log(Logger.FINER, "ChatActivity.onDestroy() : disconnected from MicroRuntimeService");
 		}		
 		MsnSessionManager.getInstance().registerChatActivityUpdater(null);
 		activityPendingResult.sendResult(ContactListActivity.CHAT_ACTIVITY_CLOSED, null, null);
-		MsnSessionManager.getInstance().registerChatActivityUpdater(null);
-		
 	}
 	
 	/**
@@ -229,13 +242,14 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		}
 	
 	/**
-	 * Send message to participants.
+	 * Sends a message to all participants of this session.
+	 * <p>
+	 * Instantiates a new SenderBehaviour object and sends it to the agent, together with message contents and receiver list, 
+	 * then updates the message ListView.  
 	 * 
-	 * @param msgContent the msg content
+	 * @param msgContent content of the message to be sent 
 	 */
 	private void sendMessageToParticipants(String msgContent){
-		
-		
 		//set all participants as receivers
 		MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
 		List<String> receivers = session.getAllParticipantIds();
@@ -255,15 +269,15 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	}
 	
 	/**
-	 * The Class SenderBehaviour.
+	 * Contains the actual code executed by the agent to send the message.
 	 */
 	private class SenderBehaviour extends OneShotBehaviour {
 
-		/** The msg. */
+		/** ACLMessage to be sent */
 		private ACLMessage theMsg;
 		
 		/**
-		 * Instantiates a new sender behaviour.
+		 * Instantiates a new sender behaviour. Fills up the ACLMessage with data provided.
 		 * 
 		 * @param convId the conv id
 		 * @param content the content
@@ -282,8 +296,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
 			
 		}
 		
-		/* (non-Javadoc)
-		 * @see jade.core.behaviours.Behaviour#action()
+		/**
+		 * Sends the message. Executed by JADE agent.
 		 */
 		public void action() {
 			myLogger.log(Logger.INFO, "Sending msg " +  theMsg.toString());
@@ -293,14 +307,16 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	
 	
 	/**
-	 * The Class MessageReceivedUpdater.
+	 * Inner class that allows to the agent thread to modify the message list, any time a message is received.
+	 * Uses the ContactsUIUpdater functionalities to post a Runnable on the UI thread
+	 * 
 	 */
 	private class MessageReceivedUpdater extends ContactsUIUpdater {
 		
 		/**
 		 * Instantiates a new message received updater.
-		 * 
-		 * @param act the act
+		 *  
+		 * @param act instance of the activity that shall be updated (stored in superclass)
 		 */
 		public MessageReceivedUpdater(Activity act) {
 			super(act);
@@ -309,10 +325,12 @@ public class ChatActivity extends Activity implements ConnectionListener{
 			data = MsnSessionManager.getInstance().retrieveSession(sessionId);
 		}		
 		
-		//This method updates the GUI and receives the MsnSessionMessage object 
-		//that should be added
-		/* (non-Javadoc)
-		 * @see com.tilab.msn.ContactsUIUpdater#handleUpdate(java.lang.Object)
+		/**
+		 * Performs the update of the GUI. 
+		 * It handles both the arrival of a new message and the disconnection of an online contact.
+		 *  
+		 * @param parameter a generic object sent as a parameter. It can be a <code>MsnSessionMessage</code> in case of a new incoming 
+		 * message or a String with the disconnected contact Id to display a toast		 
 		 */
 		protected void handleUpdate(Object parameter) {
 			

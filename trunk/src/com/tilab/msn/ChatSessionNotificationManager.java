@@ -13,19 +13,33 @@ import android.content.Intent;
 import android.widget.Toast;
 
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class ChatSessionNotificationManager.
+ * Manager class for incoming  notifications. 
+ * <p>
+ * Provides support for adding, removing notifications or updating existing notifications in status bar 
+ * 
+ * @author Cristina Cuccè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0 
  */
 class ChatSessionNotificationManager {
 
-		/** The activity. */
+		/** 
+		 * Reference to an activity (needed to post notifications). 
+		 * It seems it's not really important which Activity to use 
+		 */
 		private Activity activity;
 		
-		/** The MA x_ notificatio n_ number. */
+		/** 
+		 * Max number of notifications that can be shown to the user   
+		 */
 		private final int MAX_NOTIFICATION_NUMBER=10;
 		
-		/** The Constant myLogger. */
+		/** 
+		 * Instance of the logger, used for debugging 
+		 */
 		private static final Logger myLogger = Logger.getMyLogger(ChatSessionNotificationManager.class.getName());
 		
 		/** The notification list. */
