@@ -17,6 +17,8 @@ import android.widget.Toast;
  * Manager class for incoming  notifications. 
  * <p>
  * Provides support for adding, removing notifications or updating existing notifications in status bar 
+ * This class should be similar to the Android <code>NotificationManager</code> but provides the functionality of removing
+ * all notifications
  * 
  * @author Cristina Cuccè
  * @author Marco Ughetti 
@@ -42,17 +44,21 @@ class ChatSessionNotificationManager {
 		 */
 		private static final Logger myLogger = Logger.getMyLogger(ChatSessionNotificationManager.class.getName());
 		
-		/** The notification list. */
+		/** 
+		 * List of all notification displayed at a specific time. 
+		 */
 		private List<Integer> notificationList;
 		
-		/** The manager. */
+		/**
+		 * Instance of the notification manager used to diplay/remove the notifications 
+		 */
 		private NotificationManager manager;
 		
 		
 		/**
 		 * Instantiates a new chat session notification manager.
 		 * 
-		 * @param act the act
+		 * @param act Instance of the activity needed to instantiate the notification manager 
 		 */
 		public ChatSessionNotificationManager(Activity act) {
 			activity = act;
@@ -61,9 +67,10 @@ class ChatSessionNotificationManager {
 		}
 	
 		/**
-		 * Post new session notification.
+		 * Post new session notification on the UI thread. Used when the agents needs to add a notification (for example when receiving 
+		 * a new message from a contact)
 		 * 
-		 * @param sessionId the session id
+		 * @param sessionId Id of the session 
 		 */
 		public void postNewSessionNotification(String sessionId){
 			int index = Integer.parseInt(sessionId);
