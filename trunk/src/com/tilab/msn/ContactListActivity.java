@@ -337,8 +337,7 @@ private GradientDrawable selectedTabGradient;
      * @see com.google.android.maps.MapActivity#onCreate(android.os.Bundle)
      */
     public void onCreate(Bundle icicle) {
-    //	Debug.startMethodTracing("/tmp/profile");
-    	Thread.currentThread().getId();
+   
         myLogger.log(Logger.INFO, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
         super.onCreate(icicle);
         ContactListAdapter cla = new ContactListAdapter(this);

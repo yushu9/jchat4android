@@ -117,37 +117,10 @@ public class MsnAgent extends GatewayAgent {
 	}
 	
 
-	//Here we will deregister and unsubscribe
-	/* (non-Javadoc)
-	 * @see jade.core.Agent#takeDown()
-	 */
+	
+	
 	protected void takeDown() {
-		myLogger.log(Logger.INFO, "Starting agent takeDown() ");
-
-		AID defaultDf = getDefaultDF();
-		
-		if (defaultDf != null){
-		
-			ACLMessage unsubcribeMsg = DFService.createCancelMessage(this, defaultDf, getSubscriptionMessage());
-			send(unsubcribeMsg);
-
-			myLogger.log(Logger.INFO, "DS Subscription Canceling message was sent!");
-
-			try {
-				defaultDf = getDefaultDF();
-				if (defaultDf != null){
-					DFService.deregister(this, myDescription);
-					myLogger.log(Logger.INFO, "Deregistering from DF!");
-				} else {
-					myLogger.log(Logger.SEVERE, "Default DF was found null the scond time!! Some error happens during jade shutdown");
-				}
-			} catch (FIPAException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace(); 
-			}
-		} else {
-			myLogger.log(Logger.SEVERE, "Default DF was found null!! Some error happens during jade shutdown");
-		}
+		myLogger.log(Logger.INFO, "Doing agent takeDown() ");
 	}
 
 	//used to pass data to agent
