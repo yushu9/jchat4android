@@ -184,7 +184,7 @@ public class MsnSessionAdapter extends BaseAdapter {
 				//Create a new random one
 				colAsInt = colorPalette[counter];
 				//Put it into the map
-				contactColorMap.put(contactName, new Integer(colAsInt));
+				contactColorMap.put(contactName, Integer.valueOf(colAsInt));
 				counter = (counter + 1)% 10;
 			} else {
 				//retrieve the already created color

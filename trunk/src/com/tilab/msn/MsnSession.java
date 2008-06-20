@@ -26,13 +26,13 @@ public class MsnSession {
 	private ArrayList<MsnSessionMessage> messageList;
 	//TODO: Must check RFC 3296 compliance!!!!!
 	/** The SESSIO n_ i d_ ur i_ scheme. */
-	private final String SESSION_ID_URI_SCHEME="content";
+	private static final String SESSION_ID_URI_SCHEME="content";
 	
 	/** The SESSIO n_ i d_ ur i_ ssp. */
-	private final String SESSION_ID_URI_SSP="sessionId";
+	private static final String SESSION_ID_URI_SSP="sessionId";
 	
 	/** The NOTIFICATIO n_ title. */
-	private final String NOTIFICATION_TITLE ="Conversation ";
+	private static final String NOTIFICATION_TITLE ="Conversation ";
 	//This is the "Conversation X" displayed for this session
 	/** The session title. */
 	private String sessionTitle;
