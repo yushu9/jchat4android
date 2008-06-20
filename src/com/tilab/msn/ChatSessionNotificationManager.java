@@ -79,20 +79,20 @@ class ChatSessionNotificationManager {
 		}
 		
 		/**
-		 * Show toast.
+		 * Post a runnable on the UI thread showing a toast to the user
 		 * 
-		 * @param msg the msg
-		 * @param duration the duration
+		 * @param msg the message shown in the toast
+		 * @param duration duration of the toast in milliseconds
 		 */
 		public void showToast(String msg, int duration){
 			activity.runOnUIThread(new ToastRunnable(msg,duration));
 		}
 		
 		/**
-		 * Post new msg notification.
+		 * Post a message notification on the status bar
 		 * 
-		 * @param sessionId the session id
-		 * @param msg the msg
+		 * @param sessionId id of the current session
+		 * @param msg session message that will be notified
 		 */
 		public void postNewMsgNotification(String sessionId, MsnSessionMessage msg) {
 			int index = Integer.parseInt(sessionId);
@@ -101,9 +101,10 @@ class ChatSessionNotificationManager {
 		}
 		
 		/**
-		 * Adds the new session notification.
+		 * Adds a session notification on the status bar. This is logically the same as {@link postNewSessionNotification} 
+		 * but it must be executed directly by the UI thread (no Runnable post).  
 		 * 
-		 * @param sessionId the session id
+		 * @param sessionId id of the session that must be notified
 		 */
 		public void addNewSessionNotification(String sessionId){
 			int index = Integer.parseInt(sessionId);
@@ -111,11 +112,12 @@ class ChatSessionNotificationManager {
 			addNotification(index, sessionNotif);
 		}
 		
-		/**
-		 * Adds the new msg notification.
-		 * 
-		 * @param sessionId the session id
-		 * @param msg the msg
+		/** 
+		 * Adds a session notification on the status bar. This is logically the same as {@link postNewMsgNotification} 
+		 * but it must be executed directly by the UI thread (no Runnable post).  
+		 *
+		 * @param sessionId Id of the session related to this notification
+		 * @param msg session message that will be notified
 		 */
 		public void addNewMsgNotification(String sessionId, MsnSessionMessage msg){
 			int index = Integer.parseInt(sessionId);
@@ -124,13 +126,14 @@ class ChatSessionNotificationManager {
 		}
 		
 		/**
-		 * Adds the notification.
+		 * Adds a <code>Notification</code> object on the status bar with the given id. It keeps track of the notification in a list. 
 		 * 
-		 * @param index the index
-		 * @param notif the notif
+		 * @param index index for this notification ()
+		 * @param notif the notification to be added
+		 * @see Notification
 		 */
 		private void addNotification(int index, Notification notif){
-			Integer indexAsInteger = new Integer(index);
+			Integer indexAsInteger = Integer.valueOf(index);
 			
 			if (!notificationList.contains(indexAsInteger)){
 				notificationList.add(indexAsInteger);
@@ -141,11 +144,10 @@ class ChatSessionNotificationManager {
 		
 		
 		/**
-		 * Make session notification.
+		 * Utility method that creates a session notification object to be added
 		 * 
-		 * @param sessionId the session id
-		 * 
-		 * @return the notification
+		 * @param sessionId id of the session to be notified
+		 * @return the Notification object
 		 */
 		private Notification makeSessionNotification(String sessionId){
 			MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
@@ -174,12 +176,12 @@ class ChatSessionNotificationManager {
 		}
 		
 		/**
-		 * Make msg notification.
+		 * Utility method that creates a message notification object to be added.
 		 * 
-		 * @param sessionId the session id
-		 * @param msg the msg
+		 * @param sessionId id of the session whose message will be notified
+		 * @param msg the message to be notified
 		 * 
-		 * @return the notification
+		 * @return the <code>Notification</code> object
 		 */
 		private Notification makeMsgNotification(String sessionId, MsnSessionMessage msg){
 			MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
@@ -211,7 +213,7 @@ class ChatSessionNotificationManager {
 		/**
 		 * Removes the session notification.
 		 * 
-		 * @param sessionId the session id
+		 * @param sessionId id of the notification to be removed
 		 */
 		public void removeSessionNotification(String sessionId){
 			manager.cancel(Integer.parseInt(sessionId));
@@ -219,6 +221,7 @@ class ChatSessionNotificationManager {
 		
 		/**
 		 * Removes the all notifications.
+		 * 
 		 */
 		public void removeAllNotifications(){
 			
@@ -231,31 +234,31 @@ class ChatSessionNotificationManager {
 		}
 		
 		
-		//This runnable adds an empty notification for a new session 
 		/**
-		 * The Class NotificationRunnable.
+		 * Used for posting notification on the UI thread
+		 * 
 		 */
 		private class NotificationRunnable implements Runnable {
 			
-			/** The notif id. */
+			/** Index of the notification to be added. */
 			private int notifId;
 			
-			/** The notif. */
+			/** The notification to be added. */
 			private Notification notif;
 			
 			/**
 			 * Instantiates a new notification runnable.
 			 * 
-			 * @param index the index
-			 * @param notif the notif
+			 * @param index the index of the notification
+			 * @param notif the notification that will be added
 			 */
 			public NotificationRunnable(int index, Notification notif){
 				this.notifId = index;
 				this.notif = notif;
 			}
 			
-			/* (non-Javadoc)
-			 * @see java.lang.Runnable#run()
+			/**
+			 * Adds the notification. Run by the UI-thread  
 			 */
 			public void run() {
 				addNotification(notifId, notif);
@@ -265,29 +268,33 @@ class ChatSessionNotificationManager {
 		
 		
 		/**
-		 * The Class ToastRunnable.
+		 * Used for posting toasts on the UI thread
 		 */
 		private class ToastRunnable implements Runnable {
 
-			/** The duration. */
+			/** 
+			 * Toast duration in millisecs. 
+			 */
 			private int duration;
 			
-			/** The message. */
+			/** 
+			 * The message to be shown. 
+			 */
 			private String message;
 			
 			/**
 			 * Instantiates a new toast runnable.
 			 * 
-			 * @param msg the msg
-			 * @param duration the duration
+			 * @param msg the message to be shown
+			 * @param duration the duration of the toast in millisecs
 			 */
 			public ToastRunnable(String msg, int duration) {
 				this.message = msg;
 				this.duration = duration;
 			}
 			
-			/* (non-Javadoc)
-			 * @see java.lang.Runnable#run()
+			/**
+			 * Shows the toast. Run by the UI thread
 			 */
 			@Override
 			public void run() {

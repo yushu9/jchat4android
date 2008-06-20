@@ -4,34 +4,53 @@ import jade.util.Logger;
 
 // TODO: Auto-generated Javadoc
 /**
- * This class represents a generic contact that can be online or offline
+ * This class represents a generic contact that can be online or offline.
+ * Each contact has a name and a mandatory phone number. Please note that the Agent shall be identified with the phone number.
+ * It seems that the emulator does not support a way to customize the phone number. So for now the application reads the number
+ * from a property file.
  * Each contact has non null location:  online contacts have a location that is updated
- * while offline contacts have a fixed location (null location)(but should not be drawn).
- * 
- * @author s.semeria
+ * while offline contacts have a fixed location (null location)(they should not be drawn).
+ * <p>
+ * This class is almost immutable. The <code>isOnline</code> flag is the only mutable field
+ *  
+ * @author Cristina Cuccè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0 
  */
 
 public class Contact  {
 
-	/** The phone number. */
+	/** 
+	 * The contact phone number. 
+	 */
 	private final String phoneNumber;	
-	//THIS IS MUTABLE
-	/** The is online. */
+	
+	/** 
+	 * Status of the contact. 
+	 * This flag is mutable 
+	 */
 	private volatile boolean isOnline;
 	
-	/** The name. */
-	private final String name; //nome come appare sulla rubrica (se non è presente il numTel)	
+	/** 
+	 * The contact name. It is the one on the local phone contacts if 
+	 * the contact is known, the phone number otherwise. 
+	 */
+	private final String name; 
 	
-	/** The stored on phone. */
+	/** 
+	 * True if the contact is present in local phone contacts, false otherwise. 
+	 */
 	private final boolean storedOnPhone;
 	
 		
 	/**
 	 * Instantiates a new contact.
 	 * 
-	 * @param name the name
-	 * @param phoneNumber the phone number
-	 * @param stored the stored
+	 * @param name Contact name
+	 * @param phoneNumber contact phone number
+	 * @param stored true if contact is stored on phone, false otherwise
 	 */
 	public Contact(String name, String phoneNumber, boolean stored){
 		this.name = name;
@@ -41,9 +60,9 @@ public class Contact  {
 	}
 	
 	/**
-	 * Instantiates a new contact.
+	 * Performs a deep copy of a contact.
 	 * 
-	 * @param c the c
+	 * @param c the contact to be copied
 	 */
 	public Contact(Contact c){
 		this.name = new String(c.name);
@@ -53,7 +72,7 @@ public class Contact  {
 	}
 	
 	/**
-	 * Gets the phone number.
+	 * Gets the contact phone number.
 	 * 
 	 * @return the phone number
 	 */
@@ -63,48 +82,50 @@ public class Contact  {
 	
 
 	/**
-	 * Gets the name.
+	 * Gets the contact name.
 	 * 
-	 * @return the name
+	 * @return the contact name
 	 */
 	public String getName() {
 		return name;
 	}
 	
 	/**
-	 * Checks if is stored on phone.
+	 * Checks if a contact is stored on phone.
 	 * 
-	 * @return true, if is stored on phone
+	 * @return true if it is stored on phone, false otherwise
 	 */
 	public boolean isStoredOnPhone(){
 		return storedOnPhone;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/**
+	 * Prints out the contact name
+	 * 
+	 *  @return the contact name
 	 */
 	public String toString() {
 		return name;
 	}
 	
 	/**
-	 * Sets the online.
+	 * Change contact status to online.
 	 */
 	public void setOnline(){
 		isOnline = true;
 	}
 	
 	/**
-	 * Sets the offline.
+	 * Change contact status to offline.
 	 */
 	public void setOffline(){
 		isOnline = false;;
 	}
 	
 	/**
-	 * Checks if is online.
+	 * Checks if contact is online.
 	 * 
-	 * @return true, if is online
+	 * @return true if online, false otherwise
 	 */
 	public boolean isOnline(){
 		return isOnline;
@@ -112,8 +133,11 @@ public class Contact  {
 
 	
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
+	/**
+	 * Checks for contacts equality
+	 * 
+	 *  @param o the object to be checked
+	 *  @return true if contacts have the same phone number, false otherwise
 	 */
 	public boolean equals(Object o) {
 		

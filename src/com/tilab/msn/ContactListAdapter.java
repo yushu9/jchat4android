@@ -23,78 +23,106 @@ import android.widget.CheckBox;
 
 import android.widget.TextView;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class ContactListAdapter.
+ * Adapter describing the content of the main contact listview.
+ * Implements a custom listview with CheckBoxes inside each item.
+ * <p>
+ * It uses a custom layout that is dynamically loaded from xml for list entries
+ * 
+ * @author Cristina Cuccè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0 
  */
 public class ContactListAdapter extends BaseAdapter {
 	
-	/** The my logger. */
+	/** 
+	 * Logger for debugging purposes 
+	 */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	
-	/** The contact view info list. */
+	/** 
+	 * List of the Views used for diplaying contact information in contact list. 
+	 */
 	private List<ContactViewInfo> contactViewInfoList;
 	
-	/** The context. */
+	/** 
+	 * Application context for this adapter. 
+	 */
 	private Context context;
 	
-	/** The inflater. */
+	/** 
+	 * The system inflater used to inflate views from xml. 
+	 */
 	private ViewInflate inflater;	
 	
 	/**
 	 * Instantiates a new contact list adapter.
 	 * 
-	 * @param c the c
+	 * @param c the application context (activity)
 	 */
-	public ContactListAdapter(Context c){
+	public ContactListAdapter(final Context c){
 		context = c;
 	    inflater = (ViewInflate)context.getSystemService(Context.INFLATE_SERVICE);		
 	    contactViewInfoList = new ArrayList<ContactViewInfo>();
 	}
 		
-	/* (non-Javadoc)
-	 * @see android.widget.Adapter#getCount()
-	 */
-	public int getCount() {		
+	/**
+	 * Returns the number of contact views in this list
+	 * 
+	 * @return number of {@link ContactViewInfo} in this adapter
+	 */ 
+	public final int getCount() {		
 		return contactViewInfoList.size();
 	}
 
 	
 	/**
-	 * Uncheck all.
+	 * Uncheck all the items in this list (deselect every checkbox)
 	 */
-	public void uncheckAll(){
+	public final void uncheckAll(){
 		for (ContactViewInfo cview : contactViewInfoList) {
 			cview.uncheck();
 		} 
 	}
 	
-	/* (non-Javadoc)
-	 * @see android.widget.Adapter#getItem(int)
+	/**
+	 * Returns the contact in the given position
+	 * 
+	 *  @param index index of the contact
+	 *  @return the contact in the given position
 	 */
-	public Object getItem(int arg0) {
-		ContactViewInfo cvi = contactViewInfoList.get(arg0);		
+	public final Object getItem(final int index) {
+		ContactViewInfo cvi = contactViewInfoList.get(index);		
 		return cvi.contactId;
 	}
 	
-	/* (non-Javadoc)
-	 * @see android.widget.Adapter#getItemId(int)
+	/**
+	 * Returns an id for the view
+	 * 
+	 * @param index of the item
+	 * @return id for the item
 	 */
-	public long getItemId(int position) {
+	public final long getItemId(final int position) {
 		return position;
 	}
 
 	/**
-	 * Clear.
+	 * Resets the list of contacts
+	 * 
 	 */
-	public void clear(){
+	public final void clear(){
 		contactViewInfoList.clear();
 	}	
 	
-	/* (non-Javadoc)
-	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+	/** 
+	 * Returns a view representing the contact in the given position. The view is stored inside a {@link ContactViewInfo}
+	 * object.
+	 * 
+	 *  @see BaseAdapter
 	 */
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public final View getView(final int position, final View convertView, final ViewGroup parent) {
 		View v= null;
 		//FIXME: sometimes I get -1 as position from the callback! Is this an Android bug?
 		//This try / catch should provide a quick and dirty workaround... 
@@ -109,11 +137,11 @@ public class ContactListAdapter extends BaseAdapter {
 	}
 
 	/**
-	 * Gets the all selected item ids.
+	 * Retrieves all the Ids (phone numbers) of the checked items in the list
 	 * 
-	 * @return the all selected item ids
+	 * @return list of all checked items
 	 */
-	public List<String> getAllSelectedItemIds(){
+	public final List<String> getAllSelectedItemIds(){
 		List<String> contactsSelectedIds = new ArrayList<String>();
 		
 		for (ContactViewInfo contactViewInfo : contactViewInfoList) {
@@ -128,9 +156,11 @@ public class ContactListAdapter extends BaseAdapter {
 	}
 	
 	/**
-	 * Initialize.
+	 * Initialize the adapter by populating it with all available contacts and by creating the {@link ContactViewInfo}
+	 * for each item. Every other modification shall be incremental.
+	 * 
 	 */
-	public void initialize(){
+	public final void initialize(){
 		Map<String, Contact> localContactMap = ContactManager.getInstance().getAllContacts();
 		Contact myContact = ContactManager.getInstance().getMyContact();
 		Map<String, ContactLocation> contactLocMap = ContactManager.getInstance().getAllContactLocations();
@@ -138,28 +168,30 @@ public class ContactListAdapter extends BaseAdapter {
 		
 		for (String phoneNum : localContactMap.keySet()) {
 			ContactViewInfo cvi = new ContactViewInfo(phoneNum);
-			cvi.updateView(localContactMap.get(phoneNum), contactLocMap.get(phoneNum), myContact, myCloc);
+			cvi.updateView(localContactMap.get(phoneNum), contactLocMap.get(phoneNum),  myCloc);
 			contactViewInfoList.add(cvi);
 		}
 		
 	}
 	
 	/**
-	 * Update.
+	 * Update the contact list adapter by using a list of changes. This method shall be called by the agent
+	 * (posted on the UI thread) with a list of all new contacts to add and all contacts to remove.
 	 * 
-	 * @param changes the changes
+	 * @param changes list of all changes (list of all new contacts and removed contacts)
 	 */
-	public void update(ContactListChanges changes){
+	public final void update(final ContactListChanges changes){
 		Contact myContact = ContactManager.getInstance().getMyContact();
 		ContactLocation cMyLoc = ContactManager.getInstance().getMyContactLocation();
 		
 		Map<String,Contact> cMap = ContactManager.getInstance().getAllContacts();
 		Map<String,ContactLocation> cLocMap = ContactManager.getInstance().getAllContactLocations();
 		
-		if (changes.contactsAdded.size() > 0 || changes.contactsDeleted.size() > 0)
+		if (changes.contactsAdded.size() > 0 || changes.contactsDeleted.size() > 0) {
 			myLogger.log(Logger.INFO, "Modifications reported from updating thread...\n " +
 					"Contacts added: " + changes.contactsAdded.size() + 
-					"\nContacts deleted: " + changes.contactsDeleted.size());		
+					"\nContacts deleted: " + changes.contactsDeleted.size());
+		}		
 		
 		//Ok, now we should update the views
 		//For each newly added contact add it
@@ -176,31 +208,43 @@ public class ContactListAdapter extends BaseAdapter {
 		
 		//At the end update all contacts
 		for (ContactViewInfo viewInfo : contactViewInfoList) {
-			viewInfo.updateView(cMap.get(viewInfo.contactId), cLocMap.get(viewInfo.contactId), myContact, cMyLoc);
+			viewInfo.updateView(cMap.get(viewInfo.contactId), cLocMap.get(viewInfo.contactId),  cMyLoc);
 		}
 	}
 	
 	/**
-	 * The Class ContactViewInfo.
+	 * Represents each of the item in the list (as a view)
 	 */
 	private class ContactViewInfo {
 		
-		/** The Constant ONLINE_STYLE. */
+		/** 
+		 * Drawing style for online contacts. 
+		 */
 		public static final int ONLINE_STYLE=-2;
 		
-		/** The Constant OFFLINE_STYLE. */
+		/** 
+		 * Drawing style for offline contacts.
+		 */
 		public static final int OFFLINE_STYLE=-3;
 		
-		/** The contact view. */
+		/** 
+		 * View associated to the item of the list described by this {@link ContactViewInfo}. 
+		 */
 		public View contactView;
 		
-		/** The contact id. */
+		/** 
+		 * The contact phone number. 
+		 */
 		public String contactId;
 
-		/* (non-Javadoc)
-		 * @see java.lang.Object#equals(java.lang.Object)
+		/**
+		 * Return true if the two {@link ContactViewInfo} are related to the same contact 
+		 * (the two contacts have the same phone number)
+		 * 
+		 * @param o object to be compared
+		 * @return true if objects are equals, false otherwise
 		 */
-		public boolean equals(Object o) {
+		public boolean equals(final Object o) {
 			boolean retVal =false;
 			
 			if (o instanceof ContactViewInfo){
@@ -212,7 +256,7 @@ public class ContactListAdapter extends BaseAdapter {
 		}
 
 		/**
-		 * Uncheck.
+		 * Uncheck the checkbox inside this view
 		 */
 		public void uncheck(){
 			CheckBox contactCheckBox = (CheckBox) contactView.findViewById(R.id.contact_check_box);
@@ -222,19 +266,19 @@ public class ContactListAdapter extends BaseAdapter {
 		/**
 		 * Instantiates a new contact view info.
 		 * 
-		 * @param contactId the contact id
+		 * @param contactId the contact phone number
 		 */
-		public ContactViewInfo(String contactId){
+		public ContactViewInfo(final String contactId){
 			this.contactId = contactId;	
 		}
 		
 		
 		/**
-		 * Sets the style.
+		 * Sets the drawing style for this contact (ONLINE/OFFLINE)
 		 * 
 		 * @param style the new style
 		 */
-		private void setStyle(int style){
+		private void setStyle(final int style){
 			TextView contactName = (TextView) contactView.findViewById(R.id.contact_name);
 			TextView contactDist = (TextView) contactView.findViewById(R.id.contact_dist);
 			CheckBox contactCheckBox = (CheckBox) contactView.findViewById(R.id.contact_check_box);
@@ -256,18 +300,20 @@ public class ContactListAdapter extends BaseAdapter {
 					contactDist.setTextSize(TypedValue.COMPLEX_UNIT_SP,15);
 					contactCheckBox.setEnabled(false);
 				break;
+				default:
+					break;
+				
 			}
 		}
 		
 		/**
-		 * Update view.
+		 * Updates the content of this view, based on the parameters passed.
 		 * 
-		 * @param c the c
-		 * @param cloc the cloc
-		 * @param myContact the my contact
-		 * @param cMyLoc the c my loc
+		 * @param c the contact this view is related to
+		 * @param cloc the location of the contact 
+		 * @param cMyLoc the location of the my contact
 		 */
-		public void updateView(Contact c, ContactLocation cloc, Contact myContact, ContactLocation cMyLoc){
+		public void updateView(final Contact c, final ContactLocation cloc,  final ContactLocation cMyLoc){
 			//this contact is new and has no view
 			if (contactView == null){
 				//create a new view and start filling it

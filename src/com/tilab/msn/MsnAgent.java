@@ -154,7 +154,7 @@ public class MsnAgent extends GatewayAgent {
 				if(msg != null){
 					myLogger.log(Logger.INFO, msg.toString());
 					MsnSessionManager sessionManager = MsnSessionManager.getInstance();
-					Contact myContact = ContactManager.getInstance().getMyContact();
+
 					//retrieve the session id
 					String sessionId = msg.getConversationId();
 					myLogger.log(Logger.INFO, "Received Message... session ID is " + sessionId);

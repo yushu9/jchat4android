@@ -77,17 +77,17 @@ public class ContactsPositionOverlay extends Overlay {
 	//If one of them is out of the hot area we need to recenter the map to follow the point.
 	//HotAreaWidth/ScreenWidth
 	/** The SCROL l_ are a_ widt h_ ratio. */
-	private final float SCROLL_AREA_WIDTH_RATIO = 0.70f;
+	private static final float SCROLL_AREA_WIDTH_RATIO = 0.70f;
 	
 	/** The SCROL l_ are a_ heigh t_ ratio. */
-	private final float SCROLL_AREA_HEIGHT_RATIO= 0.70f;
+	private static final float SCROLL_AREA_HEIGHT_RATIO= 0.70f;
 	
 	//This ratio is referred to SCREEN WIDTH
 	/** The UPPE r_ threshol d_ ratio. */
-	private final float UPPER_THRESHOLD_RATIO = 0.46f;
+	private static final float UPPER_THRESHOLD_RATIO = 0.46f;
 	
 	/** The LOWE r_ threshol d_ ratio. */
-	private final float LOWER_THRESHOLD_RATIO = 0.35f;
+	private static final float LOWER_THRESHOLD_RATIO = 0.35f;
 	
 	/** The SCROL l_ are a_ width. */
 	private int SCROLL_AREA_WIDTH=-1;
@@ -113,13 +113,13 @@ public class ContactsPositionOverlay extends Overlay {
 	
 
 	/** The ZOO m_ max. */
-	private final int ZOOM_MAX=0;
+	private static final int ZOOM_MAX=0;
 	
 	/** The RECOMPUT e_ zoom. */
-	private final int RECOMPUTE_ZOOM=1;
+	private static final int RECOMPUTE_ZOOM=1;
 	
 	/** The N o_ zoom. */
-	private final int NO_ZOOM=2;
+	private static final int NO_ZOOM=2;
 	
 	/** The scrolling area. */
 	private Rect scrollingArea;
@@ -231,7 +231,6 @@ public class ContactsPositionOverlay extends Overlay {
 	 */
 	private void drawOnlineContacts(Canvas c, Paint p){
 		
-		int size = contactPositionMap.size();
 		FontMetrics fm = p.getFontMetrics();	
 		
 		int bluePaddleOffsetY= bluePaddle.getHeight();

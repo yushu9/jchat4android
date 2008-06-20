@@ -220,11 +220,10 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	
 	/**
 	 * Gets the instance to the add-on's JadeGateway to be able to send messages to be sent to the 
-	 * Jade agent. It's a callback, called after the connection to add-on's MicroRuntimeService
+	 * Jade agent. It's a callback, called after the connection to add-on's <code>MicroRuntimeService</code>
 	 * 
 	 * @param gw Instance of the JadeGateway retrieved after the connection
 	 * @see ConnectionListener
-	 * @see MicroRuntimeService
 	 */
 	public void onConnected(JadeGateway gw) {
 		this.gateway = gw;
@@ -234,9 +233,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	/**
 	 * Dummy implementation for the ConnectionListener's onDisconnected
 	 * 
-	 * @param gw Instance of the JadeGateway retrieved after the connection
 	 * @see ConnectionListener
-	 * @see MicroRuntimeService
 	 */
 	public void onDisconnected() {
 		}
