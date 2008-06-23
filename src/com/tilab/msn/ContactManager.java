@@ -15,17 +15,28 @@ import android.database.Cursor;
 import android.location.Location;
 import android.provider.Contacts.People;
 
-
-// TODO: Auto-generated Javadoc
 /**
- * The Class ContactManager.
+ * Manages the list of contacts. 
+ * This class is a singleton and manages a list of all contacts and their location.
+ * It is responsible for adding and removing contacts and also for location update in a thread safe way.
+ * <p> 
+ * 
+ * @author Cristina Cucè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0 
  */
 public class ContactManager {
 
-	/** The manager. */
+	/** 
+	 * Static instance of the contact manager. 
+	 */
 	private static ContactManager manager = new ContactManager();
-	//The key of this map is the local name (phone number)	
-	/** The contacts map. */
+		
+	/** 
+	 * The contacts map. 
+	 */
 	private final Map<String, Contact> contactsMap;
 	
 	/** The contact location map. */
