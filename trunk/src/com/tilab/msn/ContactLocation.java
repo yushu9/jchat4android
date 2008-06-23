@@ -2,17 +2,29 @@ package com.tilab.msn;
 
 import android.location.Location;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class ContactLocation.
+ * Specialization of {@link Location} that also contains a flag that checks if the location has moved
+ * <p> 
+ * Used by the agent to store all modifications to the contacts lists that should be done also to the GUI
+ * <p>
+ * This object is immutable by design.
+ * 
+ * @author Cristina Cuccè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0 
  */
 public class ContactLocation extends Location {
 
-	/** The has moved. */
+	/**
+	 * true if contact location has changed, false otherwise
+	 */
 	private final boolean hasMoved;
 
 	/**
-	 * Instantiates a new contact location.
+	 * Instantiates a new empty contact location.
+	 * Each component is initialized to positive infinity
 	 */
 	public ContactLocation(){
 		hasMoved = false;
@@ -23,7 +35,7 @@ public class ContactLocation extends Location {
 	}
 	
 	/**
-	 * Instantiates a new contact location.
+	 * Creates a new copy of contact location.
 	 * 
 	 * @param toBeCopied the to be copied
 	 */
@@ -32,10 +44,10 @@ public class ContactLocation extends Location {
 	}
 	
 	/**
-	 * Instantiates a new contact location.
+	 * Instantiates a new contact location given location and boolean flag
 	 * 
-	 * @param loc the loc
-	 * @param moved the moved
+	 * @param loc the contact location
+	 * @param moved the initial value of the boolean flag
 	 */
 	private ContactLocation(Location loc, boolean moved){
 		super(loc);
@@ -43,12 +55,12 @@ public class ContactLocation extends Location {
 	}
 	
 	/**
-	 * Instantiates a new contact location.
+	 * Instantiates a new contact location using the separate values.
 	 * 
-	 * @param latitude the latitude
-	 * @param longitude the longitude
-	 * @param altitude the altitude
-	 * @param moved the moved
+	 * @param latitude latitude value
+	 * @param longitude longitude value
+	 * @param altitude altitude value (not used on map)
+	 * @param moved true if the contact has moved, false otherwise
 	 */
 	private ContactLocation(double latitude, double longitude, double altitude, boolean moved){
 		setLatitude(latitude);
@@ -58,11 +70,11 @@ public class ContactLocation extends Location {
 	}
 	
 	/**
-	 * Change location.
+	 * Changes the location of this contact and sets its internal state to moving
+	 * It creates a new object so this object remains immutable
 	 * 
-	 * @param loc the loc
-	 * 
-	 * @return the contact location
+	 * @param loc the new contact location
+	 * @return new contact location object
 	 */
 	public ContactLocation changeLocation(Location loc)
 	{   boolean moved = !this.equals(loc);
@@ -70,13 +82,14 @@ public class ContactLocation extends Location {
 	}
 	
 	/**
-	 * Change location.
+	 * Changes the location of this contact and sets its internal state to moving
+	 * It creates a new object so this object remains immutable
 	 * 
-	 * @param latitude the latitude
-	 * @param longitude the longitude
-	 * @param altitude the altitude
+	 * @param latitude the latitude value
+	 * @param longitude the longitude value
+	 * @param altitude the altitude value
 	 * 
-	 * @return the contact location
+	 * @return new contact location object
 	 */
 	public ContactLocation changeLocation(double latitude, double longitude, double altitude)
 	{   boolean moved = ( (getLatitude() != latitude) || (getLongitude() != longitude) || (getAltitude() != altitude) );
