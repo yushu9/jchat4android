@@ -53,6 +53,9 @@ public class MsnAgent extends GatewayAgent {
 
 	/** The my logger. */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
+	
+	/** The updater. */
+	private ContactsUIUpdater updater;
 
 	//In this method we shall register to df and subscribe
 	/* (non-Javadoc)
@@ -117,7 +120,21 @@ public class MsnAgent extends GatewayAgent {
 	}
 	
 
+	/**
+	 * Sets the contacts updater.
+	 * 
+	 * @param up the new contacts updater
+	 */
+	public void setContactsUpdater(ContactsUIUpdater up) {
+			updater = up;
+	}
 	
+	public void postUIUpdate () {
+		if (updater != null){
+			ContactListChanges changes = ContactManager.getInstance().getModifications();
+			updater.postUIUpdate(changes);
+		}
+	}
 	
 	protected void takeDown() {
 		myLogger.log(Logger.INFO, "Doing agent takeDown() ");
@@ -132,7 +149,7 @@ public class MsnAgent extends GatewayAgent {
 			addBehaviour( (Behaviour) command);
 			releaseCommand(command);
 		}else if(command instanceof ContactsUIUpdater){
-			contactsUpdaterB.setContactsUpdater((ContactsUIUpdater)command);
+			setContactsUpdater((ContactsUIUpdater)command);
 			releaseCommand(command);
 		} 
 	}
