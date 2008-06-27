@@ -26,8 +26,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 	/** The msn update time. */
 	private long msnUpdateTime;
 	
-	/** The updater. */
-	private ContactsUIUpdater updater;
+	
 
 	/** The my logger. */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
@@ -40,18 +39,6 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 	public ContactsUpdaterBehaviour(long updateTime){
 		msnUpdateTime = updateTime;
 	}
-
-	/**
-	 * Sets the contacts updater.
-	 * 
-	 * @param up the new contacts updater
-	 */
-	public void setContactsUpdater(ContactsUIUpdater up) {
-		synchronized (this) {
-			updater = up;
-		}
-	}
-
 
 	/* (non-Javadoc)
 	 * @see jade.core.behaviours.Behaviour#action()
@@ -73,14 +60,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 		updateContactList(onlineContacts);
 
-		synchronized (ContactsUpdaterBehaviour.this) {
-			if (updater != null){
-				ContactListChanges changes = ContactManager.getInstance().getModifications();
-				updater.postUIUpdate(changes);
-			}
-		}
-
-		
+		((MsnAgent)myAgent).postUIUpdate();		
 
 		DFUpdaterBehaviour updater = new DFUpdaterBehaviour(myAgent,msnUpdateTime);
 		MsnAgent agent = (MsnAgent) myAgent;
@@ -229,13 +209,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 							}
 						}
 					}
-
-					synchronized (ContactsUpdaterBehaviour.this) {
-						if (updater != null){
-							ContactListChanges changes = ContactManager.getInstance().getModifications();
-							updater.postUIUpdate(changes);
-						}
-					}
+					((MsnAgent)myAgent).postUIUpdate();
 				}
 
 
