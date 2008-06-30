@@ -181,7 +181,6 @@ public class ContactListAdapter extends BaseAdapter {
 	 * @param changes list of all changes (list of all new contacts and removed contacts)
 	 */
 	public final void update(final ContactListChanges changes){
-		Contact myContact = ContactManager.getInstance().getMyContact();
 		ContactLocation cMyLoc = ContactManager.getInstance().getMyContactLocation();
 		
 		Map<String,Contact> cMap = ContactManager.getInstance().getAllContacts();
