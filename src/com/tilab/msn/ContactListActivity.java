@@ -763,7 +763,9 @@ public class ContactListActivity extends MapActivity implements
 		ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
 		adapter.initialize();
 		contactsListView.setAdapter(adapter);
+		overlay.initialize();
 	}
+	
 
 	/**
 	 * Called when closing a chat activity, to remove the check from all previously selected contacts
@@ -814,6 +816,7 @@ public class ContactListActivity extends MapActivity implements
 				anyChanges = true;
 				updateListAdapter(changes);
 				overlay.update(changes);
+				
 			}
 
 			//refresh the screen: if the map is visible refresh it

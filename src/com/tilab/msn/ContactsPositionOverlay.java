@@ -10,25 +10,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import android.content.Context;
 import android.content.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.BitmapFactory;
 import android.graphics.RectF;
 import android.graphics.Paint.FontMetrics;
-import android.graphics.drawable.BitmapDrawable;
-
 import android.location.Location;
-import android.view.MotionEvent;
-import android.widget.Toast;
 
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
-
 import com.google.android.maps.Overlay;
 import com.google.android.maps.Point;
 import com.google.android.maps.MapView.DeviceType;
@@ -137,11 +131,7 @@ public class ContactsPositionOverlay extends Overlay {
 		this.myMapView = myMapView;
 		scrollingArea= new Rect();			
 		contactPositionMap = new HashMap<String,ContactLayoutData>() ;
-		ContactLocation myCLoc = ContactManager.getInstance().getMyContactLocation();
-		Contact myCont = ContactManager.getInstance().getMyContact();
-		ContactLayoutData myCData = new ContactLayoutData(myCont.getName(), myCont.getPhoneNumber(), myCLoc);
-		myCData.isMyContact=true;
-		contactPositionMap.put(myCont.getPhoneNumber(), myCData);
+	
 		ylwPaddle = BitmapFactory.decodeResource(appRes,R.drawable.ylw_circle); 
 		highlight = BitmapFactory.decodeResource(appRes,R.drawable.checked);
 		blueBaloon = BitmapFactory.decodeResource(appRes,R.drawable.bluemessage);
@@ -231,6 +221,7 @@ public class ContactsPositionOverlay extends Overlay {
 	 */
 	private void drawOnlineContacts(Canvas c, Paint p){
 		
+		myLogger.log(Logger.INFO, "Start drawing all contacts!!");
 		FontMetrics fm = p.getFontMetrics();	
 		
 		int bluePaddleOffsetY= bluePaddle.getHeight();
@@ -251,59 +242,57 @@ public class ContactsPositionOverlay extends Overlay {
         	int bitmapOriginY=0;
         	Bitmap bitmapToBeDrawn = null;
         	
-			if (cData.isMyContact){	
-				color = Color.YELLOW;				
-				bitmapOriginX = cData.positionOnScreen[0] - ylwPaddleOffsetX;
-				bitmapOriginY = cData.positionOnScreen[1] - ylwPaddleOffsetY;
-				bitmapToBeDrawn = ylwPaddle;
-			} 
-			else {			
-				//Here blueBaloon for people you're chatting with				 
-				if(allParticipants.contains(cData.idContact)){																
-					bitmapOriginX = cData.positionOnScreen[0]-blueBaloonOffsetX;
-					bitmapOriginY = cData.positionOnScreen[1]-blueBaloonOffsetY;
-					bitmapToBeDrawn = blueBaloon;
-				}			    
-			    else{			
-			    	bitmapOriginX = cData.positionOnScreen[0]-bluePaddleOffsetX;
-					bitmapOriginY = cData.positionOnScreen[1]-bluePaddleOffsetY;
-			    	bitmapToBeDrawn = bluePaddle;
-			    }	    
-				color = Color.BLUE;
-			}
-			
-		  int textOriginX = cData.positionOnScreen[0];
-		  int textOriginY = bitmapOriginY - iconToTextOffsetY;
-		  
-		  
-		  RectF rect = new RectF(textOriginX - 2, textOriginY + (int) fm.top - 2, textOriginX +this.getStringLength(cData.name, myPaint) + 2,textOriginY + (int) fm.bottom + 2);		  
-		  int width = bluePaddle.getWidth();
-		  int height = bluePaddle.getHeight();
-		  
-		  //Draws the debugging rct for collision
-          //myPaint.setAlpha(100);
-		 // c.drawRect(new Rect(cData.positionOnScreen[0]- width/2, cData.positionOnScreen[1]-height, cData.positionOnScreen[0]+width/2, cData.positionOnScreen[1]),myPaint);
-		  //Draw the right bitmap icon
-		  
-		  
-		  if (cData.isChecked){
-			  c.drawBitmap(highlight, bitmapOriginX, bitmapOriginY, myPaint);
-		  } else {
-			  c.drawBitmap(bitmapToBeDrawn, bitmapOriginX, bitmapOriginY, myPaint);  
-		  }
-		  
-		  //Change color for background rectangle
-		  myPaint.setColor(Color.argb(100, 0,0, 0));		 	
-		  c.drawRoundRect(rect, 4.0f, 4.0f, myPaint);// Rect(rect, myPaint);		  
-		  //ChangeColor for text
-		  myPaint.setColor(color);
-          c.drawText(cData.name,textOriginX, textOriginY, myPaint);	
-          
-         
-          
-          myPaint.setARGB(255, 255, 0, 0);
-		}		
-	}	
+        	if (cData.isVisible){
+					if (cData.isMyContact){	
+						color = Color.YELLOW;			
+						myLogger.log(Logger.INFO, "Drawing my contact: position on screen (" + cData.positionOnScreen[0] + ";" + cData.positionOnScreen[1] + ")");
+						bitmapOriginX = cData.positionOnScreen[0] - ylwPaddleOffsetX;
+						bitmapOriginY = cData.positionOnScreen[1] - ylwPaddleOffsetY;
+						bitmapToBeDrawn = ylwPaddle;
+					} 
+					else {			
+						//Here blueBaloon for people you're chatting with				 
+						if(allParticipants.contains(cData.idContact)){																
+							bitmapOriginX = cData.positionOnScreen[0]-blueBaloonOffsetX;
+							bitmapOriginY = cData.positionOnScreen[1]-blueBaloonOffsetY;
+							bitmapToBeDrawn = blueBaloon;
+						}			    
+					    else{			
+					    	bitmapOriginX = cData.positionOnScreen[0]-bluePaddleOffsetX;
+							bitmapOriginY = cData.positionOnScreen[1]-bluePaddleOffsetY;
+					    	bitmapToBeDrawn = bluePaddle;
+					    }	    
+						color = Color.BLUE;
+					}
+					
+				  int textOriginX = cData.positionOnScreen[0];
+				  int textOriginY = bitmapOriginY - iconToTextOffsetY;
+				  
+				  
+				  RectF rect = new RectF(textOriginX - 2, textOriginY + (int) fm.top - 2, textOriginX +this.getStringLength(cData.name, myPaint) + 2,textOriginY + (int) fm.bottom + 2);		  
+				  int width = bluePaddle.getWidth();
+				  int height = bluePaddle.getHeight();
+				  
+				  //Draws the debugging rct for collision
+				  //Draw the right bitmap icon
+				  				  
+				  if (cData.isChecked){
+					  c.drawBitmap(highlight, bitmapOriginX, bitmapOriginY, myPaint);
+				  } else {
+					  c.drawBitmap(bitmapToBeDrawn, bitmapOriginX, bitmapOriginY, myPaint);  
+				  }
+				  
+				  //Change color for background rectangle
+				  myPaint.setColor(Color.argb(100, 0,0, 0));		 	
+				  c.drawRoundRect(rect, 4.0f, 4.0f, myPaint);// Rect(rect, myPaint);		  
+				  //ChangeColor for text
+				  myPaint.setColor(color);
+		          c.drawText(cData.name,textOriginX, textOriginY, myPaint);	
+		          
+		          myPaint.setARGB(255, 255, 0, 0);
+				}		
+        }
+    }	
 	
 	/* (non-Javadoc)
 	 * @see com.google.android.maps.Overlay#draw(android.graphics.Canvas, com.google.android.maps.Overlay.PixelCalculator, boolean)
@@ -311,6 +300,8 @@ public class ContactsPositionOverlay extends Overlay {
 	@Override
 	public void draw(Canvas canvas, PixelCalculator calculator, boolean shadow) {		
 		super.draw(canvas, calculator, shadow);
+		
+		myLogger.log(Logger.INFO, "Starting a new draw cicle!");
 		
 		updateOnScreenPosition(calculator);
 		//Compute params needed for further computations on the point cluster
@@ -350,6 +341,8 @@ public class ContactsPositionOverlay extends Overlay {
 	private void initialize( PixelCalculator calculator ) {
 			WIDTH = calculator.getMapWidth();
 			HEIGHT = calculator.getMapHeight();
+			
+			
 			centerScreenX = WIDTH / 2;
 			centerScreenY = HEIGHT / 2;
 
@@ -380,8 +373,25 @@ public class ContactsPositionOverlay extends Overlay {
 	 */
 	private void updateOnScreenPosition(PixelCalculator calc){
 		for (ContactLayoutData cData : contactPositionMap.values()) {
-			calc.getPointXY(new Point(cData.latitudeE6, cData.longitudeE6), cData.positionOnScreen);
+			if (cData.isVisible){
+				cData.positionOnScreen = new int[2];
+				myLogger.log(Logger.INFO, "BEFORE: PixelCalculator will convert " + cData.latitudeE6 + ";" + cData.longitudeE6 +" to " + cData.positionOnScreen[0] + ";" + cData.positionOnScreen[1]);
+				calc.getPointXY(new Point(cData.latitudeE6, cData.longitudeE6), cData.positionOnScreen);
+				myLogger.log(Logger.INFO, "AFTER: PixelCalculator converted " + cData.latitudeE6 + ";" + cData.longitudeE6 +" to " + cData.positionOnScreen[0] + ";" + cData.positionOnScreen[1]);
+			}
 		}
+	}
+	
+	private int getContactsOnline(){
+		int online =0;
+		
+		for (ContactLayoutData mapEntry : contactPositionMap.values()){
+			if (mapEntry.isVisible){
+				online++;
+			}
+		}
+		
+		return online;
 	}
 	
 	/**
@@ -410,33 +420,38 @@ public class ContactsPositionOverlay extends Overlay {
 		minLat = (int)(myContactLoc.getLatitude() * 1E6);
 		
 		
-		int contactsOnLine = contactPositionMap.size();
+		
+		
+		int contactsOnLine = getContactsOnline();
 		params.midpointOnScreen = new int[2];
 		params.coordMaxSpan = new int[2];
 		
 		for (Iterator<ContactLayoutData> iterator = contactPositionMap.values().iterator(); iterator.hasNext();) {
 			ContactLayoutData clData = (ContactLayoutData) iterator.next();
 			
-			params.midpointOnScreen[0] += clData.positionOnScreen[0];
-			params.midpointOnScreen[1] += clData.positionOnScreen[1];
-			
-						
-
-			maxLat = (clData.latitudeE6> maxLat)? clData.latitudeE6 : maxLat;
-			maxLong = (clData.longitudeE6 > maxLong)? clData.longitudeE6 : maxLong;
-			minLong = (clData.longitudeE6 < minLong)? clData.longitudeE6 : minLong;
-			minLat = (clData.latitudeE6 < minLat)? clData.latitudeE6 : minLat;
-			
-			
-			//we need to zoom in another way if we have a single point
-			
-			if (maxLat == minLat){
-				params.coordMaxSpan[0] = -1;
-				params.coordMaxSpan[1] = -1;
-			} else {
-				params.coordMaxSpan[0] = maxLat -minLat;
-				params.coordMaxSpan[1] = maxLong - minLong;
-			}	
+			if (clData.isVisible){
+				
+				params.midpointOnScreen[0] += clData.positionOnScreen[0];
+				params.midpointOnScreen[1] += clData.positionOnScreen[1];
+				
+							
+	
+				maxLat = (clData.latitudeE6> maxLat)? clData.latitudeE6 : maxLat;
+				maxLong = (clData.longitudeE6 > maxLong)? clData.longitudeE6 : maxLong;
+				minLong = (clData.longitudeE6 < minLong)? clData.longitudeE6 : minLong;
+				minLat = (clData.latitudeE6 < minLat)? clData.latitudeE6 : minLat;
+				
+				
+				//we need to zoom in another way if we have a single point
+				
+				if (maxLat == minLat){
+					params.coordMaxSpan[0] = -1;
+					params.coordMaxSpan[1] = -1;
+				} else {
+					params.coordMaxSpan[0] = maxLat -minLat;
+					params.coordMaxSpan[1] = maxLong - minLong;
+				}	
+			}
 		}
 		
 		params.midpointOnScreen[0] /= contactsOnLine;
@@ -562,6 +577,9 @@ public class ContactsPositionOverlay extends Overlay {
 		/** The is my contact. */
 		public boolean isMyContact;
 		
+		/**Flag that means that the contact should be shown on map */
+		public boolean isVisible;
+		
 		/** The id contact. */
 		public String idContact;
 		
@@ -575,7 +593,7 @@ public class ContactsPositionOverlay extends Overlay {
 		 * @param longitudeE6 the longitude e6
 		 * @param altitudeE6 the altitude e6
 		 */
-		public ContactLayoutData(int x, int y, int latitudeE6, int longitudeE6, int altitudeE6){
+		public ContactLayoutData(int x, int y, int latitudeE6, int longitudeE6, int altitudeE6, boolean visible){
 			name = "Midpoint";
 			isMyContact=false;
 			isChecked = false;
@@ -585,6 +603,7 @@ public class ContactsPositionOverlay extends Overlay {
 			this.latitudeE6= latitudeE6;
 			this.longitudeE6= longitudeE6;
 			this.altitudeE6= altitudeE6;
+			isVisible = visible;
 		}
 		
 		
@@ -595,7 +614,7 @@ public class ContactsPositionOverlay extends Overlay {
 		 * @param idcontact the idcontact
 		 * @param contactLoc the contact loc
 		 */
-		public ContactLayoutData(String cname, String idcontact, Location contactLoc){
+		public ContactLayoutData(String cname, String idcontact, Location contactLoc, boolean visible){
 			this.name = cname;
 			this.idContact= idcontact;			
 			isMyContact = false;
@@ -603,7 +622,7 @@ public class ContactsPositionOverlay extends Overlay {
 			latitudeE6 = (int)(contactLoc.getLatitude() * 1E6);
 			longitudeE6 = (int) (contactLoc.getLongitude() * 1E6);
 			altitudeE6=(int)(contactLoc.getAltitude()*1E6);
-			
+			isVisible = visible;
 		}	
 		
 		/**
@@ -614,19 +633,24 @@ public class ContactsPositionOverlay extends Overlay {
 		 * @param altitude the altitude
 		 */
 		public void updateLocation(int latitude, int longitude, int altitude){
-				latitudeE6 = latitude;
-				longitudeE6 = longitude;
-				altitudeE6 = altitude;
+
+			if (latitude != latitudeE6 || longitude != longitudeE6){
+				myLogger.log(Logger.INFO, "ContactLayoutData "+this.name+" was changed! New value is " + 
+						latitude + 
+						";" + 
+						longitude + 
+						" microdegrees");
+			} else {
+				myLogger.log(Logger.INFO, "Uhm... it seems position for contact " + this.name +" has not changed since last time!");
+			}
+			
+			latitudeE6 = latitude;
+			longitudeE6 = longitude;
+			altitudeE6 = altitude;
+								
 		}
 		
-		/**
-		 * Update position on screen.
-		 * 
-		 * @param pixCalc the pix calc
-		 */
-		public void updatePositionOnScreen(PixelCalculator pixCalc){
-			pixCalc.getPointXY(new Point(latitudeE6, longitudeE6), positionOnScreen);
-		}
+
 	}
 	
 	/**
@@ -702,42 +726,82 @@ public class ContactsPositionOverlay extends Overlay {
     	 }
      }
      
+    /**
+ 	 * Initialize the adapter by populating it with all available contacts and by creating the {@link ContactViewInfo}
+ 	 * for each item. Every other modification shall be incremental.
+ 	 * 
+ 	 */
+ 	public final void initialize(){
+ 		Map<String, Contact> localContactMap = ContactManager.getInstance().getAllContacts();
+ 		Contact myContact = ContactManager.getInstance().getMyContact();
+ 		ContactLocation myCloc = ContactManager.getInstance().getMyContactLocation();
+ 		
+ 		ContactLayoutData myCl = new ContactLayoutData(myContact.getName(),myContact.getPhoneNumber(),myCloc,true);
+ 		myCl.isMyContact=true;
+ 		contactPositionMap.put(myCl.idContact, myCl);
+ 		
+ 		for (Map.Entry<String,Contact> contactEntry : localContactMap.entrySet()) {
+ 			String phoneNum = contactEntry.getKey();
+ 			Contact currentC = contactEntry.getValue();
+ 			//empty location for invisible contact
+ 			ContactLayoutData cdata = new ContactLayoutData(currentC.getName(),phoneNum,new ContactLocation(), false);
+ 			contactPositionMap.put(phoneNum, cdata);
+ 		}
+ 		
+ 	}
+     
      /**
       * Update.
       * 
       * @param changes the changes
-      */
+      */	
      public void update(ContactListChanges changes){ 
+	    
+    	 Map<String,ContactLocation> locationMap = ContactManager.getInstance().getAllContactLocations();
+	     Map<String, Contact> contactMap = ContactManager.getInstance().getAllContacts();
+	     ContactLocation cMyLoc = ContactManager.getInstance().getMyContactLocation();
 	     
-	          
+	     myLogger.log(Logger.INFO, "It's time for updating the contactsPositionOverlay!!!!!");
+	     
 	     //Removed contacts
 	     for ( String removedId : changes.contactsDeleted) {
 	    	 contactPositionMap.remove(removedId);
 		 }
 	     
-	     Map<String,ContactLocation> locationMap = ContactManager.getInstance().getAllContactLocations();
-	     Map<String, Contact> contactMap = ContactManager.getInstance().getAllContacts();
+	    
 	     
 	   //Added contacts
 	     for ( String addedId : changes.contactsAdded) {
 	    	 
-	    	 ContactLayoutData newData = new ContactLayoutData(contactMap.get(addedId).getName(),addedId,locationMap.get(addedId));
+	    	 ContactLayoutData newData = new ContactLayoutData(contactMap.get(addedId).getName(),addedId,locationMap.get(addedId),true);
 	    	 contactPositionMap.put(addedId, newData);
 	     }
 	      
 	     //update all others
 	     for (ContactLayoutData cData : contactPositionMap.values()) {
 	    	 ContactLocation lastLocation= null;
-	    	 if (cData.isMyContact){
-	    	     lastLocation = ContactManager.getInstance().getMyContactLocation();
-	    	 }else {
-	    		 lastLocation = locationMap.get(cData.idContact);
-	    	 }
+	    	 Contact curContact = null;
 	    	 
-	    	 cData.updateLocation((int)(lastLocation.getLatitude()*1E6), (int)(lastLocation.getLongitude()*1E6), (int)(lastLocation.getAltitude()*1E6));
-		 }
-	     
-     }
+	    	 if (cData.isMyContact) {
+		 
+		    	 //update contact visibility
+		    	 lastLocation = cMyLoc;
+		    	 myLogger.log(Logger.INFO, "Ok... Ready to update location of my contact!!!!!");
+		    	 cData.updateLocation((int)(lastLocation.getLatitude()*1E6), (int)(lastLocation.getLongitude()*1E6), (int)(lastLocation.getAltitude()*1E6));
+	    	 
+	    	 } else {   	  
+	    		 curContact = contactMap.get(cData.idContact);
+	    		 if (curContact != null &&  curContact.isOnline()){
+	    			 cData.isVisible = true;
+	    			 lastLocation = locationMap.get(cData.idContact);
+	    			 cData.updateLocation((int)(lastLocation.getLatitude()*1E6), (int)(lastLocation.getLongitude()*1E6), (int)(lastLocation.getAltitude()*1E6));
+	    		 } else {
+	    			 cData.isVisible = false;
+	    		 }
+	    	 } 
+	    	 
+	     }
        
 	
 	}
+}

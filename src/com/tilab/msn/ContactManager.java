@@ -332,7 +332,9 @@ public class ContactManager {
 	public void addMyContact(String phoneNumber) {
 		// TODO Auto-generated method stub
 		myContact = new Contact(MY_CONTACT_NAME,phoneNumber,true);
+		myContact.setOnline();
 		myContactLocation = new ContactLocation();
+		
 	}
 	
 	/**
