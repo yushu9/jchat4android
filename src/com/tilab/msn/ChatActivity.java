@@ -110,7 +110,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
             	myLogger.log(Logger.INFO,"onClick(): send message:" + msgContent);
             	if(msgContent.length()>0){
             		sendMessageToParticipants(msgContent);
-            		}	
+            		}
+            	messageToBeSent.setText("");
             }
         });		
 		//retrieve the list
