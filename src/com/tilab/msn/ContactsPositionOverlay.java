@@ -221,7 +221,7 @@ public class ContactsPositionOverlay extends Overlay {
 	 */
 	private void drawOnlineContacts(Canvas c, Paint p){
 		
-		myLogger.log(Logger.INFO, "Start drawing all contacts!!");
+		//myLogger.log(Logger.INFO, "Start drawing all contacts!!");
 		FontMetrics fm = p.getFontMetrics();	
 		
 		int bluePaddleOffsetY= bluePaddle.getHeight();
@@ -245,7 +245,7 @@ public class ContactsPositionOverlay extends Overlay {
         	if (cData.isVisible){
 					if (cData.isMyContact){	
 						color = Color.YELLOW;			
-						myLogger.log(Logger.INFO, "Drawing my contact: position on screen (" + cData.positionOnScreen[0] + ";" + cData.positionOnScreen[1] + ")");
+						//myLogger.log(Logger.INFO, "Drawing my contact: position on screen (" + cData.positionOnScreen[0] + ";" + cData.positionOnScreen[1] + ")");
 						bitmapOriginX = cData.positionOnScreen[0] - ylwPaddleOffsetX;
 						bitmapOriginY = cData.positionOnScreen[1] - ylwPaddleOffsetY;
 						bitmapToBeDrawn = ylwPaddle;
@@ -301,7 +301,7 @@ public class ContactsPositionOverlay extends Overlay {
 	public void draw(Canvas canvas, PixelCalculator calculator, boolean shadow) {		
 		super.draw(canvas, calculator, shadow);
 		
-		myLogger.log(Logger.INFO, "Starting a new draw cicle!");
+		//myLogger.log(Logger.INFO, "Starting a new draw cicle!");
 		
 		updateOnScreenPosition(calculator);
 		//Compute params needed for further computations on the point cluster
@@ -374,10 +374,10 @@ public class ContactsPositionOverlay extends Overlay {
 	private void updateOnScreenPosition(PixelCalculator calc){
 		for (ContactLayoutData cData : contactPositionMap.values()) {
 			if (cData.isVisible){
-				cData.positionOnScreen = new int[2];
-				myLogger.log(Logger.INFO, "BEFORE: PixelCalculator will convert " + cData.latitudeE6 + ";" + cData.longitudeE6 +" to " + cData.positionOnScreen[0] + ";" + cData.positionOnScreen[1]);
+				//cData.positionOnScreen = new int[2];
+				//myLogger.log(Logger.INFO, "BEFORE: PixelCalculator will convert " + cData.latitudeE6 + ";" + cData.longitudeE6 +" to " + cData.positionOnScreen[0] + ";" + cData.positionOnScreen[1]);
 				calc.getPointXY(new Point(cData.latitudeE6, cData.longitudeE6), cData.positionOnScreen);
-				myLogger.log(Logger.INFO, "AFTER: PixelCalculator converted " + cData.latitudeE6 + ";" + cData.longitudeE6 +" to " + cData.positionOnScreen[0] + ";" + cData.positionOnScreen[1]);
+				//myLogger.log(Logger.INFO, "AFTER: PixelCalculator converted " + cData.latitudeE6 + ";" + cData.longitudeE6 +" to " + cData.positionOnScreen[0] + ";" + cData.positionOnScreen[1]);
 			}
 		}
 	}
@@ -641,7 +641,7 @@ public class ContactsPositionOverlay extends Overlay {
 						longitude + 
 						" microdegrees");
 			} else {
-				myLogger.log(Logger.INFO, "Uhm... it seems position for contact " + this.name +" has not changed since last time!");
+				//myLogger.log(Logger.INFO, "Uhm... it seems position for contact " + this.name +" has not changed since last time!");
 			}
 			
 			latitudeE6 = latitude;
@@ -761,7 +761,7 @@ public class ContactsPositionOverlay extends Overlay {
 	     Map<String, Contact> contactMap = ContactManager.getInstance().getAllContacts();
 	     ContactLocation cMyLoc = ContactManager.getInstance().getMyContactLocation();
 	     
-	     myLogger.log(Logger.INFO, "It's time for updating the contactsPositionOverlay!!!!!");
+	     //myLogger.log(Logger.INFO, "It's time for updating the contactsPositionOverlay!!!!!");
 	     
 	     //Removed contacts
 	     for ( String removedId : changes.contactsDeleted) {
@@ -786,7 +786,7 @@ public class ContactsPositionOverlay extends Overlay {
 		 
 		    	 //update contact visibility
 		    	 lastLocation = cMyLoc;
-		    	 myLogger.log(Logger.INFO, "Ok... Ready to update location of my contact!!!!!");
+		    	 //myLogger.log(Logger.INFO, "Ok... Ready to update location of my contact!!!!!");
 		    	 cData.updateLocation((int)(lastLocation.getLatitude()*1E6), (int)(lastLocation.getLongitude()*1E6), (int)(lastLocation.getAltitude()*1E6));
 	    	 
 	    	 } else {   	  

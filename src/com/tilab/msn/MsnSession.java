@@ -181,6 +181,19 @@ public class MsnSession {
 	}
 	
 	/**
+	 * Gets the all participant names.
+	 * 
+	 * @return the all participant names
+	 */
+	public List<String> getAllParticipantNames(){	
+		ArrayList<String> participantNameList = new ArrayList<String>();
+		for(String id : participantIdList){
+			participantNameList.add(ContactManager.getInstance().getContact(id).getName());
+		}
+		return participantNameList;
+	}
+	
+	/**
 	 * Gets the participant count.
 	 * 
 	 * @return the participant count

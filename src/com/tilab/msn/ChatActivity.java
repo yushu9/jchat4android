@@ -165,7 +165,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		activityPendingResult = (ActivityPendingResult) i.getParcelableExtra(ContactListActivity.ID_ACTIVITY_PENDING_RESULT);
 		MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
 		setTitle(session.toString());
-		List<String> participants = session.getAllParticipantIds();
+		//List<String> participants = session.getAllParticipantIds();
+		List<String> participants = session.getAllParticipantNames();
 		ArrayAdapter aAdapter = new ArrayAdapter(this,R.layout.participant_layout, R.id.participantName, participants);
 		partsList.setAdapter(aAdapter);
 		MsnSessionManager.getInstance().getNotificationManager().addNewSessionNotification(sessionId);
