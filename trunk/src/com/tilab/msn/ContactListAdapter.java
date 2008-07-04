@@ -3,24 +3,17 @@ package com.tilab.msn;
 import jade.util.Logger;
 
 import java.util.ArrayList;
-import java.util.Map;
-
 import java.util.List;
+import java.util.Map;
 
 import android.content.Context;
 import android.content.Resources;
-
-import android.location.Location;
-
 import android.util.TypedValue;
-
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewInflate;
-
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
-
 import android.widget.TextView;
 
 /**

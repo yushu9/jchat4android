@@ -5,7 +5,7 @@ package com.tilab.msn;
 import jade.lang.acl.ACLMessage;
 import android.util.DateUtils;
 
-// TODO: Auto-generated Javadoc
+
 /**
  * This class contains data exchanged during message session
  * For now only text, it could be interesting using a generic approach.

@@ -1,6 +1,5 @@
 package com.tilab.msn;
 
-import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
@@ -15,7 +14,7 @@ import jade.wrapper.gateway.GatewayAgent;
 import android.location.Location;
 
 
-// TODO: Auto-generated Javadoc
+
 /**
  * The Class MsnAgent.
  */
@@ -54,13 +53,9 @@ public class MsnAgent extends GatewayAgent {
 	/** The my logger. */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	
-	/** The updater. */
-	private ContactsUIUpdater updater;
 
-	//In this method we shall register to df and subscribe
-	/* (non-Javadoc)
-	 * @see jade.wrapper.gateway.GatewayAgent#setup()
-	 */
+	
+	 
 	protected void setup() {
 		super.setup();
 		Thread.currentThread().getId();
@@ -120,21 +115,6 @@ public class MsnAgent extends GatewayAgent {
 	}
 	
 
-	/**
-	 * Sets the contacts updater.
-	 * 
-	 * @param up the new contacts updater
-	 */
-	public void setContactsUpdater(ContactsUIUpdater up) {
-			updater = up;
-	}
-	
-	public void postUIUpdate () {
-		if (updater != null){
-			ContactListChanges changes = ContactManager.getInstance().getModifications();
-			updater.postUIUpdate(changes);
-		}
-	}
 	
 	protected void takeDown() {
 		myLogger.log(Logger.INFO, "Doing agent takeDown() ");
@@ -147,11 +127,9 @@ public class MsnAgent extends GatewayAgent {
 	protected void processCommand(final Object command) {
 	    if (command instanceof Behaviour){
 			addBehaviour( (Behaviour) command);
-			releaseCommand(command);
-		}else if(command instanceof ContactsUIUpdater){
-			setContactsUpdater((ContactsUIUpdater)command);
-			releaseCommand(command);
-		} 
+			
+		}
+	    releaseCommand(command);
 	}
 
 	/**
@@ -176,7 +154,7 @@ public class MsnAgent extends GatewayAgent {
 					String sessionId = msg.getConversationId();
 					myLogger.log(Logger.INFO, "Received Message... session ID is " + sessionId);
 					String senderPhoneNum = msg.getSender().getLocalName();	
-					Contact senderContact = ContactManager.getInstance().getContact(senderPhoneNum);
+			
 					//Create a session Message from the received ACLMessage
 					MsnSessionMessage sessionMessage = new MsnSessionMessage(msg);
 
@@ -187,26 +165,15 @@ public class MsnAgent extends GatewayAgent {
 					if (currentSession == null) {
 						//Create a new session with the specified ID
 						sessionManager.addMsnSession(sessionId, msg.getAllReceiver(), senderPhoneNum);						    
-						sessionManager.addMessageToSession(sessionId,sessionMessage);
-						sessionManager.getNotificationManager().postNewMsgNotification(sessionId, sessionMessage);
-						sessionManager.getNotificationManager().showToast("New message from " + senderContact.getName(),3000);
-
-					} else {
-
-						 
-						//We have two more possible cases: 
-						//1. We have a chat activity window opened for the session this message refers to -> update chat activity
-						//2. We have no opened chat activity or a chat activity for a session different from the one this message refers to
-						//   -> add a notification on status bar
-
-						Object theLock = sessionManager.getChatUpdaterLock();
-						synchronized(theLock) {
-							ContactsUIUpdater chatActivityUpdater = sessionManager.getChatActivityUpdater();
-							handleVisibleChat( sessionId, senderContact,sessionMessage, chatActivityUpdater, sessionManager.getNotificationManager());
-						}
-
-
 					}
+					
+					//prepare an "IncomingMessage"
+					MsnEventMgr.Event event = MsnEventMgr.getInstance().createEvent(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT);
+					event.addParam("SessionId", sessionId);
+					event.addParam("IncomingMessage", sessionMessage);
+					//Add message to session
+					sessionManager.addMessageToSession(sessionId, sessionMessage);
+					MsnEventMgr.getInstance().fireEvent(event);
 				} else{
 					block();
 				}				
@@ -215,46 +182,8 @@ public class MsnAgent extends GatewayAgent {
 				myLogger.log(Logger.SEVERE,"***  Uncaught Exception for agent " + myAgent.getLocalName() + "  ***",t);
 			}		
 
-		}
 
-		/**
-		 * Handle visible chat.
-		 * 
-		 * @param sessionId the session id
-		 * @param senderCtn the sender ctn
-		 * @param sessionMessage the session message
-		 * @param updater the updater
-		 * @param manager the manager
-		 */
-		private void handleVisibleChat( String sessionId, Contact senderCtn, MsnSessionMessage sessionMessage, ContactsUIUpdater updater,
-										ChatSessionNotificationManager manager) {
-			
-			MsnSessionManager.getInstance().addMessageToSession(sessionId, sessionMessage);
-			
-			//If chat windows is visible
-			if ( updater != null ){
-				MsnSession updatedSession = (MsnSession)updater.retrieveExtraData();
-				
-				//check that the updated session is the same as the mesagge's one  
-				if (updatedSession.getSessionId().equals(sessionId)){
-					myLogger.log(Logger.INFO, "No session found! Creating the new session");
-					//update the gui
-					updater.postUIUpdate(sessionMessage);
-				} else {
-					//In this case we just need to add a notification for the message
-					manager.postNewMsgNotification(sessionId, sessionMessage);
-					MsnSessionManager.getInstance().getNotificationManager().showToast("New message from " + senderCtn.getName(),3000);
-				}
-				
-			} else {
-				
-				//if not visible we just add a notification
-				manager.postNewMsgNotification(sessionId, sessionMessage);
-				MsnSessionManager.getInstance().getNotificationManager().showToast("New message from " + senderCtn.getName(),3000);
-			}
 		}
 	}
 }
-
-
 

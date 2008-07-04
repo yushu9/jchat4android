@@ -23,9 +23,6 @@ public class MsnSessionManager {
 	/** The session map. */
 	private Map<String,MsnSession> sessionMap; 
 	
-	/** The chat activity updater. */
-	private ContactsUIUpdater chatActivityUpdater;
-	
 	/** The notification manager. */
 	private ChatSessionNotificationManager notificationManager;
 	
@@ -35,12 +32,6 @@ public class MsnSessionManager {
 	/** The Constant MAX_MSN_SESSION_NUMBER. */
 	public static final int MAX_MSN_SESSION_NUMBER =10; 
 	
-	/**
-	 * Instantiates a new msn session manager.
-	 */
-	private MsnSessionManager(){		
-		chatActivityUpdater = null;
-	}
 
 	/**
 	 * Gets the single instance of MsnSessionManager.
@@ -177,16 +168,6 @@ public class MsnSessionManager {
 			sessionMap.put(sessionId, session);		
 	}
 	
-	/**
-	 * Register chat activity updater.
-	 * 
-	 * @param updater the updater
-	 */
-	public void registerChatActivityUpdater(ContactsUIUpdater updater){
-		synchronized(theLock){
-			chatActivityUpdater = updater;
-		}
-	}
 	
 	/**
 	 * Gets the chat updater lock.
@@ -234,21 +215,12 @@ public class MsnSessionManager {
 	}
 	
 	
-	/**
-	 * Gets the chat activity updater.
-	 * 
-	 * @return the chat activity updater
-	 */
-	public ContactsUIUpdater getChatActivityUpdater(){
-		return chatActivityUpdater;
-	}
-	
+
 	/**
 	 * Shutdown.
 	 */
 	public synchronized void shutdown(){
 		sessionMap.clear();
-		chatActivityUpdater = null;
 	}
 
 	

@@ -9,8 +9,6 @@ import jade.lang.acl.ACLMessage;
 import jade.util.Logger;
 import jade.util.leap.Properties;
 
-
-
 import java.util.List;
 
 import android.app.Activity;
@@ -21,12 +19,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.widget.ArrayAdapter;
-
-import android.widget.ImageButton;
 import android.widget.EditText;
-
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.tilab.msn.MsnEventMgr.Event;
 
 /**
  * Represents the activity that allows sending and receiving messages to other contacts.
@@ -75,6 +73,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	/** Adapter used to fill up the message list */
 	private MsnSessionAdapter sessionAdapter;
 	
+	private ChatActivityHandler activityHandler;
+	
 	/** object used to report to the main activity (we need to know when a chat activity is closed to clear
 	 *  check on contacts list) 
 	 */
@@ -119,7 +119,6 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		messageToBeSent = (EditText)findViewById(R.id.edit);
 		messagesSentList = (ListView) findViewById(R.id.messagesListView);
 		
-
 		closeButton = (ImageButton) findViewById(R.id.closeBtn);
 		closeButton.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View view){
@@ -128,6 +127,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
 				finish();
 			}
 		});
+		
+		activityHandler = new ChatActivityHandler();
 		
 		//fill Jade connection properties
         Properties jadeProperties = ContactListActivity.getJadeProperties();
@@ -172,13 +173,11 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		MsnSessionManager.getInstance().getNotificationManager().addNewSessionNotification(sessionId);
 		messageToBeSent.setText("");
 		
-		//register an updater for this session
-		MsnSessionManager.getInstance().registerChatActivityUpdater(new MessageReceivedUpdater(this));
-
 		//Retrieve messages if the session already contains data
 		sessionAdapter.setNewSession(session);
 		messagesSentList.setAdapter(sessionAdapter);
-
+		MsnEventMgr.getInstance().registerEvent(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT, activityHandler);
+		
 		super.onResume();
 	}
 	
@@ -216,7 +215,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 			gateway.disconnect(this);
 			myLogger.log(Logger.FINER, "ChatActivity.onDestroy() : disconnected from MicroRuntimeService");
 		}		
-		MsnSessionManager.getInstance().registerChatActivityUpdater(null);
+		
 		activityPendingResult.sendResult(ContactListActivity.CHAT_ACTIVITY_CLOSED, null, null);
 	}
 	
@@ -310,18 +309,15 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	 * Uses the ContactsUIUpdater functionalities to post a Runnable on the UI thread
 	 * 
 	 */
-	private class MessageReceivedUpdater extends ContactsUIUpdater {
+	private class ChatActivityHandler extends UIEventHandler {
 		
 		/**
 		 * Instantiates a new message received updater.
 		 *  
 		 * @param act instance of the activity that shall be updated (stored in superclass)
 		 */
-		public MessageReceivedUpdater(Activity act) {
-			super(act);
-			ChatActivity chatAct = (ChatActivity) act;
-			String sessionId = chatAct.getMsnSession();
-			data = MsnSessionManager.getInstance().retrieveSession(sessionId);
+		public ChatActivityHandler() {
+		
 		}		
 		
 		/**
@@ -336,9 +332,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 			if (parameter instanceof MsnSessionMessage){
 				//retrieve the SessionMessage
 				myLogger.log(Logger.INFO, "Received an order of UI update: updating GUI with new message");		
-				MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
-				sessionAdapter.setNewSession(session);
-				messagesSentList.setAdapter(sessionAdapter);
+				
 			} 
 			
 			if (parameter instanceof String ){
@@ -346,6 +340,31 @@ public class ChatActivity extends Activity implements ConnectionListener{
 				String contactGoneName = (String) parameter;
 				Toast.makeText(ChatActivity.this, "Contact " +  contactGoneName + " went offline!", 3000).show();
 			}				
+		}
+
+		/**
+		 * 
+		 */
+		protected void handleEvent(Event event) {
+			String eventName = event.getName();
+			
+			//Handle case of new message
+			if (eventName.equals(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT)){
+				MsnSessionMessage msnMsg = (MsnSessionMessage) event.getParam("IncomingMessage");
+				String sessionId = (String) event.getParam("SessionId");
+				
+				//check if the message is related to the same session we are currently in.
+				//If so, add a new message to session udapter and update it
+				if (sessionId.equals(ChatActivity.this.sessionId)){
+					sessionAdapter.addMessageView(msnMsg);
+					messagesSentList.setAdapter(sessionAdapter);
+				} else {
+					//if the incoming msg is not for our session, post a notification
+					MsnSessionManager.getInstance().getNotificationManager().addNewMsgNotification(sessionId, msnMsg);
+					Toast.makeText(ChatActivity.this, msnMsg.getSenderName() + " says: " + msnMsg.getMessageContent(), 3000).show();
+				}
+			} 
+			
 		}
 		
 	}

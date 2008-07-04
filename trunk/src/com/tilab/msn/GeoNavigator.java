@@ -8,7 +8,7 @@ import android.content.IntentReceiver;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 
-// TODO: Auto-generated Javadoc
+
 /**
  * The Class GeoNavigator.
  */

@@ -1,6 +1,5 @@
 package com.tilab.msn;
 
-import jade.util.Logger;
 
 // TODO: Auto-generated Javadoc
 /**

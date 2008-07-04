@@ -6,6 +6,8 @@ import jade.core.Profile;
 import jade.imtp.leap.JICP.JICPProtocol;
 import jade.util.Logger;
 import jade.util.leap.Properties;
+import jade.wrapper.ControllerException;
+import jade.wrapper.StaleProxyException;
 
 import java.net.ConnectException;
 import java.util.List;
@@ -39,6 +41,7 @@ import android.widget.TabHost.TabSpec;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayController;
+import com.tilab.msn.MsnEventMgr.Event;
 
 /**
  * The main activity. Shows two tabs: one with contact list (with distance from current contact)
@@ -185,7 +188,7 @@ public class ContactListActivity extends MapActivity implements
 	/** 
 	 * Updater for this activity. 
 	 */
-	private ContactListActivityUpdater activityUpdater;
+	private UIEventHandler activityHandler;
 
 	/**
 	 * Initializes the activity's UI interface.
@@ -423,8 +426,12 @@ public class ContactListActivity extends MapActivity implements
 		GeoNavigator.getInstance(this).initialize();
 		GeoNavigator.getInstance(this).startLocationUpdate();
 
-		activityUpdater = new ContactListActivityUpdater(this);
-
+		//register an event for this activity to handle refresh of the views in this activity
+		activityHandler = new ContactListActivityUpdateHandler();
+		MsnEventMgr.getInstance().registerEvent(MsnEventMgr.Event.VIEW_REFRESH_EVENT, activityHandler);
+		MsnEventMgr.getInstance().registerEvent(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT, activityHandler);
+		//register a generic disconnection handler
+		MsnEventMgr.getInstance().registerEvent(MsnEventMgr.Event.CONTACT_DISCONNECT_EVENT, new ContactDisconnectionHandler());
 		//Initialize the UI
 		initUI();
 		disableUI();
@@ -549,17 +556,23 @@ public class ContactListActivity extends MapActivity implements
 		this.gateway = gw;
 
 		enableUI();
-
-		myLogger.log(Logger.INFO, "onConnected(): SUCCESS!");
-
 		try {
-			gateway.execute(activityUpdater);
-			//put my contact online			
+			this.gateway.execute("");
+		} catch (StaleProxyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ControllerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (Exception e) {
-			Toast.makeText(this, e.toString(), 1000).show();
-			myLogger.log(Logger.SEVERE, "Exception in onConnected", e);
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		myLogger.log(Logger.INFO, "onConnected(): SUCCESS!");
+
 	}
 
 	/**
@@ -784,57 +797,72 @@ public class ContactListActivity extends MapActivity implements
 		case CHAT_ACTIVITY_CLOSED:
 			this.overlay.uncheckAllContacts();
 			this.contactsListView.uncheckAllSelectedItems();
-			break;
+			MsnEventMgr.getInstance().registerEvent(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT, activityHandler);
+		break;
 		}
 	}
 
+	private  class ContactDisconnectionHandler extends UIEventHandler {
+		/**
+		 * Creates a new disconnection handler
+		 */
+		public ContactDisconnectionHandler(){
+			
+		}
+
+		/**
+		 * Handles the disconnection event
+		 */ 
+		protected void handleEvent(Event event) {
+			String eventName = event.getName();
+			
+			if (eventName.equals(MsnEventMgr.Event.CONTACT_DISCONNECT_EVENT)){
+				String discContactName = (String) event.getParam("ContactName");
+				Toast.makeText(ContactListActivity.this, discContactName + " went offline!", 3000).show();
+			}
+		}
+		
+		
+	}
+	
 	/**
 	 * Updater class that performs allows the agent to modify the GUI (both the contacts view and the map view)
 	 */
-	private class ContactListActivityUpdater extends ContactsUIUpdater {
+	private class ContactListActivityUpdateHandler extends UIEventHandler {
 
 		/**
 		 * Instantiates a new contact list activity updater.
 		 * 
 		 * @param act reference to the activity
 		 */
-		public ContactListActivityUpdater(Activity act) {
-			super(act);
+		public ContactListActivityUpdateHandler() {
 		}
 
+		
 		/**
-		 * Method of {@link ContactsUIUpdater}, perform the update using functionalities provided by the parent class
-		 * 
-		 * @param parameter list of changes to the contact list
+		 * Handler for the chat activity
 		 */
-		protected void handleUpdate(Object parameter) {
-
-			boolean anyChanges = false;
-
-			if (parameter instanceof ContactListChanges) {
-				ContactListChanges changes = (ContactListChanges) parameter;
-				anyChanges = true;
+		protected void handleEvent(Event event) {
+			String eventName = event.getName();
+			
+			
+			if (eventName.equals(MsnEventMgr.Event.VIEW_REFRESH_EVENT)){
+				ContactListChanges changes = (ContactListChanges) event.getParam("ListOfChanges");
 				updateListAdapter(changes);
 				overlay.update(changes);
-				
-			}
-
-			//refresh the screen: if the map is visible refresh it
-			//It seems that using the tab tag does not work
-			if (ContactManager.getInstance().movingContacts()) {
-				//redraw the map						
 				mapView.invalidate();
-			}
-
-			if (anyChanges || ContactManager.getInstance().movingContacts()) {
-				// if here the contact list is visible
 				int selPos = contactsListView.getSelectedItemPosition();
 				ContactListAdapter adapter = ContactManager.getInstance()
 						.getAdapter();
 				contactsListView.setAdapter(adapter);
 				contactsListView.setSelection(selPos);
-			}
-
+			} else if (eventName.equals(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT)){
+				MsnSessionMessage msnMsg = (MsnSessionMessage) event.getParam("IncomingMessage");
+				String sessionId = (String) event.getParam("SessionId");	
+				//if the incoming msg is not for our session, post a notification
+				MsnSessionManager.getInstance().getNotificationManager().addNewMsgNotification(sessionId, msnMsg);
+				Toast.makeText(ContactListActivity.this, msnMsg.getSenderName() + " says: " + msnMsg.getMessageContent(), 3000).show();
+			}			
 		}
 
 	}
