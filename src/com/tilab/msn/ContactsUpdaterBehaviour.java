@@ -17,7 +17,7 @@ import jade.util.Logger;
 import jade.util.leap.Iterator;
 import android.location.Location;
 
-// TODO: Auto-generated Javadoc
+
 /**
  * The Class ContactsUpdaterBehaviour.
  */
@@ -40,10 +40,6 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		msnUpdateTime = updateTime;
 	}
 
-	/* (non-Javadoc)
-	 * @see jade.core.behaviours.Behaviour#action()
-	 */
-	@Override
 	public void action()  {
 		try {
 		//first thing to do is to register on the df and save current location if any
@@ -60,7 +56,9 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 		updateContactList(onlineContacts);
 
-		((MsnAgent)myAgent).postUIUpdate();		
+		MsnEventMgr.Event event = MsnEventMgr.getInstance().createEvent(MsnEventMgr.Event.VIEW_REFRESH_EVENT);
+		event.addParam("ListOfChanges", ContactManager.getInstance().getModifications());
+		MsnEventMgr.getInstance().fireEvent(event);
 
 		DFUpdaterBehaviour updater = new DFUpdaterBehaviour(myAgent,msnUpdateTime);
 		MsnAgent agent = (MsnAgent) myAgent;
@@ -83,7 +81,6 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 	 * @param onlineContactsDescs the online contacts descs
 	 */
 	private void updateContactList(DFAgentDescription[] onlineContactsDescs) {
-		// TODO Auto-generated method stub
 
 		for (int i = 0; i < onlineContactsDescs.length; i++) {
 			Iterator serviceDescIt = onlineContactsDescs[i].getAllServices();
@@ -201,15 +198,16 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 								String phoneNumber = contactAID.getLocalName();
 								Contact c = ContactManager.getInstance().getContact(phoneNumber);
 								ContactManager.getInstance().setContactOffline(phoneNumber);
-								StringBuffer strBuf = new StringBuffer("Contact ");
-								strBuf.append(c.getName());
-								strBuf.append(" is now disconnected!");
-								MsnSessionManager.getInstance().getNotificationManager().showToast(strBuf.toString(),3000);
-								
+								MsnEventMgr.Event event = MsnEventMgr.getInstance().createEvent(MsnEventMgr.Event.CONTACT_DISCONNECT_EVENT);
+								event.addParam("ContactName", c.getName());
+								MsnEventMgr.getInstance().fireEvent(event);								
 							}
 						}
 					}
-					((MsnAgent)myAgent).postUIUpdate();
+					
+					MsnEventMgr.Event event = MsnEventMgr.getInstance().createEvent(MsnEventMgr.Event.VIEW_REFRESH_EVENT);
+					event.addParam("ListOfChanges", ContactManager.getInstance().getModifications());
+					MsnEventMgr.getInstance().fireEvent(event);
 				}
 
 
@@ -251,10 +249,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 			super(a, period);
 		}
 
-		/* (non-Javadoc)
-		 * @see jade.core.behaviours.TickerBehaviour#onTick()
-		 */
-		@Override
+		
 		protected void onTick() {
 
 			try {

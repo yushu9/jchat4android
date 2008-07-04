@@ -7,7 +7,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ListView;
 
-// TODO: Auto-generated Javadoc
+
 /**
  * The Class MultiSelectionListView.
  */
@@ -22,7 +22,6 @@ public class MultiSelectionListView extends ListView{
 	 */
 	public MultiSelectionListView(Context context, AttributeSet attrs, Map params) {
 		super(context, attrs, params);
-		// TODO Auto-generated constructor stub
 	}
 	
 	/**

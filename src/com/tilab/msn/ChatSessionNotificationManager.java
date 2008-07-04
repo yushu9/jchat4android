@@ -10,7 +10,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
 
 
 /**
@@ -54,6 +53,7 @@ class ChatSessionNotificationManager {
 		 */
 		private NotificationManager manager;
 		
+		private static ChatSessionNotificationManager mgr;
 		
 		/**
 		 * Instantiates a new chat session notification manager.
@@ -66,39 +66,9 @@ class ChatSessionNotificationManager {
 			manager = (NotificationManager) activity.getSystemService(Context.NOTIFICATION_SERVICE);
 		}
 	
-		/**
-		 * Post new session notification on the UI thread. Used when the agents needs to add a notification (for example when receiving 
-		 * a new message from a contact)
-		 * 
-		 * @param sessionId Id of the session 
-		 */
-		public void postNewSessionNotification(String sessionId){
-			int index = Integer.parseInt(sessionId);
-			Notification sessionNotif = makeSessionNotification(sessionId);
-			activity.runOnUIThread(new NotificationRunnable(index,sessionNotif));
-		}
+	
+	
 		
-		/**
-		 * Post a runnable on the UI thread showing a toast to the user
-		 * 
-		 * @param msg the message shown in the toast
-		 * @param duration duration of the toast in milliseconds
-		 */
-		public void showToast(String msg, int duration){
-			activity.runOnUIThread(new ToastRunnable(msg,duration));
-		}
-		
-		/**
-		 * Post a message notification on the status bar
-		 * 
-		 * @param sessionId id of the current session
-		 * @param msg session message that will be notified
-		 */
-		public void postNewMsgNotification(String sessionId, MsnSessionMessage msg) {
-			int index = Integer.parseInt(sessionId);
-			Notification sessionNotif = makeMsgNotification(sessionId, msg);
-			activity.runOnUIThread(new NotificationRunnable(index,sessionNotif));
-		}
 		
 		/**
 		 * Adds a session notification on the status bar. This is logically the same as {@link postNewSessionNotification} 
@@ -175,6 +145,7 @@ class ChatSessionNotificationManager {
 			return notif;
 		}
 		
+		
 		/**
 		 * Utility method that creates a message notification object to be added.
 		 * 
@@ -233,73 +204,5 @@ class ChatSessionNotificationManager {
 			notificationList.clear();
 		}
 		
-		
-		/**
-		 * Used for posting notification on the UI thread
-		 * 
-		 */
-		private class NotificationRunnable implements Runnable {
-			
-			/** Index of the notification to be added. */
-			private int notifId;
-			
-			/** The notification to be added. */
-			private Notification notif;
-			
-			/**
-			 * Instantiates a new notification runnable.
-			 * 
-			 * @param index the index of the notification
-			 * @param notif the notification that will be added
-			 */
-			public NotificationRunnable(int index, Notification notif){
-				this.notifId = index;
-				this.notif = notif;
-			}
-			
-			/**
-			 * Adds the notification. Run by the UI-thread  
-			 */
-			public void run() {
-				addNotification(notifId, notif);
-			}
-			
-		}
-		
-		
-		/**
-		 * Used for posting toasts on the UI thread
-		 */
-		private class ToastRunnable implements Runnable {
-
-			/** 
-			 * Toast duration in millisecs. 
-			 */
-			private int duration;
-			
-			/** 
-			 * The message to be shown. 
-			 */
-			private String message;
-			
-			/**
-			 * Instantiates a new toast runnable.
-			 * 
-			 * @param msg the message to be shown
-			 * @param duration the duration of the toast in millisecs
-			 */
-			public ToastRunnable(String msg, int duration) {
-				this.message = msg;
-				this.duration = duration;
-			}
-			
-			/**
-			 * Shows the toast. Run by the UI thread
-			 */
-			@Override
-			public void run() {
-				Toast.makeText(activity, message, duration).show();
-			}
-			
-		}
+				
 }

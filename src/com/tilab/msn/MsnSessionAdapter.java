@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-
 import android.content.Resources;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,10 +90,7 @@ public class MsnSessionAdapter extends BaseAdapter {
 		messageViews.addFirst(messageView);
 	}
 	
-	/* (non-Javadoc)
-	 * @see android.widget.Adapter#getItem(int)
-	 */
-	@Override
+
 	public Object getItem(int arg0) {
 		// TODO Auto-generated method stub
 		List<MsnSessionMessage> messageList = theSession.getMessageList();
@@ -102,19 +98,13 @@ public class MsnSessionAdapter extends BaseAdapter {
 		return msg;
 	}
 
-	/* (non-Javadoc)
-	 * @see android.widget.Adapter#getItemId(int)
-	 */
-	@Override
+
 	public long getItemId(int arg0) {
 		
 		return 0;
 	}
 
-	/* (non-Javadoc)
-	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-	 */
-	@Override
+
 	public View getView(int position, View convertView, ViewGroup parent) {
 		
 		View v = messageViews.get(position);

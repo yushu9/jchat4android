@@ -8,7 +8,6 @@ import android.content.IntentReceiver;
 import android.location.Location;
 
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class LocationReceiver.
  */
@@ -17,9 +16,6 @@ public class LocationReceiver extends IntentReceiver {
 	/** The my logger. */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());	 
 	
-	/* (non-Javadoc)
-	 * @see android.content.IntentReceiver#onReceiveIntent(android.content.Context, android.content.Intent)
-	 */
 	public void onReceiveIntent(Context context, Intent intent) {		
 		Thread.currentThread().getId();
         

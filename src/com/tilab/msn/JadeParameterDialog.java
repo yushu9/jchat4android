@@ -2,7 +2,6 @@ package com.tilab.msn;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.text.Layout;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
@@ -11,7 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-// TODO: Auto-generated Javadoc
+
 /**
  * The Class JadeParameterDialog.
  */
