@@ -802,16 +802,17 @@ public class ContactListActivity extends MapActivity implements
 		}
 	}
 
+	/**
+	 * Defines an handler to show  a toast when a contact disconnects
+	 * @author s.semeria
+	 *
+	 */
 	private  class ContactDisconnectionHandler extends UIEventHandler {
-		/**
-		 * Creates a new disconnection handler
-		 */
-		public ContactDisconnectionHandler(){
-			
-		}
-
+		
 		/**
 		 * Handles the disconnection event
+		 * 
+		 * @param event the disconnection event to be handled
 		 */ 
 		protected void handleEvent(Event event) {
 			String eventName = event.getName();
@@ -826,21 +827,16 @@ public class ContactListActivity extends MapActivity implements
 	}
 	
 	/**
-	 * Updater class that performs allows the agent to modify the GUI (both the contacts view and the map view)
+	 * Handler for all events handled by the main {@link ContactListActivity}
 	 */
 	private class ContactListActivityUpdateHandler extends UIEventHandler {
 
-		/**
-		 * Instantiates a new contact list activity updater.
-		 * 
-		 * @param act reference to the activity
-		 */
-		public ContactListActivityUpdateHandler() {
-		}
-
+	
 		
 		/**
-		 * Handler for the chat activity
+		 * Handles both an incoming message and a refresh of the screen
+		 * 
+		 * @param event the event that should be handled
 		 */
 		protected void handleEvent(Event event) {
 			String eventName = event.getName();

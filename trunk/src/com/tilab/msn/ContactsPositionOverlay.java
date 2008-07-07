@@ -27,76 +27,118 @@ import com.google.android.maps.Overlay;
 import com.google.android.maps.Point;
 import com.google.android.maps.MapView.DeviceType;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class ContactsPositionOverlay.
+ * Defines the overlay used to draw information over the map view.
+ * It allows drawing contacts position and provides functionalities for 
+ * automatic zooming and centering of the map.
+ * 
+ * @author Cristina Cucè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0 
  */
 public class ContactsPositionOverlay extends Overlay {
 	
-	/** The my logger. */
+	/** 
+	 * Instance of the Jade logger for debugging. 
+	 */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	
-	/** The UPPE r_ threshold. */
+	/**  
+	 * Upper threshold, used for automatic zooming adjustment. It is a squared distance defined as a percentage of screen width
+	 */
 	private int UPPER_THRESHOLD = 0;
 	
-	/** The LOWE r_ threshold. */
+	/**  
+	 * Lower threshold, used for automatic zooming adjustment. It is a squared distance defined as a percentage of screen width
+	 */
 	private  int LOWER_THRESHOLD = 0;
 	
-	/** The map controller. */
+	/** 
+	 * Controller used to perform map zooming and centering 
+	 */
 	private MapController mapController; 
 	
-	/** The my paint. */
+	/** 
+	 * Paint object, used for drawing. 
+	 */
 	private Paint myPaint;
 	
-	/** The ylw paddle. */
+	/** 
+	 * Bitmap object that shows the yellow paddle. 
+	 */
 	private Bitmap ylwPaddle;
-	
-	/** The blue baloon. */
-	private Bitmap blueBaloon;
-	
-	/** The highlight. */
-	private Bitmap highlight;
-	
+
 	/** The blue paddle. */
 	private Bitmap bluePaddle;
+
 	
-	/** The app res. */
+	/** 
+	 * Bitmap object that shows the blue baloon.
+	 */
+	private Bitmap blueBaloon;
+	
+	/** 
+	 * Bitmap object that shows the highlight when selecting a contact in map mode 
+	 */
+	private Bitmap highlight;
+	
+	
+	/**
+	 * Resource object, stored for making quicker access to resource files 
+	 */
 	private Resources appRes;
 	
-	/** The contact position map. */
+	/**
+	 *  Map containing data describing the online contacts to be drawn and their status (checked/unchecked)  
+	 */
 	private Map<String, ContactLayoutData> contactPositionMap;
 	
 	
-	//The SCROLL area represents the area that finds when points are going out of the screen 
-	//If one of them is out of the hot area we need to recenter the map to follow the point.
-	//HotAreaWidth/ScreenWidth
-	/** The SCROL l_ are a_ widt h_ ratio. */
+	/** 
+	 * Percentage defining the scroll area width with respect to screen width 
+	 */
 	private static final float SCROLL_AREA_WIDTH_RATIO = 0.70f;
 	
-	/** The SCROL l_ are a_ heigh t_ ratio. */
+	/** 
+	 * Percentage defining the scroll area height with respect to screen height
+	 */
 	private static final float SCROLL_AREA_HEIGHT_RATIO= 0.70f;
-	
-	//This ratio is referred to SCREEN WIDTH
-	/** The UPPE r_ threshol d_ ratio. */
+
+	/** 
+	 * Percentage with respect to screen width for defining the upper threshold. 
+	 */
 	private static final float UPPER_THRESHOLD_RATIO = 0.46f;
-	
-	/** The LOWE r_ threshol d_ ratio. */
+	/**
+	 * Percentage with respect to screen width for defining the lower threshold
+	 */
 	private static final float LOWER_THRESHOLD_RATIO = 0.35f;
 	
-	/** The SCROL l_ are a_ width. */
+	/** 
+	 * Final width of the scrolling area in Pixel 
+	 */
 	private int SCROLL_AREA_WIDTH=-1;
 	
-	/** The SCROL l_ are a_ height. */
+	/** 
+	 * Final height of the scrolling area in Pixel 
+	 */
 	private int SCROLL_AREA_HEIGHT=-1;
 	
 	
-	/** The my map view. */
+	/** 
+	 * Map view object on which we draw the overlay 
+	 */
 	private MapView myMapView;
 
-	/** The WIDTH. */
+	/** 
+	 * Width of the map view on which we draw  
+	 */
 	private int WIDTH=-1;
 	
-	/** The HEIGHT. */
+	/**
+	 *  Height of the map view on which we draw
+	 * */
 	private int HEIGHT=-1;
 	
 	/** The center screen x. */

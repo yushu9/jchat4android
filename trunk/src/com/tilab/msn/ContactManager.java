@@ -17,7 +17,7 @@ import android.provider.Contacts.People;
  * Manages the list of contacts. 
  * This class is a singleton and manages a list of all contacts and their location.
  * It is responsible for adding and removing contacts and also for location update in a thread safe way.
- * <p> 
+ * 
  * 
  * @author Cristina Cucè
  * @author Marco Ughetti 
@@ -33,37 +33,52 @@ public class ContactManager {
 	private static ContactManager manager = new ContactManager();
 		
 	/** 
-	 * The contacts map. 
+	 * Map containing all the available contacts (except for the my contact), in particular all contacts stored on the phone (offline) 
+	 * and online contacts 
 	 */
 	private final Map<String, Contact> contactsMap;
 	
-	/** The contact location map. */
+	/** 
+	 * Map containing all the available locations (online contacts only except the my contact). 
+	 */
 	private final Map<String, ContactLocation> contactLocationMap;
 	
-	/** The my contact. */
+	/**
+	 * Instance of the my contact.
+	 */
 	private Contact myContact;
 	
-	/** The my contact location. */
+	/**  
+	 * Location of the myContact
+	 */
 	private volatile ContactLocation myContactLocation;
 	
-	/** The my logger. */
+	/** 
+	 * Instance of the Jade logger for debugging 
+     */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
-	//Adapter for the contacts list
-	/** The contacts adapter. */
+	
+	/** 
+	 * The adapter describing the contact list. 
+	 */
 	private ContactListAdapter contactsAdapter;
 	
-	/** The modifications. */
+	/** 
+	 * Instance of {@link ContactListChanges} containing the list of newly added contacts and of recently removed contacts. 
+	 */
 	private ContactListChanges modifications;	
 	
-	/** The M y_ contac t_ name. */
+	/** 
+	 * Id of the my Contact
+	 */
 	private final String MY_CONTACT_NAME="Me";
 	
 	
 
 	/**
-	 * Moving contacts.
+	 * Checks if any contact is currently moving.
 	 * 
-	 * @return true, if successful
+	 * @return true if any contact is moving, false otherwise
 	 */
 	public boolean movingContacts(){
 		boolean moving= true;
@@ -91,23 +106,23 @@ public class ContactManager {
 	}	
 	
 	/**
-	 * Reset modifications.
+	 * Reset tracking of modifications to contact list
 	 */
 	public synchronized void resetModifications(){
 		modifications.resetChanges();
 	}
 	
 	/**
-	 * Gets the modifications.
+	 * Retrieves the list of modifications to contact map since last reset
 	 * 
-	 * @return the modifications
+	 * @return {@link ContactListChanges} 
 	 */
 	public synchronized ContactListChanges getModifications() {
 		return new ContactListChanges(modifications);
 	}	
 	
 	/**
-	 * Gets the adapter.
+	 * Retrieves the adapter associated to the Contact list
 	 * 
 	 * @return the adapter
 	 */
@@ -117,9 +132,9 @@ public class ContactManager {
 	}
 
 	/**
-	 * Read phone contacts.
+	 * Read contacts stored on phone database and populates the contact map with all offline contacts.
 	 * 
-	 * @param act the act
+	 * @param act reference to an activity
 	 */
 	public void readPhoneContacts(ContactListActivity act){
 		//perform a query on contacts database returning all contacts data in name ascending order
@@ -146,21 +161,20 @@ public class ContactManager {
 	}	
 	
 	/**
-	 * Adds the adapter.
+	 * Adds an adapter for the contact list.
 	 * 
-	 * @param cla the cla
+	 * @param cla the {@link ContactListAdapter}
 	 */
 	public void addAdapter(ContactListAdapter cla){	
 		 contactsAdapter= cla;
 	}
 
 	
-	//This methods adds or updates a contact 
 	/**
-	 * Adds the or update online contact.
+	 * Adds a new {@link Contact} with the given phoneNumber and Location or updates the Location of an existing one.
 	 * 
-	 * @param phoneNumber the phone number
-	 * @param loc the loc
+	 * @param phoneNumber of the new contact or of the contact that should be updated
+	 * @param loc current location of the new contact or new location if this is an update
 	 */
 	public void addOrUpdateOnlineContact(String phoneNumber, Location loc){
 			//Is the contact already there?
@@ -198,9 +212,9 @@ public class ContactManager {
 				
 				
 	/**
-	 * Sets the contact offline.
+	 * Set the given contact status to offline (without removing it from the map if it is stored on the phone contacts database)
 	 * 
-	 * @param phoneNumber the new contact offline
+	 * @param phoneNumber number of the contact 
 	 */
 	public void setContactOffline(String phoneNumber) {		 
 			
@@ -219,31 +233,29 @@ public class ContactManager {
 			}
 	}
 
-	//Agent Id is the AID.getLocalName()
+
 	/**
-	 * Gets the contact.
+	 * Retrieves a Contact given its phone number
 	 * 
-	 * @param phoneNumber the phone number
-	 * 
-	 * @return the contact
+	 * @param phoneNumber the phone number of the contact that should be retrieved
+	 * @return the contact having the given phoneNumber
 	 */
 	public Contact getContact(String phoneNumber){
 		return contactsMap.get(phoneNumber);
 	}
 	
 	/**
-	 * Gets the contact location.
+	 * Gets the location of a contact given its phone number.
 	 * 
-	 * @param phoneNumber the phone number
-	 * 
-	 * @return the contact location
+	 * @param phoneNumber the phone number of the contact whose location should be retrieved
+	 * @return location of the required contact
 	 */
 	public ContactLocation getContactLocation(String phoneNumber){
 		return contactLocationMap.get(phoneNumber);
 	}
 
 	/**
-	 * Gets the my contact.
+	 * Retrieve instance of the main contact
 	 * 
 	 * @return the my contact
 	 */
@@ -262,33 +274,20 @@ public class ContactManager {
 
 
 	/**
-	 * Shutdown.
+	 * Cleans up both the contact map and the location map
 	 */
 	public void shutdown() {
 		contactsMap.clear();
 		contactsAdapter.clear();
 	}
 
-	//We cannot modify the contacts from this list, we copy the list to avoid race conditions
-	/**
-	 * Gets the contact list.
-	 * 
-	 * @return the contact list
-	 */
-	public List<Contact> getContactList() {
-		ArrayList<Contact> list;
-		list = new ArrayList<Contact>();
-		for (Contact contact : contactsMap.values()) {
-			list.add(new Contact(contact));
-		}
-		return list;
-	}
 
-	//FIXME: Discuss if here we should return the map or a copy
+
 	/**
-	 * Gets the all contact locations.
+	 * Returns a map containing contact to location mapping. This map is a copy of the inner location map
+	 * so this should be thread safe
 	 * 
-	 * @return the all contact locations
+	 * @return map with online contact locations
 	 */
 	public Map<String, ContactLocation> getAllContactLocations(){
 		Map<String,ContactLocation> location = new HashMap<String, ContactLocation>();
@@ -305,9 +304,9 @@ public class ContactManager {
 	
 	
 	/**
-	 * Gets the all contacts.
+	 * Retrieves a map containing mappings between contacts and phone numbers
 	 * 
-	 * @return the all contacts
+	 * @return copy of the inner contact map 
 	 */
 	public Map<String, Contact> getAllContacts(){
 		Map<String,Contact> cMap = new HashMap<String, Contact>();
@@ -323,9 +322,9 @@ public class ContactManager {
 	
 	
 	/**
-	 * Adds the my contact.
+	 * Adds the my contact, given its phone number.
 	 * 
-	 * @param phoneNumber the phone number
+	 * @param phoneNumber my contact's phone number
 	 */
 	public void addMyContact(String phoneNumber) {
 		// TODO Auto-generated method stub
@@ -336,18 +335,18 @@ public class ContactManager {
 	}
 	
 	/**
-	 * Update my contact location.
+	 * Update location of my contact
 	 * 
-	 * @param loc the loc
+	 * @param loc new location of my contact
 	 */
 	public void updateMyContactLocation(Location loc) {
 		myContactLocation = myContactLocation.changeLocation(loc);
 	}
 	
 	/**
-	 * Gets the my contact location.
+	 * Gets my contact location.
 	 * 
-	 * @return the my contact location
+	 * @return the current my contact's location
 	 */
 	public ContactLocation getMyContactLocation(){
 		return new ContactLocation(myContactLocation);

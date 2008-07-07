@@ -97,7 +97,7 @@ public class ContactLocation extends Location {
 	}
 	
 	/**
-	 * Checks for moved.
+	 * Checks if the {@link ContactLocation} is changed.
 	 * 
 	 * @return true, if successful
 	 */
