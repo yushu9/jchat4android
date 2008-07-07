@@ -49,11 +49,10 @@ class ChatSessionNotificationManager {
 		private List<Integer> notificationList;
 		
 		/**
-		 * Instance of the notification manager used to diplay/remove the notifications 
+		 * Instance of the notification manager used to display/remove the notifications 
 		 */
 		private NotificationManager manager;
 		
-		private static ChatSessionNotificationManager mgr;
 		
 		/**
 		 * Instantiates a new chat session notification manager.
@@ -71,8 +70,7 @@ class ChatSessionNotificationManager {
 		
 		
 		/**
-		 * Adds a session notification on the status bar. This is logically the same as {@link postNewSessionNotification} 
-		 * but it must be executed directly by the UI thread (no Runnable post).  
+		 * Adds a session notification on the status bar. Must be called by UI thread.
 		 * 
 		 * @param sessionId id of the session that must be notified
 		 */
@@ -83,8 +81,7 @@ class ChatSessionNotificationManager {
 		}
 		
 		/** 
-		 * Adds a session notification on the status bar. This is logically the same as {@link postNewMsgNotification} 
-		 * but it must be executed directly by the UI thread (no Runnable post).  
+		 * Adds a new message notification on the status bar. Must be called by UI thread.
 		 *
 		 * @param sessionId Id of the session related to this notification
 		 * @param msg session message that will be notified
@@ -191,7 +188,7 @@ class ChatSessionNotificationManager {
 		}
 		
 		/**
-		 * Removes the all notifications.
+		 * Removes all notifications.
 		 * 
 		 */
 		public void removeAllNotifications(){

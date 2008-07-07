@@ -305,45 +305,25 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	
 	
 	/**
-	 * Inner class that allows to the agent thread to modify the message list, any time a message is received.
-	 * Uses the ContactsUIUpdater functionalities to post a Runnable on the UI thread
+	 * Defines an handler for UI events.
 	 * 
 	 */
 	private class ChatActivityHandler extends UIEventHandler {
 		
-		/**
-		 * Instantiates a new message received updater.
-		 *  
-		 * @param act instance of the activity that shall be updated (stored in superclass)
-		 */
-		public ChatActivityHandler() {
 		
-		}		
+		
 		
 		/**
 		 * Performs the update of the GUI. 
-		 * It handles both the arrival of a new message and the disconnection of an online contact.
+		 * It handles the arrival of a new message.
+		 * <p>
+		 * Two cases are possible:
+		 * <ol>
+		 * 	<li> incoming message is related to the current session and should be added to message list
+		 * 	<li> incoming message is related to another session and a notification is to be shown
+		 * </ol>
 		 *  
-		 * @param parameter a generic object sent as a parameter. It can be a <code>MsnSessionMessage</code> in case of a new incoming 
-		 * message or a String with the disconnected contact Id to display a toast		 
-		 */
-		protected void handleUpdate(Object parameter) {
-			
-			if (parameter instanceof MsnSessionMessage){
-				//retrieve the SessionMessage
-				myLogger.log(Logger.INFO, "Received an order of UI update: updating GUI with new message");		
-				
-			} 
-			
-			if (parameter instanceof String ){
-				myLogger.log(Logger.INFO, "Received an order of UI update: adding Toast notification");
-				String contactGoneName = (String) parameter;
-				Toast.makeText(ChatActivity.this, "Contact " +  contactGoneName + " went offline!", 3000).show();
-			}				
-		}
-
-		/**
-		 * 
+		 * @param event the event that shall be notified to this listener to be handled 		 
 		 */
 		protected void handleEvent(Event event) {
 			String eventName = event.getName();

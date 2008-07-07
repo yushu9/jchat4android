@@ -94,7 +94,7 @@ public class ContactListAdapter extends BaseAdapter {
 	/**
 	 * Returns an id for the view
 	 * 
-	 * @param index of the item
+	 * @param position position of the item
 	 * @return id for the item
 	 */
 	public final long getItemId(final int position) {
