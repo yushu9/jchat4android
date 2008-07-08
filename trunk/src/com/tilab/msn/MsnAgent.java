@@ -169,8 +169,8 @@ public class MsnAgent extends GatewayAgent {
 					
 					//prepare an "IncomingMessage"
 					MsnEventMgr.Event event = MsnEventMgr.getInstance().createEvent(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT);
-					event.addParam("SessionId", sessionId);
-					event.addParam("IncomingMessage", sessionMessage);
+					event.addParam(MsnEventMgr.Event.INCOMING_MESSAGE_PARAM_SESSIONID, sessionId);
+					event.addParam(MsnEventMgr.Event.INCOMING_MESSAGE_PARAM_MSG, sessionMessage);
 					//Add message to session
 					sessionManager.addMessageToSession(sessionId, sessionMessage);
 					MsnEventMgr.getInstance().fireEvent(event);

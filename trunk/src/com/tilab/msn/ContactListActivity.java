@@ -818,7 +818,7 @@ public class ContactListActivity extends MapActivity implements
 			String eventName = event.getName();
 			
 			if (eventName.equals(MsnEventMgr.Event.CONTACT_DISCONNECT_EVENT)){
-				String discContactName = (String) event.getParam("ContactName");
+				String discContactName = (String) event.getParam(MsnEventMgr.Event.CONTACT_DISCONNECT_PARAM_CONTACTNAME);
 				Toast.makeText(ContactListActivity.this, discContactName + " went offline!", 3000).show();
 			}
 		}
@@ -843,7 +843,7 @@ public class ContactListActivity extends MapActivity implements
 			
 			
 			if (eventName.equals(MsnEventMgr.Event.VIEW_REFRESH_EVENT)){
-				ContactListChanges changes = (ContactListChanges) event.getParam("ListOfChanges");
+				ContactListChanges changes = (ContactListChanges) event.getParam(MsnEventMgr.Event.VIEW_REFRESH_PARAM_LISTOFCHANGES);
 				updateListAdapter(changes);
 				overlay.update(changes);
 				mapView.invalidate();
@@ -853,8 +853,8 @@ public class ContactListActivity extends MapActivity implements
 				contactsListView.setAdapter(adapter);
 				contactsListView.setSelection(selPos);
 			} else if (eventName.equals(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT)){
-				MsnSessionMessage msnMsg = (MsnSessionMessage) event.getParam("IncomingMessage");
-				String sessionId = (String) event.getParam("SessionId");	
+				MsnSessionMessage msnMsg = (MsnSessionMessage) event.getParam(MsnEventMgr.Event.INCOMING_MESSAGE_PARAM_MSG);
+				String sessionId = (String) event.getParam(MsnEventMgr.Event.INCOMING_MESSAGE_PARAM_SESSIONID);	
 				//if the incoming msg is not for our session, post a notification
 				MsnSessionManager.getInstance().getNotificationManager().addNewMsgNotification(sessionId, msnMsg);
 				Toast.makeText(ContactListActivity.this, msnMsg.getSenderName() + " says: " + msnMsg.getMessageContent(), 3000).show();

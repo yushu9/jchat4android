@@ -138,33 +138,45 @@ public class ContactsPositionOverlay extends Overlay {
 	
 	/**
 	 *  Height of the map view on which we draw
-	 * */
+	 */
 	private int HEIGHT=-1;
 	
-	/** The center screen x. */
+	/** 
+	 *  The x coordinate of the screen center in screen coordinates
+	 */
 	private int centerScreenX;
 	
-	/** The center screen y. */
+	/** 
+	 * The y coordinate of the screen center in screen coordinates
+	 */
 	private int centerScreenY;
 	
 
-	/** The ZOO m_ max. */
+	/** 
+	 * Constant used to for choosing zoom level. It means that zoom to max level is required 
+	 */
 	private static final int ZOOM_MAX=0;
 	
-	/** The RECOMPUT e_ zoom. */
+	/** 
+	 * Constant used to for choosing zoom level. It means that zoom should be dynamically recomputed 
+	 */
 	private static final int RECOMPUTE_ZOOM=1;
 	
-	/** The N o_ zoom. */
+	/**
+	 * Constant used to for choosing zoom level. It means zoom shall not be recomputed
+	 */
 	private static final int NO_ZOOM=2;
 	
-	/** The scrolling area. */
+	/** 
+	 * The scrolling area (when exiting this area, scrolling is recomputed) 
+	 */
 	private Rect scrollingArea;
 	
 	/**
 	 * Instantiates a new contacts position overlay.
 	 * 
-	 * @param myMapView the my map view
-	 * @param ctn the ctn
+	 * @param myMapView the map view on which the overlay is drawn
+	 * @param ctn the file for accessing resources
 	 */
 	public ContactsPositionOverlay(MapView myMapView, Resources ctn){
 		mapController = myMapView.getController();
@@ -181,9 +193,10 @@ public class ContactsPositionOverlay extends Overlay {
 	}	
 	
 	/**
-	 * Scrolling is needed.
+	 * Check if scrolling of the map view is needed or not. This basically means that 
+	 * the view should be centered.
 	 * 
-	 * @return true, if successful
+	 * @return true centering is needed and false otherwise
 	 */
 	private boolean scrollingIsNeeded(){
 		
@@ -203,11 +216,12 @@ public class ContactsPositionOverlay extends Overlay {
 	}
 	
 	/**
-	 * Zoom change is needed.
+	 * Checks if zoom level should be recomputed according to current position of contacts on the map.
+	 * It basically checks if the max squared distance between the midpoint and one of the contacts is greater than the given threshold.
+	 * If only one contact is drawn, zoom level shall be set to max.
 	 * 
-	 * @param params the params
-	 * 
-	 * @return the int
+	 * @param params object containing the parameters computed from the current map view.
+	 * @return value that indicates how zoom level should be changed (ZOOM_MAX, NO_ZOOM, RECOMPUTE_ZOOM)
 	 */
 	private int zoomChangeIsNeeded(PointClusterParams params){
 		
@@ -232,9 +246,9 @@ public class ContactsPositionOverlay extends Overlay {
 	}
 	
 	/**
-	 * Do scrolling.
+	 * Performs scrolling by centering the map on the point cluster using the set of parameters
 	 * 
-	 * @param params the params
+	 * @param params the set of parameters computed from point cluster
 	 */
 	private void doScrolling(PointClusterParams params){
 
@@ -242,10 +256,10 @@ public class ContactsPositionOverlay extends Overlay {
 	}
 	
 	/**
-	 * Do zoom.
+	 * Adjust the zoom level depending on cluster point parameters (coordinate max span in average)
 	 * 
-	 * @param params the params
-	 * @param howToZoom the how to zoom
+	 * @param params the point cluster parameters
+	 * @param howToZoom integer value coming from zoomChangeIsNeeded()
 	 */
 	private void doZoom(PointClusterParams params, int howToZoom){
 		if (howToZoom == ZOOM_MAX)
@@ -256,10 +270,10 @@ public class ContactsPositionOverlay extends Overlay {
 	
 	
 	/**
-	 * Draw online contacts.
+	 * Draws all the online contacts on the map.
 	 * 
-	 * @param c the c
-	 * @param p the p
+	 * @param c the canvas we use to draw
+	 * @param p the paint object we use to draw
 	 */
 	private void drawOnlineContacts(Canvas c, Paint p){
 		
@@ -336,10 +350,9 @@ public class ContactsPositionOverlay extends Overlay {
         }
     }	
 	
-	/* (non-Javadoc)
-	 * @see com.google.android.maps.Overlay#draw(android.graphics.Canvas, com.google.android.maps.Overlay.PixelCalculator, boolean)
+	/**
+	 * Overrides Overlay.draw() to draw the scene  
 	 */
-	@Override
 	public void draw(Canvas canvas, PixelCalculator calculator, boolean shadow) {		
 		super.draw(canvas, calculator, shadow);
 		
@@ -376,9 +389,10 @@ public class ContactsPositionOverlay extends Overlay {
 	
 	
 	/**
-	 * Initialize.
+	 * Initialize all the constants values needed for drawing contacts and
+	 * performing zooming and scrolling.   
 	 * 
-	 * @param calculator the calculator
+	 * @param calculator {@link PixelCalculator} needed for retrieving map view size and projecting map points on screen
 	 */
 	private void initialize( PixelCalculator calculator ) {
 			WIDTH = calculator.getMapWidth();
@@ -408,10 +422,11 @@ public class ContactsPositionOverlay extends Overlay {
 	
 	}
 	
+	
 	/**
-	 * Update on screen position.
+	 * Recomputes on screen positions of all the contacts after changing their location on the map
 	 * 
-	 * @param calc the calc
+	 * @param calc the pixel calculator
 	 */
 	private void updateOnScreenPosition(PixelCalculator calc){
 		for (ContactLayoutData cData : contactPositionMap.values()) {
@@ -424,6 +439,11 @@ public class ContactsPositionOverlay extends Overlay {
 		}
 	}
 	
+	/**
+	 * Retrieves the number of contacts that currently are online 
+	 * 
+	 * @return number of online contacts
+	 */
 	private int getContactsOnline(){
 		int online =0;
 		
@@ -437,11 +457,20 @@ public class ContactsPositionOverlay extends Overlay {
 	}
 	
 	/**
-	 * Extract params.
+	 * Computes a set of parameters from the the current contacts locations.
+	 * <p>
+	 * These are in particular:
+	 * <ul>
+	 * 	<li> cluster midpoint on the map (back projection of midpoint on screen)
+	 *  <li> cluster midpoint on screen (average of contact positions on screen)
+	 *  <li> max longitude span
+	 *  <li> max latitude span
+	 * </ul>
+	 * These parameters are useful for automatic zooming and centering and are computed during each draw cycle
 	 * 
-	 * @param calc the calc
+	 * @param calc the {@link PixelCalculator} needed for computations
 	 * 
-	 * @return the point cluster params
+	 * @return class carrying results of computation
 	 */
 	private PointClusterParams extractParams(PixelCalculator calc){
 		
@@ -449,8 +478,6 @@ public class ContactsPositionOverlay extends Overlay {
 		int minLat;
 		int maxLong;
 		int minLong;
-		
-	
 		
 		PointClusterParams params = new PointClusterParams();
 		
@@ -460,9 +487,6 @@ public class ContactsPositionOverlay extends Overlay {
 		maxLong = (int)(myContactLoc.getLongitude() * 1E6);
 		minLong = (int)(myContactLoc.getLongitude() * 1E6);
 		minLat = (int)(myContactLoc.getLatitude() * 1E6);
-		
-		
-		
 		
 		int contactsOnLine = getContactsOnline();
 		params.midpointOnScreen = new int[2];
@@ -506,12 +530,12 @@ public class ContactsPositionOverlay extends Overlay {
 	}
 	
 	/**
-	 * Gets the max dist squared.
+	 * Computes the max squared distance between the position of each contact on the screen and the midpoint.
 	 * 
-	 * @param points the points
-	 * @param midpoint the midpoint
+	 * @param points locations of the online contacts in screen coordinates 
+	 * @param midpoint the midpoint in screen coordinate
 	 * 
-	 * @return the max dist squared
+	 * @return the max squared distance
 	 */
 	private int getMaxDistSquared(Collection<ContactLayoutData> points,int[] midpoint){
 		
@@ -527,16 +551,15 @@ public class ContactsPositionOverlay extends Overlay {
 			
 			if (distSq > maxDist)
 				maxDist = distSq;
-		} {
-			
-		}
+		} 
 		
 		return maxDist;
 	}	
 
 	
-	/* (non-Javadoc)
-	 * @see com.google.android.maps.Overlay#onTap(com.google.android.maps.MapView.DeviceType, com.google.android.maps.Point, com.google.android.maps.Overlay.PixelCalculator)
+	/**
+	 * Callback method called at each click on the map to retrieve pointer position to check for click on contacts.
+	 * Overrides Overlay.onTap()
 	 */
 	public boolean onTap(DeviceType deviceType, Point p, PixelCalculator calculator) {
 
@@ -549,14 +572,13 @@ public class ContactsPositionOverlay extends Overlay {
 	}
 	
 	
-	//Converts a point on screen (pixel coordinates) into  point on the map (Lat/Long Coordinated)
 	
 	/**
-	 * Screen to map.
+	 * Converts a point on screen (pixel coordinates) into a point on the map (Latitude/Longitude coordinates)
 	 * 
-	 * @param point the point
+	 * @param point screen coordinates of the point
 	 * 
-	 * @return the point
+	 * @return position of the point on map in microdegrees
 	 */
 	private Point screenToMap(int [] point) {
 		//Calculate ratio 
@@ -577,84 +599,90 @@ public class ContactsPositionOverlay extends Overlay {
 		return  new Point(computedLocationLatitude,computedLocationLongitude);
 	}
 	
+	
 	/**
-	 * The Class PointClusterParams.
+	 * Collects and stores a set of parameters useful for automatic adjustment of zoom level 
+	 * and automatic map centering.
 	 */
 	private class PointClusterParams {
 		
-		/** The coord max span. */
+		/** 
+		 * Max span of latitude and longitude as a coordinate pair in microdegrees
+		 */
 		public int[] coordMaxSpan;
 		
-		/** The midpoint on map. */
+		/** 
+		 * Midpoint on the map (computed as the back projection of the midpoint on screen)
+		 */
 		public Point midpointOnMap;
 		
-		/** The midpoint on screen. */
+		/**
+		 *  The midpoint on screen obtained as the average of the contact's on-screen positions. 
+		 */
 		public int[] midpointOnScreen;
 	}
 	
-	//This class represents the data of the contact to be displayed (position, name, color)
+	
 	/**
-	 * The Class ContactLayoutData.
+	 * Provides the status of the contacts as drawn on the screen.
+	 * Mantains a collection of info useful for drawing contacts data on map 
 	 */
 	private class ContactLayoutData{
 	
-		/** The position on screen. */
+		/** 
+		 * The position on screen in pixel. 
+		 */
 		public int[] positionOnScreen;
 		
-		/** The latitude e6. */
+		/** 
+		 * The latitude in microdegrees. 
+		 */
 		public int latitudeE6;
 		
-		/** The longitude e6. */
+		/** 
+		 * The longitude in microdegrees. 
+		 */
 		public int longitudeE6;
 		
-		/** The altitude e6. */
+		/** 
+		 * The altitude in microdegrees. 
+		 */
 		public int altitudeE6;
 		
-		/** The name. */
+		/** 
+		 * The name of the contact that should be drawn as a label 
+		 */
 		public String name;
 		
-		/** The is checked. */
+		/** 
+		 * true if the contact is selected on map, false otherwise 
+		 */
 		public boolean isChecked;
 		
-		/** The is my contact. */
+		/** 
+		 * true if this is my contact, false otherwise 
+		 */
 		public boolean isMyContact;
 		
-		/**Flag that means that the contact should be shown on map */
+		/**
+		 * Flag that means that the contact should be shown on map (online) 
+		 */
 		public boolean isVisible;
 		
-		/** The id contact. */
+		/** 
+		 * The contact id. 
+		 */
 		public String idContact;
 		
-		//Constructor for storing midpoint data
-		/**
-		 * Instantiates a new contact layout data.
-		 * 
-		 * @param x the x
-		 * @param y the y
-		 * @param latitudeE6 the latitude e6
-		 * @param longitudeE6 the longitude e6
-		 * @param altitudeE6 the altitude e6
-		 */
-		public ContactLayoutData(int x, int y, int latitudeE6, int longitudeE6, int altitudeE6, boolean visible){
-			name = "Midpoint";
-			isMyContact=false;
-			isChecked = false;
-			positionOnScreen= new int[2];
-			positionOnScreen[0] =x;
-			positionOnScreen[1] = y;
-			this.latitudeE6= latitudeE6;
-			this.longitudeE6= longitudeE6;
-			this.altitudeE6= altitudeE6;
-			isVisible = visible;
-		}
 		
 		
 		/**
 		 * Instantiates a new contact layout data.
 		 * 
-		 * @param cname the cname
-		 * @param idcontact the idcontact
-		 * @param contactLoc the contact loc
+		 * @param cname the name of the contact
+		 * @param idcontact the contact id
+		 * @param contactLoc the contact location on the map
+		 * @param visible true if contact should be drawn, false otherwise
 		 */
 		public ContactLayoutData(String cname, String idcontact, Location contactLoc, boolean visible){
 			this.name = cname;
@@ -668,11 +696,11 @@ public class ContactsPositionOverlay extends Overlay {
 		}	
 		
 		/**
-		 * Update location.
+		 * Update the contact location on map with new data
 		 * 
-		 * @param latitude the latitude
-		 * @param longitude the longitude
-		 * @param altitude the altitude
+		 * @param latitude the latitude in microdegrees
+		 * @param longitude the longitude in microdegrees
+		 * @param altitude the altitude in microdegrees
 		 */
 		public void updateLocation(int latitude, int longitude, int altitude){
 
@@ -696,12 +724,12 @@ public class ContactsPositionOverlay extends Overlay {
 	}
 	
 	/**
-	 * Gets the string length.
+	 * Returns the length of a string on screen in pixel drawn with the given Paint object.
 	 * 
-	 * @param name the name
-	 * @param paint the paint
+	 * @param name string to be drawn
+	 * @param paint the Paint object
 	 * 
-	 * @return the string length
+	 * @return the string length in pixel
 	 */
 	private int getStringLength (String name, Paint paint) {
 	   float [] widthtext= new float[name.length()];	   
@@ -716,9 +744,9 @@ public class ContactsPositionOverlay extends Overlay {
 		
 	
      /**
-      * Check clicked position.
+      * Check clicked position for hitting any contact. Any contact hit is marked as checked.
       * 
-      * @param point the point
+      * @param point the clicked point in screen coordinate
       */
      private void checkClickedPosition (int[] point)
      { 
@@ -739,9 +767,9 @@ public class ContactsPositionOverlay extends Overlay {
      }
      
      /**
-      * Gets the selected items.
+      * Retrieves all the clicked contacts
       * 
-      * @return the selected items
+      * @return list of id (phone numbers) of all selected contacts
       */
      public List<String> getSelectedItems(){
     	 
@@ -757,13 +785,12 @@ public class ContactsPositionOverlay extends Overlay {
      }
      
      /**
-      * Uncheck all contacts.
+      * Unchecks all contacts.
       */
      public void uncheckAllContacts(){
     	 
     	 for (ContactLayoutData data : contactPositionMap.values()) {
     		 data.isChecked=false;
-    	//	 Rect r= new Rect(data.positionOnScreen[0]- width/2, data.positionOnScreen[1]-height, data.positionOnScreen[0]+width/2, data.positionOnScreen[1] );
     		 myMapView.invalidate();
     	 }
      }
@@ -793,9 +820,9 @@ public class ContactsPositionOverlay extends Overlay {
  	}
      
      /**
-      * Update.
+      * Update all contacts location based on the changes notified by the agent (contacts added and contacts removed)
       * 
-      * @param changes the changes
+      * @param changes list of changes
       */	
      public void update(ContactListChanges changes){ 
 	    
