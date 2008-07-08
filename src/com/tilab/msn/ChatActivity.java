@@ -330,8 +330,8 @@ public class ChatActivity extends Activity implements ConnectionListener{
 			
 			//Handle case of new message
 			if (eventName.equals(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT)){
-				MsnSessionMessage msnMsg = (MsnSessionMessage) event.getParam("IncomingMessage");
-				String sessionId = (String) event.getParam("SessionId");
+				MsnSessionMessage msnMsg = (MsnSessionMessage) event.getParam(MsnEventMgr.Event.INCOMING_MESSAGE_PARAM_MSG);
+				String sessionId = (String) event.getParam(MsnEventMgr.Event.INCOMING_MESSAGE_PARAM_SESSIONID);
 				
 				//check if the message is related to the same session we are currently in.
 				//If so, add a new message to session udapter and update it

@@ -47,13 +47,13 @@ public abstract class UIEventHandler {
 	 */
 	private class MyRunnable implements Runnable {
 
-		/** The parameter. */
+		/** The event stored */
 		private MsnEventMgr.Event parameter;
 	
 		/**
 		 * Instantiates a new my runnable.
 		 * 
-		 * @param obj the obj
+		 * @param event the event to be handled
 		 */
 		public MyRunnable(MsnEventMgr.Event event){
 			parameter = event;

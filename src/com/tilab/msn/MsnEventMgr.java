@@ -87,6 +87,29 @@ public class MsnEventMgr {
 		 */
 		public static final String CONTACT_DISCONNECT_EVENT="CONTACT_DISCONNECT_EVENT";
 		
+		
+		//Parameters defined for INCOMING MSG EVENT
+		/**
+		 * Name of parameter 
+		 */
+		public static final String INCOMING_MESSAGE_PARAM_MSG="INCOMING_MESSAGE_PARAM_MSG";
+		/**
+		 * Name of parameter 
+		 */
+		public static final String INCOMING_MESSAGE_PARAM_SESSIONID="INCOMING_MESSAGE_PARAM_SESSIONID";
+		
+		//Parameters defined for VIEW REFRESH EVENT
+		/**
+		 * Name of parameter 
+		 */
+		public static final String VIEW_REFRESH_PARAM_LISTOFCHANGES="VIEW_REFRESH_PARAM_LISTOFCHANGES";
+		
+		//Parameters defined for CONTACT DISCONNECT EVENT
+		/**
+		 * Name of parameter 
+		 */
+		public static final String CONTACT_DISCONNECT_PARAM_CONTACTNAME="CONTACT_DISCONNECT_PARAM_CONTACTNAME";
+		
 		/**
 		 * Name of the event
 		 */

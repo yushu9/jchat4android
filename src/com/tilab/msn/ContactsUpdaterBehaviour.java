@@ -19,16 +19,36 @@ import android.location.Location;
 
 
 /**
- * The Class ContactsUpdaterBehaviour.
+ * Main behaviour executed by the MsnAgent during its setup.
+ * <p>
+ * It basically performs two main operations:
+ * <ul>
+ * 	<li> Periodically update location of phone owner contact (updated by mock GPS)on the DF (JADE Directory Facilitator)
+ *  <li> Periodically update other contact's locations anytime we receive a notification from the DF
+ * </ul>
+ * 
+ * Moreover it sends events to the gui to issue a refresh, anytime something in the contact list changes.
+ *
+ * @author Cristina Cuccè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0 
  */
+
 public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
-	/** The msn update time. */
+	/** 
+	 * Time between each update of the my contact location on the DF. 
+	 * Read from configuration file 
+	 */
 	private long msnUpdateTime;
 	
 	
 
-	/** The my logger. */
+	/** 
+	 * Instance of the Jade Logger for debugging 
+	 */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 
 	/**
@@ -40,6 +60,11 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		msnUpdateTime = updateTime;
 	}
 
+	/**
+	 * Overrides the Behaviour.action() method. This method is executed by the agent thread.
+	 * It basically defines two sub behaviours, which are in charge of periodically updating the DF and receiving 
+	 * DF notifications.
+	 */
 	public void action()  {
 		try {
 		//first thing to do is to register on the df and save current location if any
@@ -57,7 +82,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		updateContactList(onlineContacts);
 
 		MsnEventMgr.Event event = MsnEventMgr.getInstance().createEvent(MsnEventMgr.Event.VIEW_REFRESH_EVENT);
-		event.addParam("ListOfChanges", ContactManager.getInstance().getModifications());
+		event.addParam(MsnEventMgr.Event.VIEW_REFRESH_PARAM_LISTOFCHANGES, ContactManager.getInstance().getModifications());
 		MsnEventMgr.getInstance().fireEvent(event);
 
 		DFUpdaterBehaviour updater = new DFUpdaterBehaviour(myAgent,msnUpdateTime);
@@ -76,9 +101,9 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 
 	/**
-	 * Update contact list.
+	 * Utility method that updates the contact list extracting contact info and location from DF descriptions.
 	 * 
-	 * @param onlineContactsDescs the online contacts descs
+	 * @param onlineContactsDescs array of {@link DFAgentDescription} objects that define services as results of a DF query
 	 */
 	private void updateContactList(DFAgentDescription[] onlineContactsDescs) {
 
@@ -105,16 +130,15 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 
 	/**
-	 * The Class Helper.
+	 * Static class that provides some Helper methods useful for extracting contact data
 	 */
 	private static class Helper {	
 
 		/**
-		 * Extract location.
+		 * Extract a Location from a list of properties extracted from Service description
 		 * 
-		 * @param it the it
-		 * 
-		 * @return the location
+		 * @param it iterator over the list of properties
+		 * @return the location on the map described by this set of properties
 		 */
 		public static Location extractLocation(Iterator it){
 			Location loc= new Location();
@@ -142,7 +166,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 
 	/**
-	 * The Class DFSubscriptionBehaviour.
+	 * Subbehaviour that handles notification messages for modificatio
 	 */
 	private class DFSubscriptionBehaviour extends SubscriptionInitiator 
 	{
@@ -199,14 +223,14 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 								Contact c = ContactManager.getInstance().getContact(phoneNumber);
 								ContactManager.getInstance().setContactOffline(phoneNumber);
 								MsnEventMgr.Event event = MsnEventMgr.getInstance().createEvent(MsnEventMgr.Event.CONTACT_DISCONNECT_EVENT);
-								event.addParam("ContactName", c.getName());
+								event.addParam(MsnEventMgr.Event.CONTACT_DISCONNECT_PARAM_CONTACTNAME, c.getName());
 								MsnEventMgr.getInstance().fireEvent(event);								
 							}
 						}
 					}
 					
 					MsnEventMgr.Event event = MsnEventMgr.getInstance().createEvent(MsnEventMgr.Event.VIEW_REFRESH_EVENT);
-					event.addParam("ListOfChanges", ContactManager.getInstance().getModifications());
+					event.addParam(MsnEventMgr.Event.VIEW_REFRESH_PARAM_LISTOFCHANGES, ContactManager.getInstance().getModifications());
 					MsnEventMgr.getInstance().fireEvent(event);
 				}
 
