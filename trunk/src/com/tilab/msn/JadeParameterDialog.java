@@ -12,33 +12,43 @@ import android.widget.TextView;
 
 
 /**
- * The Class JadeParameterDialog.
+ * Custom dialog employed to show to the user current host and port for JADE main container
+ * making him able to change default settings (read from strings.xml) if he wishes to.
+ * 
+ * @author Cristina Cucè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0 
  */
 public class JadeParameterDialog extends Dialog {
 
-	/** The jade address. */
+	/** 
+	 * The JADE main container host address. 
+	 */
 	private String jadeAddress;
 	
-	/** The jade port. */
+	/**
+	 * The JADE main container host port.
+	 */
 	private String jadePort;
 	
-	/** The jade address edt. */
+	/** 
+	 * GUI element containing the JADE address value
+	 */
 	private EditText jadeAddressEdt;
 	
-	/** The jade port edt. */
+	/** 
+	 * GUI element containing the JADE port value
+	 */
 	private EditText jadePortEdt;
 	
-	/** The Constant JADE_DLG_OK. */
-	public static final int JADE_DLG_OK=0;
-	
-	/** The Constant JADE_DLG_CANCEL. */
-	public static final int JADE_DLG_CANCEL=1;
 	
 	
 	/**
 	 * Instantiates a new jade parameter dialog.
 	 * 
-	 * @param context the context
+	 * @param context the current application context
 	 */
 	public JadeParameterDialog(Context context) {
 		super(context);
@@ -49,11 +59,10 @@ public class JadeParameterDialog extends Dialog {
 		fillWithDefaults(context);
 	}
 	
-	//Default values should be retrieved from resource file and phone cfgs
 	/**
-	 * Fill with defaults.
+	 * Retrieve default values for JADE host/port from strings.xml file
 	 * 
-	 * @param ctx the ctx
+	 * @param ctx the application context
 	 */
 	private void fillWithDefaults(Context ctx){
 		jadeAddress = ctx.getString(R.string.jade_platform_host);
@@ -63,18 +72,18 @@ public class JadeParameterDialog extends Dialog {
 	}
 	
 	/**
-	 * Gets the jade address.
+	 * Gets the JADE main container host address.
 	 * 
-	 * @return the jade address
+	 * @return the JADE main container host address.
 	 */
 	public String getJadeAddress(){
 		return jadeAddress;
 	}
 	
 	/**
-	 * Gets the jade port.
+	 * Gets the JADE main container host port.
 	 * 
-	 * @return the jade port
+	 * @return the JADE main container host port
 	 */
 	public String getJadePort(){
 		return jadePort;
@@ -82,11 +91,11 @@ public class JadeParameterDialog extends Dialog {
 	
 	
 	/**
-	 * Inits the ui.
+	 * Initializes the dialog UI, preparing the parent view containing view hierarchy 
+	 * Layout is hardcoded here, no xml.
 	 * 
-	 * @param ctx the ctx
-	 * 
-	 * @return the view
+	 * @param ctx the application context
+	 * @return the parent view
 	 */
 	private View initUI(Context ctx){
 		RelativeLayout layout = new RelativeLayout(ctx);
@@ -125,8 +134,9 @@ public class JadeParameterDialog extends Dialog {
 		params.addRule(RelativeLayout.POSITION_BELOW, 4);
 		closeButton.setText("Close");
 		closeButton.setOnClickListener(new View.OnClickListener(){
-
-			@Override
+			/**
+			 * Handles clicking on close button 
+			 */
 			public void onClick(View arg0) {
 					String tmpVar = JadeParameterDialog.this.jadeAddressEdt.getText().toString();
 					if (tmpVar.length() > 0){

@@ -41,7 +41,6 @@ import android.widget.TabHost.TabSpec;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayController;
-import com.tilab.msn.MsnEventMgr.Event;
 
 /**
  * The main activity. Shows two tabs: one with contact list (with distance from current contact)
@@ -188,7 +187,7 @@ public class ContactListActivity extends MapActivity implements
 	/** 
 	 * Updater for this activity. 
 	 */
-	private UIEventHandler activityHandler;
+	private GuiEventHandler activityHandler;
 
 	/**
 	 * Initializes the activity's UI interface.
@@ -428,10 +427,10 @@ public class ContactListActivity extends MapActivity implements
 
 		//register an event for this activity to handle refresh of the views in this activity
 		activityHandler = new ContactListActivityUpdateHandler();
-		MsnEventMgr.getInstance().registerEvent(MsnEventMgr.Event.VIEW_REFRESH_EVENT, activityHandler);
-		MsnEventMgr.getInstance().registerEvent(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT, activityHandler);
+		MsnEventMgr.getInstance().registerEvent(MsnEvent.VIEW_REFRESH_EVENT, activityHandler);
+		MsnEventMgr.getInstance().registerEvent(MsnEvent.INCOMING_MESSAGE_EVENT, activityHandler);
 		//register a generic disconnection handler
-		MsnEventMgr.getInstance().registerEvent(MsnEventMgr.Event.CONTACT_DISCONNECT_EVENT, new ContactDisconnectionHandler());
+		MsnEventMgr.getInstance().registerEvent(MsnEvent.CONTACT_DISCONNECT_EVENT, new ContactDisconnectionHandler());
 		//Initialize the UI
 		initUI();
 		disableUI();
@@ -797,7 +796,7 @@ public class ContactListActivity extends MapActivity implements
 		case CHAT_ACTIVITY_CLOSED:
 			this.overlay.uncheckAllContacts();
 			this.contactsListView.uncheckAllSelectedItems();
-			MsnEventMgr.getInstance().registerEvent(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT, activityHandler);
+			MsnEventMgr.getInstance().registerEvent(MsnEvent.INCOMING_MESSAGE_EVENT, activityHandler);
 		break;
 		}
 	}
@@ -807,18 +806,18 @@ public class ContactListActivity extends MapActivity implements
 	 * @author s.semeria
 	 *
 	 */
-	private  class ContactDisconnectionHandler extends UIEventHandler {
+	private  class ContactDisconnectionHandler extends GuiEventHandler {
 		
 		/**
 		 * Handles the disconnection event
 		 * 
 		 * @param event the disconnection event to be handled
 		 */ 
-		protected void handleEvent(Event event) {
+		protected void processEvent(MsnEvent event) {
 			String eventName = event.getName();
 			
-			if (eventName.equals(MsnEventMgr.Event.CONTACT_DISCONNECT_EVENT)){
-				String discContactName = (String) event.getParam(MsnEventMgr.Event.CONTACT_DISCONNECT_PARAM_CONTACTNAME);
+			if (eventName.equals(MsnEvent.CONTACT_DISCONNECT_EVENT)){
+				String discContactName = (String) event.getParam(MsnEvent.CONTACT_DISCONNECT_PARAM_CONTACTNAME);
 				Toast.makeText(ContactListActivity.this, discContactName + " went offline!", 3000).show();
 			}
 		}
@@ -829,7 +828,7 @@ public class ContactListActivity extends MapActivity implements
 	/**
 	 * Handler for all events handled by the main {@link ContactListActivity}
 	 */
-	private class ContactListActivityUpdateHandler extends UIEventHandler {
+	private class ContactListActivityUpdateHandler extends GuiEventHandler {
 
 	
 		
@@ -838,12 +837,12 @@ public class ContactListActivity extends MapActivity implements
 		 * 
 		 * @param event the event that should be handled
 		 */
-		protected void handleEvent(Event event) {
+		protected void processEvent(MsnEvent event) {
 			String eventName = event.getName();
 			
 			
-			if (eventName.equals(MsnEventMgr.Event.VIEW_REFRESH_EVENT)){
-				ContactListChanges changes = (ContactListChanges) event.getParam(MsnEventMgr.Event.VIEW_REFRESH_PARAM_LISTOFCHANGES);
+			if (eventName.equals(MsnEvent.VIEW_REFRESH_EVENT)){
+				ContactListChanges changes = (ContactListChanges) event.getParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES);
 				updateListAdapter(changes);
 				overlay.update(changes);
 				mapView.invalidate();
@@ -852,9 +851,9 @@ public class ContactListActivity extends MapActivity implements
 						.getAdapter();
 				contactsListView.setAdapter(adapter);
 				contactsListView.setSelection(selPos);
-			} else if (eventName.equals(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT)){
-				MsnSessionMessage msnMsg = (MsnSessionMessage) event.getParam(MsnEventMgr.Event.INCOMING_MESSAGE_PARAM_MSG);
-				String sessionId = (String) event.getParam(MsnEventMgr.Event.INCOMING_MESSAGE_PARAM_SESSIONID);	
+			} else if (eventName.equals(MsnEvent.INCOMING_MESSAGE_EVENT)){
+				MsnSessionMessage msnMsg = (MsnSessionMessage) event.getParam(MsnEvent.INCOMING_MESSAGE_PARAM_MSG);
+				String sessionId = (String) event.getParam(MsnEvent.INCOMING_MESSAGE_PARAM_SESSIONID);	
 				//if the incoming msg is not for our session, post a notification
 				MsnSessionManager.getInstance().getNotificationManager().addNewMsgNotification(sessionId, msnMsg);
 				Toast.makeText(ContactListActivity.this, msnMsg.getSenderName() + " says: " + msnMsg.getMessageContent(), 3000).show();

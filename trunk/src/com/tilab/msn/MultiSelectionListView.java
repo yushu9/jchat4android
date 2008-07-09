@@ -9,25 +9,30 @@ import android.widget.ListView;
 
 
 /**
- * The Class MultiSelectionListView.
+ * Customized {@link ListView} that shows checkbox inside each item to allow multiple selections
+ * of contacts. It is used in {@link ContactListActivity} to show the contact list.
+ * Uses a customized xml-based layout
+ * 
+ * @author Cristina Cucè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0
  */
 public class MultiSelectionListView extends ListView{
 
 	/**
-	 * Instantiates a new multi selection list view.
+	 * Instantiates a new multiple selection list view.
 	 * 
-	 * @param context the context
-	 * @param attrs the attrs
-	 * @param params the params
 	 */
 	public MultiSelectionListView(Context context, AttributeSet attrs, Map params) {
 		super(context, attrs, params);
 	}
 	
 	/**
-	 * Gets the all selected items.
+	 * Gets the all contacts checked in the list.
 	 * 
-	 * @return the all selected items
+	 * @return the list of all checked contacts 
 	 */
 	public List<String> getAllSelectedItems () {				
 		return ((ContactListAdapter) getAdapter()).getAllSelectedItemIds();

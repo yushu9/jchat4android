@@ -16,46 +16,85 @@ import android.location.Location;
 
 
 /**
- * The Class MsnAgent.
+ * Agent running all behaviours. It resides on the phone and it is responsible for DF registration/subscription and for 
+ * behaviour execution. 
+ * <p>
+ * It extends GatewayAgent as requested by JADE Android add-on and is therefore able to process commands sent through 
+ * JadeGateway.execute().
+ * Provides as an inner class the behaviour responsible for receiving messages.
+ * 
+ *  
+ * @author Cristina Cucè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0 
  */
 public class MsnAgent extends GatewayAgent {
 
-	/** The Constant msnDescName. */
+	/** 
+	 * Name of service description to be registered on DF (allowing us to filter out the modifications performed by
+	 * our application from others)  
+	 */
 	public static final String msnDescName = "android-msn-service";
 	
-	/** The Constant msnDescType. */
+	/** 
+	 * Type of the description of the service 
+	 */
 	public static final String msnDescType = "android-msn";
 
-	/** The Constant PROPERTY_NAME_LOCATION_LAT. */
+	/** 
+	 * Name of the latitude property registered on the DF 
+	 */
 	public static final String PROPERTY_NAME_LOCATION_LAT="Latitude";
 	
-	/** The Constant PROPERTY_NAME_LOCATION_LONG. */
+	/** 
+	 * Name of the longitude property registered on the DF 
+	 */
 	public static final String PROPERTY_NAME_LOCATION_LONG="Longitude";
 	
-	/** The Constant PROPERTY_NAME_LOCATION_ALT. */
+	/** 
+	 * Name of the altitude property registered on the DF 
+	 */
 	public static final String PROPERTY_NAME_LOCATION_ALT="Altitude";
 
-	/** The Constant CHAT_ONTOLOGY. */
+	/** 
+	 * Ontology used for sending message 
+	 */
 	public static final String CHAT_ONTOLOGY= "chat_ontology";
 
-	/** The my description. */
+	/** 
+	 * Description of Msn service 
+	 */
 	private DFAgentDescription myDescription;
 	
-	/** The subscription message. */
+	/** 
+	 * DF Subscription message 
+	 */
 	private ACLMessage subscriptionMessage;
 	
-	/** The contacts updater b. */
+	/** 
+	 * Instance of {@link ContactsUpdaterBehaviour} 
+	 */
 	private ContactsUpdaterBehaviour contactsUpdaterB;
 	
-	/** The message recv b. */
+	/** 
+	 * Message receiver behaviour instance 
+	 */
 	private MessageReceiverBehaviour messageRecvB;
 
-	/** The my logger. */
+	/** 
+	 * Instance of JADE Logger for debugging 
+	 */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 	
 
 	
-	 
+	/**
+	 * Overrides the Agent.setup() method, performing registration on DF, prepares the DF subscription message,
+	 * and adds the {@link ContactsUpdaterBehaviour}.
+	 * 
+	 */ 
 	protected void setup() {
 		super.setup();
 		Thread.currentThread().getId();
@@ -97,9 +136,9 @@ public class MsnAgent extends GatewayAgent {
 	}
 
 	/**
-	 * Gets the subscription message.
+	 * Gets the DF subscription message.
 	 * 
-	 * @return the subscription message
+	 * @return the DF subscription message
 	 */
 	public ACLMessage getSubscriptionMessage(){
 		return subscriptionMessage;
@@ -115,14 +154,19 @@ public class MsnAgent extends GatewayAgent {
 	}
 	
 
-	
+	/**
+	 * Overrides agent takeDown() method
+	 */
 	protected void takeDown() {
 		myLogger.log(Logger.INFO, "Doing agent takeDown() ");
 	}
 
-	//used to pass data to agent
-	/* (non-Javadoc)
-	 * @see jade.wrapper.gateway.GatewayAgent#processCommand(java.lang.Object)
+
+	/**
+	 * Overrides GatewayAgent.processCommand(). Receives a command from JadeGateway.execute()
+	 * The behaviour for sending a message in particular is received in this way
+	 * 
+	 * @param command a generic command that this agent shall execute.
 	 */
 	protected void processCommand(final Object command) {
 	    if (command instanceof Behaviour){
@@ -133,12 +177,20 @@ public class MsnAgent extends GatewayAgent {
 	}
 
 	/**
-	 * The Class MessageReceiverBehaviour.
+	 * Defines the behaviour for receiving chat messages.
+	 * Each time a message is received, a UI feedback is required (adding message to message window or adding a notification).
+	 * The {@link CyclicBehaviour} continuously executes its action method and does something as soon as a message arrives.  
 	 */
 	private class MessageReceiverBehaviour extends CyclicBehaviour{
 
-		/* (non-Javadoc)
-		 * @see jade.core.behaviours.Behaviour#action()
+		/**
+		 * Overrides the Behaviour.action() method and receives messages.
+		 * After a message is received the following operations take place:
+		 * <ul>
+		 * 	<li> If the message is related to a new conversation (it is the first message received) a new session is created, otherwise the session is retrieved
+		 *  <li> The message is added to the conversation
+		 *  <li> an event for a new message is sent to update the GUI in th appropriate way
+		 * </ul>
 		 */
 		public void action() {
 
@@ -168,9 +220,9 @@ public class MsnAgent extends GatewayAgent {
 					}
 					
 					//prepare an "IncomingMessage"
-					MsnEventMgr.Event event = MsnEventMgr.getInstance().createEvent(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT);
-					event.addParam(MsnEventMgr.Event.INCOMING_MESSAGE_PARAM_SESSIONID, sessionId);
-					event.addParam(MsnEventMgr.Event.INCOMING_MESSAGE_PARAM_MSG, sessionMessage);
+					MsnEvent event = MsnEventMgr.getInstance().createEvent(MsnEvent.INCOMING_MESSAGE_EVENT);
+					event.addParam(MsnEvent.INCOMING_MESSAGE_PARAM_SESSIONID, sessionId);
+					event.addParam(MsnEvent.INCOMING_MESSAGE_PARAM_MSG, sessionMessage);
 					//Add message to session
 					sessionManager.addMessageToSession(sessionId, sessionMessage);
 					MsnEventMgr.getInstance().fireEvent(event);

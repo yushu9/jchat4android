@@ -24,7 +24,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tilab.msn.MsnEventMgr.Event;
+
 
 /**
  * Represents the activity that allows sending and receiving messages to other contacts.
@@ -176,7 +176,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		//Retrieve messages if the session already contains data
 		sessionAdapter.setNewSession(session);
 		messagesSentList.setAdapter(sessionAdapter);
-		MsnEventMgr.getInstance().registerEvent(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT, activityHandler);
+		MsnEventMgr.getInstance().registerEvent(MsnEvent.INCOMING_MESSAGE_EVENT, activityHandler);
 		
 		super.onResume();
 	}
@@ -308,10 +308,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	 * Defines an handler for UI events.
 	 * 
 	 */
-	private class ChatActivityHandler extends UIEventHandler {
-		
-		
-		
+	private class ChatActivityHandler extends GuiEventHandler {
 		
 		/**
 		 * Performs the update of the GUI. 
@@ -325,13 +322,14 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		 *  
 		 * @param event the event that shall be notified to this listener to be handled 		 
 		 */
-		protected void handleEvent(Event event) {
+		protected void processEvent(MsnEvent event) {
+			
 			String eventName = event.getName();
 			
 			//Handle case of new message
-			if (eventName.equals(MsnEventMgr.Event.INCOMING_MESSAGE_EVENT)){
-				MsnSessionMessage msnMsg = (MsnSessionMessage) event.getParam(MsnEventMgr.Event.INCOMING_MESSAGE_PARAM_MSG);
-				String sessionId = (String) event.getParam(MsnEventMgr.Event.INCOMING_MESSAGE_PARAM_SESSIONID);
+			if (eventName.equals(MsnEvent.INCOMING_MESSAGE_EVENT)){
+				MsnSessionMessage msnMsg = (MsnSessionMessage) event.getParam(MsnEvent.INCOMING_MESSAGE_PARAM_MSG);
+				String sessionId = (String) event.getParam(MsnEvent.INCOMING_MESSAGE_PARAM_SESSIONID);
 				
 				//check if the message is related to the same session we are currently in.
 				//If so, add a new message to session udapter and update it
@@ -344,7 +342,6 @@ public class ChatActivity extends Activity implements ConnectionListener{
 					Toast.makeText(ChatActivity.this, msnMsg.getSenderName() + " says: " + msnMsg.getMessageContent(), 3000).show();
 				}
 			} 
-			
 		}
 		
 	}
