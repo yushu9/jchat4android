@@ -81,8 +81,8 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 		updateContactList(onlineContacts);
 
-		MsnEventMgr.Event event = MsnEventMgr.getInstance().createEvent(MsnEventMgr.Event.VIEW_REFRESH_EVENT);
-		event.addParam(MsnEventMgr.Event.VIEW_REFRESH_PARAM_LISTOFCHANGES, ContactManager.getInstance().getModifications());
+		MsnEvent event = MsnEventMgr.getInstance().createEvent(MsnEvent.VIEW_REFRESH_EVENT);
+		event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES, ContactManager.getInstance().getModifications());
 		MsnEventMgr.getInstance().fireEvent(event);
 
 		DFUpdaterBehaviour updater = new DFUpdaterBehaviour(myAgent,msnUpdateTime);
@@ -135,7 +135,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 	private static class Helper {	
 
 		/**
-		 * Extract a Location from a list of properties extracted from Service description
+		 * Extract a Location from a list of properties from a Service description
 		 * 
 		 * @param it iterator over the list of properties
 		 * @return the location on the map described by this set of properties
@@ -166,7 +166,10 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 
 	/**
-	 * Subbehaviour that handles notification messages for modificatio
+	 * Sub behaviour that handles notification messages for modification of DF entries.
+	 * After this behaviour is added, a DF subscription message is sent. 
+	 * Method handleInform() shall be called hereafter each time the DF is modified by other contacts either by updating it
+	 * with a new location or by adding/removing a contact 
 	 */
 	private class DFSubscriptionBehaviour extends SubscriptionInitiator 
 	{
@@ -175,15 +178,19 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		 * Instantiates a new dF subscription behaviour.
 		 * 
 		 * @param agent the agent
-		 * @param msg the msg
+		 * @param msg the subscription message to be sent
 		 */
 		public DFSubscriptionBehaviour(Agent agent, ACLMessage msg) {
 			super(agent, msg);
 		}
 
 
-		/* (non-Javadoc)
-		 * @see jade.proto.SubscriptionInitiator#handleInform(jade.lang.acl.ACLMessage)
+		/**
+		 * Overrides SubscriptionInitiator.handleInform(), defining what to do each time the DF is modified by a contact
+		 * Basically it adds/removes/updates contacts from ContactList according to what has happened to DF.
+		 * It also fires events on the GUI any time a view refresh is needed.
+		 * 
+		 * @param inform the message from DF containing a list of changes
 		 */
 		protected void handleInform(ACLMessage inform) {
 		
@@ -222,15 +229,15 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 								String phoneNumber = contactAID.getLocalName();
 								Contact c = ContactManager.getInstance().getContact(phoneNumber);
 								ContactManager.getInstance().setContactOffline(phoneNumber);
-								MsnEventMgr.Event event = MsnEventMgr.getInstance().createEvent(MsnEventMgr.Event.CONTACT_DISCONNECT_EVENT);
-								event.addParam(MsnEventMgr.Event.CONTACT_DISCONNECT_PARAM_CONTACTNAME, c.getName());
+								MsnEvent event = MsnEventMgr.getInstance().createEvent(MsnEvent.CONTACT_DISCONNECT_EVENT);
+								event.addParam(MsnEvent.CONTACT_DISCONNECT_PARAM_CONTACTNAME, c.getName());
 								MsnEventMgr.getInstance().fireEvent(event);								
 							}
 						}
 					}
 					
-					MsnEventMgr.Event event = MsnEventMgr.getInstance().createEvent(MsnEventMgr.Event.VIEW_REFRESH_EVENT);
-					event.addParam(MsnEventMgr.Event.VIEW_REFRESH_PARAM_LISTOFCHANGES, ContactManager.getInstance().getModifications());
+					MsnEvent event = MsnEventMgr.getInstance().createEvent(MsnEvent.VIEW_REFRESH_EVENT);
+					event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES, ContactManager.getInstance().getModifications());
 					MsnEventMgr.getInstance().fireEvent(event);
 				}
 
@@ -246,34 +253,50 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 
 	/**
-	 * The Class DFUpdaterBehaviour.
+	 * Extends {@link TickerBehaviour} and defines the operations needed to update the location of the my contact
+	 * on the DF. 
+	 * My Contact location is continuously updated by the local LocationProvider (GPS) according to actual contact
+	 * position, then this value is periodically written to the DF by this behaviour. 
 	 */
 	private class DFUpdaterBehaviour extends TickerBehaviour {
 
-		/** The my logger. */
+		/** 
+		 * Instance of Jade logger for debugging 
+		 */
 		private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
 
-		/** The Constant PROPERTY_NAME_LOCATION_LAT. */
+		/** 
+		 * The default name for Latitude property on the DF
+		 */
 		public static final String PROPERTY_NAME_LOCATION_LAT="Latitude";
 		
-		/** The Constant PROPERTY_NAME_LOCATION_LONG. */
+		/** 
+		 * The default name for Longitude property on the DF
+		 */
 		public static final String PROPERTY_NAME_LOCATION_LONG="Longitude";
 		
-		/** The Constant PROPERTY_NAME_LOCATION_ALT. */
+		/** 
+		 * The default name for Altitude property on the DF
+		 */
 		public static final String PROPERTY_NAME_LOCATION_ALT="Altitude";
 
 
 		/**
 		 * Instantiates a new dF updater behaviour.
 		 * 
-		 * @param a the a
-		 * @param period the period
+		 * @param a instance of the agent
+		 * @param period update period in milliseconds
 		 */
 		public DFUpdaterBehaviour(Agent a, long period) {
 			super(a, period);
 		}
 
 		
+		/**
+		 * Overrides the TickerBehaviour, defining how to update the location on the df (registration to DF has already been performed
+		 * during agent setup). Three properties are defined for storing latitude/longitude/altitude.
+		 * Only latitude and longitude are used, though.
+		 */
 		protected void onTick() {
 
 			try {

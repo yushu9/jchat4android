@@ -9,45 +9,73 @@ import java.util.List;
 
 import android.net.Uri;
 
-// TODO: Auto-generated Javadoc
+
 /**
- * The Class MsnSession.
+ * Represents a IM conversation between a set of participants.
+ * It keeps an unique ID, the list of the participants and the list of 
+ * already sent messages.
+ * Provides functionalities to add messages to the session and to retrieve the session data and to retrieve 
+ * a representation of this session's ID as an URI, to be set as Intent data.
+ * 
+ * @author Cristina Cucè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0 
  */
 public class MsnSession {
 
-	//Logger
-	/** The my logger. */
+	/** 
+	 * Instance of the JADE logger for debugging 
+	 */
 	private final Logger myLogger = Logger.getMyLogger(this.getClass().getName());
-	//This array shall contain the IDs (phone numbers) of the participants
-	/** The participant id list. */
+	
+	/** 
+	 * List of ids (phone numbers) of all conversation participants  
+	 */
 	private List<String> participantIdList;
-	//List of all messages in this session
-	/** The message list. */
+	
+	/** 
+	 * The message list. 
+	 */
 	private ArrayList<MsnSessionMessage> messageList;
-	//TODO: Must check RFC 3296 compliance!!!!!
-	/** The SESSIO n_ i d_ ur i_ scheme. */
+	
+	
+	/** 
+	 *	Scheme that shall be used when representing session id as an URI  
+	 */
 	private static final String SESSION_ID_URI_SCHEME="content";
 	
-	/** The SESSIO n_ i d_ ur i_ ssp. */
+	/** 
+	 * SSP that shall be used when representing session id as an URI 
+	 */
 	private static final String SESSION_ID_URI_SSP="sessionId";
 	
-	/** The NOTIFICATIO n_ title. */
+	/** 
+	 * Prefix used for building notification title 
+	 */
 	private static final String NOTIFICATION_TITLE ="Conversation ";
-	//This is the "Conversation X" displayed for this session
-	/** The session title. */
+	
+	
+	/** 
+	 * Title that will be shown in chat activity when showing this session's contents 
+	 */
 	private String sessionTitle;
-	//Unique ID of this session
-	/** The session id. */
+	
+	
+	/** 
+	 * The session id.  
+	 */
 	private String sessionId;
 	
 	
 	/**
-	 * Instantiates a new msn session.
+	 * Instantiates a new conversation session.
 	 * 
 	 * @param sessionId the session id
-	 * @param recvIt the recv it
+	 * @param recvIt iterator on the participant list
 	 * @param senderPhone the sender phone
-	 * @param sessionCounter the session counter
+	 * @param sessionCounter unique integer assigned to this session 
 	 */
 	MsnSession(String sessionId, Iterator recvIt, String senderPhone, int sessionCounter){
 		this.sessionId = sessionId;
@@ -61,11 +89,11 @@ public class MsnSession {
 	}
 	
 	/**
-	 * Instantiates a new msn session.
+	 * Instantiates a new conversation session.
 	 * 
 	 * @param sessionId the session id
-	 * @param participantsIds the participants ids
-	 * @param sessionCounter the session counter
+	 * @param participantsIds the list of participants' ids
+	 * @param sessionCounter unique integer assigned to this session
 	 */
 	MsnSession(String sessionId, List<String> participantsIds, int sessionCounter) {
 		this.sessionId = sessionId;
@@ -78,11 +106,11 @@ public class MsnSession {
 	}
 	
 	/**
-	 * Instantiates a new msn session.
+	 * Performs a copy  of a conversation session.
 	 * 
-	 * @param session the session
+	 * @param session the session to copy
 	 */
-	public MsnSession(MsnSession session) {
+	MsnSession(MsnSession session) {
 		this.sessionTitle = session.sessionTitle;
 		this.sessionId = session.sessionId;
 		this.messageList = new ArrayList<MsnSessionMessage>();
@@ -95,12 +123,11 @@ public class MsnSession {
 	}
 	 
 	
-	//Fill the list of participants (Me is not included)
 	/**
-	 * Fill participant list.
+	 * Fill the list of participants to this conversation (my contact is not included) 
 	 * 
-	 * @param receiversIt the receivers it
-	 * @param senderPhoneNum the sender phone num
+	 * @param receiversIt iterator over the list of receivers
+	 * @param senderPhoneNum the phone number of the contact that initiates the session
 	 */
 	private void fillParticipantList(Iterator receiversIt, String senderPhoneNum){
 		while( receiversIt.hasNext() ) {
@@ -119,22 +146,24 @@ public class MsnSession {
 		participantIdList.add(senderPhoneNum);
 	}
 	
-	//This shall be used as intent data. 
 	/**
-	 * Gets the session id as uri.
+	 * Gets the session id as an URI in the form of "SESSION_ID_URI_SCHEME://SESSION_ID_URI_SSP#sessionId"
+	 * Used for putting the sessionId inside Intent as data.
 	 * 
-	 * @return the session id as uri
+	 * @return the session id as an URI
 	 */
 	public Uri getSessionIdAsUri(){
 		return Uri.fromParts(SESSION_ID_URI_SCHEME, SESSION_ID_URI_SSP, sessionId);
 	}
 	
 	
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
+	/**
+	 * Overrides Object.equals(). Two sessions are considered equals if and only if 
+	 * their session ids are equal
+	 * 
+	 * @param o object to compare to
+	 * @return true if the sessions have same id, false otherwise
 	 */
-	@Override
 	public boolean equals(Object o) {
 		// TODO Auto-generated method stub
 		
@@ -148,17 +177,15 @@ public class MsnSession {
 		return retval;
 	}
 
-	//This method is not thread safe but it is synchronized by MsnSessionManager
 	/**
-	 * Adds the message.
+	 * Adds the message to this session's message list
 	 * 
-	 * @param msg the msg
+	 * @param msg message to be added
 	 */
 	public void addMessage(MsnSessionMessage msg){		
 			messageList.add(msg);		
 	}
 	
-	//This method is not thread safe but it is synchronized by MsnSessionManager
 	/**
 	 * Gets the message list.
 	 * 
@@ -172,18 +199,18 @@ public class MsnSession {
 	
 	
 	/**
-	 * Gets the all participant ids.
+	 * Gets the the list of participants'ids
 	 * 
-	 * @return the all participant ids
+	 * @return the participant ids'list
 	 */
 	public List<String> getAllParticipantIds(){	
 		return participantIdList;
 	}
 	
 	/**
-	 * Gets the all participant names.
+	 * Gets all participant names.
 	 * 
-	 * @return the all participant names
+	 * @return the list of all participants' names
 	 */
 	public List<String> getAllParticipantNames(){	
 		ArrayList<String> participantNameList = new ArrayList<String>();
@@ -211,8 +238,10 @@ public class MsnSession {
 		return sessionId;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/**
+	 * String representation (the session title) 
+	 * 
+	 * @return the session title
 	 */
 	public String toString(){		
 		return sessionTitle;	

@@ -10,53 +10,92 @@ import android.location.LocationProvider;
 
 
 /**
- * The Class GeoNavigator.
+ * Handles the operations of starting/stopping My Contact location update by location provider. It also allows specifying 
+ * a custom location provider to be used. 
+ * <p>
+ * Location update is issued by the LocationManager and takes place by periodically firing a broadcast Intent
+ * that is caught by a customized IntentReceiver.
+ * Using a mocked GPS location provider, data shall be red from a file named kml inside 
+ * <code> /data/misc/location/(locProviderName) </code> where locProviderName is the name of the location provider
+ * read from the strings.xml file.
+ * 
+ * @author Cristina Cuccè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0 
  */
 public class GeoNavigator {
 
-	/** The Constant LOCATION_UPDATE_ACTION. */
+	/** 
+	 * Custom action used for the location update Intent that is fired 
+	 */
 	public static final String LOCATION_UPDATE_ACTION= "com.tilab.msn.LOCATION_UPDATE";
 	
-	/** The MINIMU m_ distancechang e_ fo r_ update. */
-	private final long MINIMUM_DISTANCECHANGE_FOR_UPDATE = 0; // in Meters 
+	/** 
+	 * Minimum distance in meters for sending new location update
+	 */
+	private final long MINIMUM_DISTANCECHANGE_FOR_UPDATE = 0;  
     
-    /** The MINIMU m_ tim e_ betwee n_ update. */
-    private final long MINIMUM_TIME_BETWEEN_UPDATE = 0; // in Milliseconds 
+    /** 
+     * Minimum time in milliseconds for between location updates
+     */
+    private final long MINIMUM_TIME_BETWEEN_UPDATE = 0;  
 
-    /** The Constant myLogger. */
+    /** 
+     * Instance of Jade Logger for debugging
+     */
     private static final Logger myLogger = Logger.getMyLogger(GeoNavigator.class.getName());
     
-    /** The update intent. */
+    /** 
+     * Intent fired for location updates 
+     */
     private Intent updateIntent;
     
-    /** The filter. */
+    /** 
+     * The intent filter to use when registering intent receiver. 
+     */
     private IntentFilter filter;
 	
-	/** The Constant DEFAULT_PROVIDER_NAME. */
+	/** 
+	 * The default location provider name  
+	 */
 	private static final String DEFAULT_PROVIDER_NAME="gps";
 	
-	/** The loc provider name. */
+	/** 
+	 * The name of the location provider to be used. 
+	 */
 	private static String locProviderName = DEFAULT_PROVIDER_NAME;
 	
-	/** The location receiver. */
+	/** 
+	 * The customized intent receiver to be registered 
+	 */
 	private IntentReceiver locationReceiver;
 	
-	/** The navigator. */
+	/** 
+	 * The instance of the {@link GeoNavigator} object. 
+	 */
 	private static GeoNavigator navigator = null;
 	
-	/** The my context. */
+	/**
+	 * Current application context 
+	 */
 	private Context myContext;
 	
-	/** The manager. */
+	/** 
+	 * Instance of the Android location manager. 
+	 */
 	private LocationManager manager;
 	
-	/** The provider. */
+	/** 
+	 * Instance of the current location provider. 
+	 */
 	private LocationProvider provider;
 	
 	/**
 	 * Gets the single instance of GeoNavigator.
 	 * 
-	 * @param c the c
+	 * @param c the application context
 	 * 
 	 * @return single instance of GeoNavigator
 	 */
@@ -69,8 +108,9 @@ public class GeoNavigator {
 	
 	/**
 	 * Instantiates a new geo navigator.
+	 * Uses the static instance of the provider name (if any) or otherwise defaults to DEFAULT_PROVIDER_NAME
 	 * 
-	 * @param c the c
+	 * @param c the application context
 	 */
 	private GeoNavigator(Context c){
 		locationReceiver = new LocationReceiver();
@@ -89,7 +129,7 @@ public class GeoNavigator {
 	}
 	
 	/**
-	 * Start location update.
+	 * Request the Location manager to start firing intents with location updates
 	 */
 	public void startLocationUpdate(){
 		myLogger.log(Logger.INFO, "Starting location update...");
@@ -109,7 +149,7 @@ public class GeoNavigator {
 		
 		
 	/**
-	 * Stop location update.
+	 * Stop the firing of broadcast intents for location update.
 	 */
 	public void stopLocationUpdate(){
 		myLogger.log(Logger.INFO, "Stopping location updates....");
@@ -117,7 +157,8 @@ public class GeoNavigator {
 	}
 	
 	/**
-	 * Initialize.
+	 * Performs a registration of the IntentReceiver for broadcast intents as defined by the intent filter.
+	 * Please note that registration must precede the start of location updates
 	 */
 	public void initialize(){
 		myLogger.log(Logger.INFO, "Registering the intent receiver....");
@@ -125,7 +166,9 @@ public class GeoNavigator {
 	}
 	
 	/**
-	 * Shutdown.
+	 * Retracts the receiver. Please note that this method should be called after location update has been stopped.
+	 * It seems an Android bug prevents this to happen correctly sometimes, because stopLocationUpdate() seems to behave 
+	 * asynchronously.
 	 */
 	public void shutdown(){
 		myLogger.log(Logger.INFO, "Unregistering the intent receiver....");

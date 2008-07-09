@@ -11,46 +11,60 @@ import java.util.Set;
 
 import android.app.Activity;
 
-// TODO: Auto-generated Javadoc
+
 /**
- * The Class MsnSessionManager.
+ * Provides conversation sessions management functionalities.
+ * In particular, it allows the creation of a new conversation session and the removal of an existing
+ * one, retrieving existing sessions, adding messages to a session and so on.
+ * 
+ * @author Cristina Cucè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0
  */
 public class MsnSessionManager {
 	
-	/** The instance. */
+	/** 
+	 * The instance of the session manager 
+	 */
 	private static MsnSessionManager instance = new MsnSessionManager(); 
 	
-	/** The session map. */
+	/** 
+	 * The session map. Each session is stored using its ID as a map key. 
+	 */
 	private Map<String,MsnSession> sessionMap; 
 	
-	/** The notification manager. */
+	/** 
+	 * Instance of the notification manager (used to get notifications) 
+	 */
 	private ChatSessionNotificationManager notificationManager;
 	
-	/** The lock. */
-	private Object theLock;
 	
-	/** The Constant MAX_MSN_SESSION_NUMBER. */
+	/** 
+	 * Max number of session 
+	 */
 	public static final int MAX_MSN_SESSION_NUMBER =10; 
 	
 
 	/**
-	 * Gets the single instance of MsnSessionManager.
+	 * Gets the instance of MsnSessionManager.
 	 * 
-	 * @return single instance of MsnSessionManager
+	 * @return the instance of MsnSessionManager
 	 */
 	public static MsnSessionManager getInstance(){
 		return instance;
 	}
 	
 	/**
-	 * Initialize.
+	 * Initialize the session manager instance
 	 * 
-	 * @param act the act
+	 * @param act the activity
 	 */
 	public void initialize(Activity act){
 		sessionMap = new HashMap<String, MsnSession>(MAX_MSN_SESSION_NUMBER);
 		notificationManager = new ChatSessionNotificationManager(act);
-		theLock = new Object();
+	
 	}
 	
 		
@@ -63,14 +77,14 @@ public class MsnSessionManager {
 		return notificationManager;
 	}
 	
-	//This shallbe used to add an MSN session on the local phone started by the MyContact.
-	//The sessionId of the new session is returned
+	
 	/**
-	 * Start msn session.
+	 * Called when the user initiates a session with other contacts, creates a new session generating the session id 
+	 * from the participants id list.
+	 * The session is then added to the session map and its session Id is returned. 
 	 * 
-	 * @param participantIds the participant ids
-	 * 
-	 * @return the string
+	 * @param participantIds the list of participants ids (phone numbers)
+	 * @return String that represents the session Id for the newly created session
 	 */
 	public String startMsnSession(List<String> participantIds ){
 		String sessionIdAsString = getSessionIdFromParticipants(participantIds);
@@ -80,11 +94,14 @@ public class MsnSessionManager {
 	
 	
 	/**
-	 * Gets the session id from participants.
+	 * Gets the session id from participants id list.
+	 * Session id is computed by hashing each participant phone number and then by exoring them all together.
+	 * This should create a fairly unique values that depends only from the participants ids and not by the order
+	 * in which they appear.  
 	 * 
-	 * @param participantIds the participant ids
+	 * @param participantIds the list of participant phone numbers	 
 	 * 
-	 * @return the session id from participants
+	 * @return the session id as a string
 	 */
 	public String getSessionIdFromParticipants(List<String> participantIds){		
 		String myAgentId =	ContactManager.getInstance().getMyContact().getPhoneNumber();
@@ -100,90 +117,58 @@ public class MsnSessionManager {
 		return sessionIdAsStr;
 	}
 	
-	//This will create and register a new session initiated by another contact
+
 	/**
-	 * Adds the msn session.
+	 * Adds a new msn session initiated by another contact (the other contact start the communication)
+	 * 
 	 * 
 	 * @param sessionId the session id
-	 * @param participantIds the participant ids
+	 * @param participantIds the list of all participants'ids
 	 */
 	public synchronized void addMsnSession(String sessionId, List<String> participantIds){
 		if (!sessionMap.containsKey(sessionId)){
 			int sessionCounter= sessionMap.size()+1;
 			MsnSession session = new MsnSession(sessionId, participantIds,sessionCounter); 
 			//register it
-			registerSession(sessionId, session);
+			sessionMap.put(sessionId, session);	
 		}
 	}
 	
-	//This will create and register a new session initiated by another contact
+	
 	/**
-	 * Adds the msn session.
+	 * Adds a new conversation session initiated by another contact (the other contact start the communication)
 	 * 
 	 * @param sessionId the session id
-	 * @param recvIt the recv it
-	 * @param senderPhone the sender phone
+	 * @param recvIt the iterator over the receiver list
+	 * @param senderPhone the phone number of the contact that initiates the session 
 	 */
 	public synchronized void addMsnSession(String sessionId, Iterator recvIt, String senderPhone){
 		if (!sessionMap.containsKey(sessionId)){
 			int sessionCounter= sessionMap.size()+1;
 			MsnSession session = new MsnSession(sessionId, recvIt, senderPhone, sessionCounter); 
 			//register it
-			registerSession(sessionId, session);
+			sessionMap.put(sessionId, session);	
 		}
 	}
 	
 	
 	/**
-	 * Removes the msn session.
+	 * Removes an active session given its ID.
 	 * 
-	 * @param msnSession the msn session
+	 * @param msnSession the session id
 	 */
 	public synchronized void removeMsnSession(String msnSession){		
 			sessionMap.remove(msnSession);		
 	}
 	
 	
+
 	/**
-	 * Gets the active session number.
+	 * Retrieve a copy of a session, given its id.
 	 * 
-	 * @return the active session number
-	 */
-	public  synchronized int getActiveSessionNumber(){
-		
-		int activeSessionNum = 0;	
-		
-			activeSessionNum = sessionMap.size();		
-		
-		return activeSessionNum;
-	}
-	
-	/**
-	 * Register session.
+	 * @param sessionId id of the session we would like to retrieve
 	 * 
-	 * @param sessionId the session id
-	 * @param session the session
-	 */
-	public void registerSession(String sessionId, MsnSession session){		
-			sessionMap.put(sessionId, session);		
-	}
-	
-	
-	/**
-	 * Gets the chat updater lock.
-	 * 
-	 * @return the chat updater lock
-	 */
-	public Object getChatUpdaterLock(){
-		return theLock;
-	}
-	
-	/**
-	 * Retrieve session.
-	 * 
-	 * @param sessionId the session id
-	 * 
-	 * @return the msn session
+	 * @return the copy of the desired session
 	 */
 	public MsnSession retrieveSession(String sessionId){		
 	
@@ -201,10 +186,10 @@ public class MsnSessionManager {
 	}
 	
 	/**
-	 * Adds the message to session.
+	 * Adds the message to a given session in a thread safe way.
 	 * 
-	 * @param sessionId the session id
-	 * @param msg the msg
+	 * @param sessionId the session id of the session
+	 * @param msg the message that should be added
 	 */
 	public synchronized void addMessageToSession(String sessionId, MsnSessionMessage msg){
 		MsnSession session = sessionMap.get(sessionId);
@@ -217,7 +202,7 @@ public class MsnSessionManager {
 	
 
 	/**
-	 * Shutdown.
+	 * Performs some cleanup
 	 */
 	public synchronized void shutdown(){
 		sessionMap.clear();
@@ -225,9 +210,10 @@ public class MsnSessionManager {
 
 	
 	/**
-	 * Gets the all participant ids.
+	 * Retrieves the list of participants to all active session in a given moment ( useful for changing map icon to contacts 
+	 * that are in an active session)
 	 * 
-	 * @return the all participant ids
+	 * @return the list of ids of all contacts participating to a session.
 	 */
 	public synchronized Set<String> getAllParticipantIds() {
 		//define a set to avoid duplicates

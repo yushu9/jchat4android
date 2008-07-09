@@ -13,29 +13,44 @@ import android.view.ViewInflate;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class MsnSessionAdapter.
+ * Adapter that describes the content of the list of messages shown in the {@link ChatActivity}
+ * It is used to customized its appearance using a custom xml layout for its elements
+ * 
+ * @author Cristina Cucè
+ * @author Marco Ughetti 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ * @version 1.0 
  */
 public class MsnSessionAdapter extends BaseAdapter {
 
-	/** The message views. */
+	/** 
+	 * List of View object providing a representation of each message
+	 * received. 
+	 */
 	private LinkedList<View> messageViews;
 	
-	/** The inflater. */
+	/** 
+	 * The inflater used to transform custom layout xml files in View object  
+	 */
 	private ViewInflate theInflater;
 	
-	/** The session. */
+	/** 
+	 * the conversation session this adapter refers to. 
+	 */
 	private MsnSession theSession;
 	
-	/** The color generator. */
+	/** 
+	 * Inner class used to generate color for contacts name. 
+	 */
 	private ContactColorGenerator colorGenerator;
 	
 	/**
-	 * Instantiates a new msn session adapter.
+	 * Instantiates a new session adapter.
 	 * 
-	 * @param vi the vi
-	 * @param res the res
+	 * @param vi the inflater that shall be used for inflating views
+	 * @param res provides an access to xml layout resource files
 	 */
 	public MsnSessionAdapter(ViewInflate vi, Resources res){
 		theInflater = vi;
@@ -43,21 +58,20 @@ public class MsnSessionAdapter extends BaseAdapter {
 		colorGenerator = new ContactColorGenerator(res);
 	}
 	
-	/* (non-Javadoc)
-	 * @see android.widget.Adapter#getCount()
+	/**
+	 * Retrieves the number of items in this adapter
+	 * @return number of items
 	 */
-	@Override
 	public int getCount() {
-		// TODO Auto-generated method stub
 		return messageViews.size();
 	}	
 	
-	//Set a new Session
-	//Each time a session is set we clear the list of messages and rebuild it using messages in the new session
 	/**
-	 * Sets the new session.
+	 * Recreates the list of views in this adapter every time we change the current session (for example when we use the status bar notification 
+	 * to move from one conversation to another)
+	 * Only a single chat activity is always instantiated, that is redrawn each time we switch to another session 
 	 * 
-	 * @param session the new new session
+	 * @param session the session we switch to
 	 */
 	public void setNewSession(MsnSession session){
 		theSession = session;
@@ -70,11 +84,12 @@ public class MsnSessionAdapter extends BaseAdapter {
 		}
 	}
 	
-	//Create a new view for the given message
+	
 	/**
-	 * Adds the message view.
+	 * Creates a new view by inflating the xml layout, populates it with message data and insert it into 
+	 * the list of message view's head 
 	 * 
-	 * @param msg the msg
+	 * @param msg the message for which we need to create a new view
 	 */
 	public void addMessageView(MsnSessionMessage msg){
 		View messageView = theInflater.inflate(R.layout.session_msg_layout, null, null);
@@ -91,45 +106,68 @@ public class MsnSessionAdapter extends BaseAdapter {
 	}
 	
 
-	public Object getItem(int arg0) {
+	/**
+	 * Retrieves the {@link MsnSessionMessage} at the given position.
+	 * 
+	 * @param index position in the list
+	 * @return the {@link MsnSessionMessage} at given position
+	 */
+	public Object getItem(int index) {
 		// TODO Auto-generated method stub
 		List<MsnSessionMessage> messageList = theSession.getMessageList();
-		MsnSessionMessage msg = messageList.get(arg0);
+		MsnSessionMessage msg = messageList.get(index);
 		return msg;
 	}
 
-
+	/**
+	 * Dummy implementation for this Adapter method
+	 */
 	public long getItemId(int arg0) {
-		
 		return 0;
 	}
 
-
+	/**
+	 * Builds a View object from the message at the given position
+	 * 
+	 * @param position index of the item 
+	 * @param convertView view that could be used to avoid building a new view (not used)
+	 * @param parent parent view (not used)
+	 * 
+	 * @return a View object corresponding to the message having the given index
+	 */
 	public View getView(int position, View convertView, ViewGroup parent) {
 		
 		View v = messageViews.get(position);
 		return v;
 	}
 
-	//This inner class generates a random color for a given contact phone number 
+	
+	
 	/**
-	 * The Class ContactColorGenerator.
+	 * Inner class that generates colors to be shown in adapter's views (contact names have different colors)
 	 */
 	private class  ContactColorGenerator{
 		
-		/** The contact color map. */
+		/** 
+		 * Map that stores colors for each contact name (only ten different contacts in a single conversation)
+		 */
 		private Map<String,Integer>  contactColorMap; 
 		
-		/** The color palette. */
+		/** 
+		 * The list of available colors. Colors are not randomly generated but stored in a palette of ten entries
+		 * statically.  
+		 */
 		private int[] colorPalette;
 		
-		/** The counter. */
+		/** 
+		 * Counter used to select a color from the static palette 
+		 */
 		private int counter;
 		
 		/**
 		 * Instantiates a new contact color generator.
 		 * 
-		 * @param res the res
+		 * @param res object that makes all resources available
 		 */
 		public ContactColorGenerator(Resources res){
 			contactColorMap = new HashMap<String, Integer>();
@@ -140,9 +178,9 @@ public class MsnSessionAdapter extends BaseAdapter {
 		}
 		
 		/**
-		 * Load palette.
+		 * Load the static palette from color.xml file
 		 * 
-		 * @param res the res
+		 * @param res object that makes all resources available
 		 */
 		private void loadPalette(Resources res){
 			colorPalette[0] = res.getColor(R.color.chat_dark_yellow);
@@ -158,11 +196,12 @@ public class MsnSessionAdapter extends BaseAdapter {
 		}
 		
 		/**
-		 * Gets the color.
+		 * Generates a color for the given contact, taking it from the static palette and putting it into the map
+		 * Please note that a new color shall be created only if a new contact appears.
 		 * 
 		 * @param contactName the contact name
 		 * 
-		 * @return the color
+		 * @return the color created for that contact name
 		 */
 		public int getColor(String contactName){
 			Integer color = contactColorMap.get(contactName);
