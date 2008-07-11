@@ -35,10 +35,6 @@ public class MsnSessionManager {
 	 */
 	private Map<String,MsnSession> sessionMap; 
 	
-	/** 
-	 * Instance of the notification manager (used to get notifications) 
-	 */
-	private ChatSessionNotificationManager notificationManager;
 	
 	
 	/** 
@@ -47,6 +43,10 @@ public class MsnSessionManager {
 	public static final int MAX_MSN_SESSION_NUMBER =10; 
 	
 
+	private MsnSessionManager(){
+		sessionMap = new HashMap<String, MsnSession>(MAX_MSN_SESSION_NUMBER);
+	}
+	
 	/**
 	 * Gets the instance of MsnSessionManager.
 	 * 
@@ -56,26 +56,7 @@ public class MsnSessionManager {
 		return instance;
 	}
 	
-	/**
-	 * Initialize the session manager instance
-	 * 
-	 * @param act the activity
-	 */
-	public void initialize(Activity act){
-		sessionMap = new HashMap<String, MsnSession>(MAX_MSN_SESSION_NUMBER);
-		notificationManager = new ChatSessionNotificationManager(act);
 	
-	}
-	
-		
-	/**
-	 * Gets the notification manager.
-	 * 
-	 * @return the notification manager
-	 */
-	public ChatSessionNotificationManager getNotificationManager(){
-		return notificationManager;
-	}
 	
 	
 	/**
