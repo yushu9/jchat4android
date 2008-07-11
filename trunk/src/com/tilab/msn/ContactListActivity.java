@@ -410,7 +410,7 @@ public class ContactListActivity extends MapActivity implements
 		super.onCreate(icicle);
 		ContactListAdapter cla = new ContactListAdapter(this);
 		ContactManager.getInstance().addAdapter(cla);
-		MsnSessionManager.getInstance().initialize(this);
+		ChatSessionNotificationManager.create(this);
 
 		String phoneNumber = getMyPhoneNumber();
 		ContactManager.getInstance().addMyContact(phoneNumber);
@@ -530,11 +530,8 @@ public class ContactListActivity extends MapActivity implements
 		myLogger.log(Logger.INFO, "onDestroy called ...");
 		GeoNavigator.getInstance(this).shutdown();
 
-		ChatSessionNotificationManager notifUpd = MsnSessionManager
-				.getInstance().getNotificationManager();
-
-		if (notifUpd != null)
-			notifUpd.removeAllNotifications();
+		
+		ChatSessionNotificationManager.getInstance().removeAllNotifications();
 
 		if (gateway != null) {
 			try {
@@ -747,8 +744,7 @@ public class ContactListActivity extends MapActivity implements
 		MsnSession session = MsnSessionManager.getInstance().retrieveSession(
 				sessionId);
 		//Add a notification for the new session
-		MsnSessionManager.getInstance().getNotificationManager()
-				.addNewSessionNotification(sessionId);
+		ChatSessionNotificationManager.getInstance().addNewSessionNotification(sessionId);
 
 		//Add to the intent a mean to return a result back to the start activity
 		ActivityPendingResult activityResult = createActivityPendingResult(
@@ -845,7 +841,7 @@ public class ContactListActivity extends MapActivity implements
 				MsnSessionMessage msnMsg = (MsnSessionMessage) event.getParam(MsnEvent.INCOMING_MESSAGE_PARAM_MSG);
 				String sessionId = (String) event.getParam(MsnEvent.INCOMING_MESSAGE_PARAM_SESSIONID);	
 				//if the incoming msg is not for our session, post a notification
-				MsnSessionManager.getInstance().getNotificationManager().addNewMsgNotification(sessionId, msnMsg);
+				ChatSessionNotificationManager.getInstance().addNewMsgNotification(sessionId, msnMsg);
 				Toast.makeText(ContactListActivity.this, msnMsg.getSenderName() + " says: " + msnMsg.getMessageContent(), 3000).show();
 			}			
 		}

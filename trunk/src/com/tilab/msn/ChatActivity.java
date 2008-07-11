@@ -122,7 +122,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		closeButton = (ImageButton) findViewById(R.id.closeBtn);
 		closeButton.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View view){
-				MsnSessionManager.getInstance().getNotificationManager().removeSessionNotification(sessionId);
+				ChatSessionNotificationManager.getInstance().removeSessionNotification(sessionId);
 				MsnSessionManager.getInstance().removeMsnSession(sessionId);
 				finish();
 			}
@@ -168,7 +168,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		List<String> participants = session.getAllParticipantNames();
 		ArrayAdapter<String> aAdapter = new ArrayAdapter<String>(this,R.layout.participant_layout, R.id.participantName, participants);
 		partsList.setAdapter(aAdapter);
-		MsnSessionManager.getInstance().getNotificationManager().addNewSessionNotification(sessionId);
+		ChatSessionNotificationManager.getInstance().addNewSessionNotification(sessionId);
 		messageToBeSent.setText("");
 		
 		//Retrieve messages if the session already contains data
@@ -335,7 +335,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 					messagesSentList.setAdapter(sessionAdapter);
 				} else {
 					//if the incoming msg is not for our session, post a notification
-					MsnSessionManager.getInstance().getNotificationManager().addNewMsgNotification(sessionId, msnMsg);
+					ChatSessionNotificationManager.getInstance().addNewMsgNotification(sessionId, msnMsg);
 					Toast.makeText(ChatActivity.this, msnMsg.getSenderName() + " says: " + msnMsg.getMessageContent(), 3000).show();
 				}
 			} 

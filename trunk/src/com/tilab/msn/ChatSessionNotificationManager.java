@@ -2,6 +2,7 @@ package com.tilab.msn;
 import jade.util.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
@@ -27,6 +28,11 @@ import android.content.Intent;
  */
 class ChatSessionNotificationManager {
 
+		/**
+		 * The instance of the ChatSessionNotificationManager
+		 */
+		private static ChatSessionNotificationManager theInstance;
+	
 		/** 
 		 * Reference to an activity (needed to post notifications). 
 		 * It seems it's not really important which Activity to use 
@@ -176,7 +182,28 @@ class ChatSessionNotificationManager {
 			return notif;
 		}
 		
+		/**
+		 * Initialize the session manager instance.
+		 * Please note that the activity is only needed once: after creating the manager, it 
+		 * can be accessed by <code>getInstance()</code>
+		 * 
+		 * 
+		 * @param act the main activity used for sending notification
+		 */
+		public static  void  create(Activity act){
+			
+			if (theInstance == null)
+				theInstance = new ChatSessionNotificationManager(act);
 		
+		}
+		
+		/**
+		 * Returns the instance of the notification manager
+		 * @return the {@link ChatSessionNotificationManager} instance
+		 */
+		public static ChatSessionNotificationManager getInstance(){
+			return theInstance;
+		}
 		
 		/**
 		 * Removes the session notification.
