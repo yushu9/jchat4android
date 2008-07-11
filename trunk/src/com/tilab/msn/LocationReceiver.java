@@ -40,10 +40,6 @@ public class LocationReceiver extends IntentReceiver {
         
 		if (intent.getAction().equals(GeoNavigator.LOCATION_UPDATE_ACTION)){
 			Location loc = (Location) intent.getParcelableExtra("location");
-			myLogger.log(Logger.INFO, "New location received from provider! New location is: " + 
-												(int)(loc.getLatitude()*1E6) + ";" + 
-												(int)(loc.getLongitude()*1E6) + 
-												" microdegrees");
 			ContactManager.getInstance().updateMyContactLocation(loc);
 			this.abortBroadcast(); 
 		}

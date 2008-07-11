@@ -704,15 +704,6 @@ public class ContactsPositionOverlay extends Overlay {
 		 */
 		public void updateLocation(int latitude, int longitude, int altitude){
 
-			if (latitude != latitudeE6 || longitude != longitudeE6){
-				myLogger.log(Logger.INFO, "ContactLayoutData "+this.name+" was changed! New value is " + 
-						latitude + 
-						";" + 
-						longitude + 
-						" microdegrees");
-			} else {
-				//myLogger.log(Logger.INFO, "Uhm... it seems position for contact " + this.name +" has not changed since last time!");
-			}
 			
 			latitudeE6 = latitude;
 			longitudeE6 = longitude;
