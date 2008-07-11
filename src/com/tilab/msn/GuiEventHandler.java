@@ -53,8 +53,13 @@ public abstract class GuiEventHandler implements IEventHandler {
 	 * 
 	 */
 	public void handleEvent(MsnEvent event){
-		localHandler.post((new MyRunnable(event)));
-		myLogger.log(Logger.FINE, "Event posted by thread " + Thread.currentThread().getId());
+		if (event.getName().equals(MsnEvent.INCOMING_MESSAGE_EVENT)){
+			localHandler.post((new MyRunnable(event)));
+		} else {
+			localHandler.postDelayed(new MyRunnable(event),1000);
+		}
+		
+		myLogger.log(Logger.FINE, "Event " + event.getName() + "posted by thread " + Thread.currentThread().getId());
 	}
 	
 	/**

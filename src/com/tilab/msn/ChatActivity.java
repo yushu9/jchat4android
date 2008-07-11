@@ -163,12 +163,10 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		Uri sessionIdUri = i.getData();
 		sessionId = sessionIdUri.getFragment();
 		
-		activityPendingResult = (ActivityPendingResult) i.getParcelableExtra(ContactListActivity.ID_ACTIVITY_PENDING_RESULT);
 		MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
 		setTitle(session.toString());
-		//List<String> participants = session.getAllParticipantIds();
 		List<String> participants = session.getAllParticipantNames();
-		ArrayAdapter aAdapter = new ArrayAdapter(this,R.layout.participant_layout, R.id.participantName, participants);
+		ArrayAdapter<String> aAdapter = new ArrayAdapter<String>(this,R.layout.participant_layout, R.id.participantName, participants);
 		partsList.setAdapter(aAdapter);
 		MsnSessionManager.getInstance().getNotificationManager().addNewSessionNotification(sessionId);
 		messageToBeSent.setText("");
@@ -216,7 +214,6 @@ public class ChatActivity extends Activity implements ConnectionListener{
 			myLogger.log(Logger.FINER, "ChatActivity.onDestroy() : disconnected from MicroRuntimeService");
 		}		
 		
-		activityPendingResult.sendResult(ContactListActivity.CHAT_ACTIVITY_CLOSED, null, null);
 	}
 	
 	/**

@@ -3,6 +3,8 @@
  */
 package com.tilab.msn;
 
+import jade.util.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,26 +19,41 @@ import java.util.Map;
  */
 public class MsnEventMgr {
 
+	/**
+	 * The event manager instance
+	 */
 	private static MsnEventMgr theInstance = new MsnEventMgr();
+	/**
+	 * Map of all registered event handlers
+	 */
 	private Map<String,IEventHandler> eventMap;
+		
+	/**
+	 * Instance of the JADE logger for debugging
+	 */
+	private Logger myLogger = Logger.getMyLogger(MsnEventMgr.class.getName()); 
 	
-
-	
+	/**
+	 * Instantiates a new Event handler
+	 */
 	private MsnEventMgr(){
 		eventMap = new HashMap<String, IEventHandler>(2);
 	}
 	
 	
 	/**
-	 * @return
+	 * Retrieves an instance of the Event Manager 
+	 * @return Event manager instance
 	 */
 	public static MsnEventMgr getInstance(){
 		return theInstance;
 	}
 	
 	/**
-	 * @param eventName 
-	 * @return
+	 * Creates a new event using the given name
+	 * 
+	 * @param eventName the name of the event to be created 
+	 * @return the new event
 	 */
 	public MsnEvent createEvent(String eventName){
 		return new MsnEvent(eventName);
@@ -60,7 +77,7 @@ public class MsnEventMgr {
 	 */
 	public synchronized void fireEvent(MsnEvent event){
 		String eventName = event.getName();
-		
+		myLogger.log(Logger.FINE, "Firing event " + event.getName() );
 		eventMap.get(eventName).handleEvent(event);
 		
 	}

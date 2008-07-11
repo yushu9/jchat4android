@@ -217,9 +217,7 @@ public class ContactListActivity extends MapActivity implements
 
 		int[] colors = new int[] { res.getColor(R.color.white),
 				res.getColor(R.color.blue) };
-		/*		int midColor = Color.rgb((Color.red(colors[0]) + Color.red(colors[1]))/2,
-		 (Color.green(colors[0]) + Color.green(colors[1]))/2,
-		 (Color.blue(colors[0]) + Color.blue(colors[1]))/2);*/
+		
 		int[] selectedTabColors = new int[] { res.getColor(R.color.white),
 				res.getColor(R.color.blue) };
 		int[] outOfFocusTabColors = new int[] { res.getColor(R.color.white),
@@ -228,9 +226,7 @@ public class ContactListActivity extends MapActivity implements
 		GradientDrawable contentGradient = new GradientDrawable(
 				Orientation.LEFT_RIGHT, colors);
 
-		//leftTabGradient = new GradientDrawable(Orientation.LEFT_RIGHT, leftTabColors);
-		//leftTabGradient.setCornerRadii(new float[]{10.0f,10.0f,10.0f,10.0f,0.0f,0.0f,0.0f,0.0f});
-
+		
 		outOfFocusTabGradient = new GradientDrawable(Orientation.LEFT_RIGHT,
 				outOfFocusTabColors);
 		outOfFocusTabGradient.setCornerRadii(new float[] { 10.0f, 10.0f, 10.0f,
@@ -427,14 +423,29 @@ public class ContactListActivity extends MapActivity implements
 
 		//register an event for this activity to handle refresh of the views in this activity
 		activityHandler = new ContactListActivityUpdateHandler();
-		MsnEventMgr.getInstance().registerEvent(MsnEvent.VIEW_REFRESH_EVENT, activityHandler);
-		MsnEventMgr.getInstance().registerEvent(MsnEvent.INCOMING_MESSAGE_EVENT, activityHandler);
+		
 		//register a generic disconnection handler
 		MsnEventMgr.getInstance().registerEvent(MsnEvent.CONTACT_DISCONNECT_EVENT, new ContactDisconnectionHandler());
 		//Initialize the UI
 		initUI();
 		disableUI();
+	}
+	
 
+	/**
+	 * Called any time this activity is shown.
+	 * Resets contact list and map view removing all checked contacts
+	 * Registers handlers for both the views.
+	 */
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		myLogger.log(Logger.FINE, "On Resume was called!!!: setting event handler in ContactListActivity");
+		MsnEventMgr.getInstance().registerEvent(MsnEvent.VIEW_REFRESH_EVENT, activityHandler);
+		MsnEventMgr.getInstance().registerEvent(MsnEvent.INCOMING_MESSAGE_EVENT, activityHandler);
+		
+		this.overlay.uncheckAllContacts();
+		this.contactsListView.uncheckAllSelectedItems();
 	}
 
 	/**
@@ -750,7 +761,6 @@ public class ContactListActivity extends MapActivity implements
 		it.setData(session.getSessionIdAsUri());
 		it.setLaunchFlags(Intent.NEW_TASK_LAUNCH | Intent.SINGLE_TOP_LAUNCH);
 		it.addCategory(Intent.DEFAULT_CATEGORY);
-		it.putExtra(ID_ACTIVITY_PENDING_RESULT, activityResult);
 		startActivity(it);
 
 	}
@@ -779,27 +789,6 @@ public class ContactListActivity extends MapActivity implements
 	}
 	
 
-	/**
-	 * Called when closing a chat activity, to remove the check from all previously selected contacts
-	 * 
-	 * @see Activity
-	 */
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode,
-			String data, Bundle extras) {
-		// TODO Auto-generated method stub
-		myLogger
-				.log(Logger.INFO,
-						"onActivityResult() was called! ChatActivity should have been closed!!");
-
-		switch (requestCode) {
-		case CHAT_ACTIVITY_CLOSED:
-			this.overlay.uncheckAllContacts();
-			this.contactsListView.uncheckAllSelectedItems();
-			MsnEventMgr.getInstance().registerEvent(MsnEvent.INCOMING_MESSAGE_EVENT, activityHandler);
-		break;
-		}
-	}
 
 	/**
 	 * Defines an handler to show  a toast when a contact disconnects
@@ -852,6 +841,7 @@ public class ContactListActivity extends MapActivity implements
 				contactsListView.setAdapter(adapter);
 				contactsListView.setSelection(selPos);
 			} else if (eventName.equals(MsnEvent.INCOMING_MESSAGE_EVENT)){
+				myLogger.log(Logger.FINE, "Contact List activity received an INCOMING MSG EVENT!!!");
 				MsnSessionMessage msnMsg = (MsnSessionMessage) event.getParam(MsnEvent.INCOMING_MESSAGE_PARAM_MSG);
 				String sessionId = (String) event.getParam(MsnEvent.INCOMING_MESSAGE_PARAM_SESSIONID);	
 				//if the incoming msg is not for our session, post a notification
@@ -861,4 +851,5 @@ public class ContactListActivity extends MapActivity implements
 		}
 
 	}
+
 }
