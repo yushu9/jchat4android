@@ -139,6 +139,11 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	private TabHost mainTabHost;
 
+	/**
+	 * The button for switching map/satellite mode in map view
+	 */
+	private Button switchButton;
+	
 	/** 
 	 * The customized contacts list view. 
 	 */
@@ -266,6 +271,9 @@ public class ContactListActivity extends MapActivity implements
 
 		//init the map view
 		mapView = (MapView) findViewById(R.id.myMapView);
+		
+		
+		
 		mapView.setOnLongPressListener(new MapView.OnLongPressListener() {
 
 			public boolean onLongPress(View v, float x, float y) {
@@ -299,13 +307,16 @@ public class ContactListActivity extends MapActivity implements
 		overlayCtrl.add(overlay, true);
 
 		//Button for switching map mode
-		Button switchButton = (Button) findViewById(R.id.switchMapBtn);
+		switchButton = (Button) findViewById(R.id.switchMapBtn);
 		switchButton.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View arg0) {
 				Button clickedBtn = (Button) arg0;
 
+
+				mapView.toggleSatellite();
+				
 				if (mapView.isSatellite()) {
 					clickedBtn.setText(ContactListActivity.this
 							.getText(R.string.label_toggle_map));
@@ -314,7 +325,6 @@ public class ContactListActivity extends MapActivity implements
 							.getText(R.string.label_toggle_satellite));
 				}
 
-				mapView.toggleSatellite();
 
 			}
 
@@ -440,10 +450,16 @@ public class ContactListActivity extends MapActivity implements
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
+		
 		myLogger.log(Logger.FINE, "On Resume was called!!!: setting event handler in ContactListActivity");
 		MsnEventMgr.getInstance().registerEvent(MsnEvent.VIEW_REFRESH_EVENT, activityHandler);
 		MsnEventMgr.getInstance().registerEvent(MsnEvent.INCOMING_MESSAGE_EVENT, activityHandler);
 		
+		if (mapView.isSatellite()) {
+			mapView.toggleSatellite();
+			switchButton.setText(getText(R.string.label_toggle_map));
+		}
+			
 		this.overlay.uncheckAllContacts();
 		this.contactsListView.uncheckAllSelectedItems();
 	}

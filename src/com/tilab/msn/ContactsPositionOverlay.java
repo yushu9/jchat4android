@@ -204,7 +204,8 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		for (Iterator<ContactLayoutData> iterator = pointList.iterator(); iterator.hasNext();) {
 			ContactLayoutData contactLayoutData =  iterator.next();
-			if (!scrollingArea.contains(contactLayoutData.positionOnScreen[0], contactLayoutData.positionOnScreen[1])){
+			
+			if (contactLayoutData.isVisible && !scrollingArea.contains(contactLayoutData.positionOnScreen[0], contactLayoutData.positionOnScreen[1])){
 				return true;
 			}
 		} 
@@ -227,7 +228,7 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		int retval = NO_ZOOM;
 		
-		int currentNumberOfPoints = contactPositionMap.size();
+		int currentNumberOfPoints = getContactsOnline();
 		
 		//If we have just one point left, we need to zoom to max level
 		if (currentNumberOfPoints == 1 &&  myMapView.getZoomLevel() < 21){
@@ -263,7 +264,7 @@ public class ContactsPositionOverlay extends Overlay {
 	 */
 	private void doZoom(PointClusterParams params, int howToZoom){
 		if (howToZoom == ZOOM_MAX)
-			mapController.zoomTo(18);
+			mapController.zoomTo(16);
 		if (howToZoom == RECOMPUTE_ZOOM)
 			mapController.zoomToSpan(params.coordMaxSpan[0],params.coordMaxSpan[1]);
 	}	
@@ -365,8 +366,9 @@ public class ContactsPositionOverlay extends Overlay {
 		//Things we do just the first time
 		if (WIDTH == -1){
 			initialize(calculator);
+			int howToZoom = zoomChangeIsNeeded(params);
 			doScrolling(params);
-			doZoom(params, RECOMPUTE_ZOOM);
+			doZoom(params, howToZoom);
 		} else {
 		
 			//if any pixel is out our scrolling area
