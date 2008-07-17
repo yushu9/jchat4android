@@ -113,10 +113,12 @@ public class GeoNavigator {
 	 * @param c the application context
 	 */
 	private GeoNavigator(Context c){
-		locationReceiver = new LocationReceiver();
+		locationReceiver = new ContactLocationReceiver();
 		manager = (LocationManager)c.getSystemService(Context.LOCATION_SERVICE);
 		updateIntent = new Intent(LOCATION_UPDATE_ACTION);
 		filter = new IntentFilter(LOCATION_UPDATE_ACTION);
+		filter.addAction(SendSMSActivity.SMS_SENT_ACTION);
+		filter.addAction(SendSMSActivity.SMS_ERROR_ACTION);
 		myContext = c;
 		
 		if (locProviderName != null){

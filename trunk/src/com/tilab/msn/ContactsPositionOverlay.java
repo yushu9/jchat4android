@@ -816,11 +816,11 @@ public class ContactsPositionOverlay extends Overlay {
       * Update all contacts location based on the changes notified by the agent (contacts added and contacts removed)
       * 
       * @param changes list of changes
+     * @param locationMap 
+     * @param contactMap 
       */	
-     public void update(ContactListChanges changes){ 
+     public void update(ContactListChanges changes, Map<String, Contact> contactMap, Map<String, ContactLocation> locationMap){ 
 	    
-    	 Map<String,ContactLocation> locationMap = ContactManager.getInstance().getAllContactLocations();
-	     Map<String, Contact> contactMap = ContactManager.getInstance().getAllContacts();
 	     ContactLocation cMyLoc = ContactManager.getInstance().getMyContactLocation();
 	     
 	     //myLogger.log(Logger.INFO, "It's time for updating the contactsPositionOverlay!!!!!");

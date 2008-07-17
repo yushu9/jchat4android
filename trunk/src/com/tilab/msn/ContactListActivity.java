@@ -10,11 +10,12 @@ import jade.wrapper.ControllerException;
 import jade.wrapper.StaleProxyException;
 
 import java.net.ConnectException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import android.app.Activity;
-import android.app.ActivityPendingResult;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Resources;
@@ -627,7 +628,6 @@ public class ContactListActivity extends MapActivity implements
 	 * @see Activity
 	 */
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		// TODO Auto-generated method stub
 		Item menuItemConnect = menu.findItem(MENUITEM_ID_CONNECT);
 		menuItemConnect.setShown((gateway == null));
 		Item menuItemSettings = menu.findItem(MENUITEM_ID_SETTINGS);
@@ -719,9 +719,26 @@ public class ContactListActivity extends MapActivity implements
 		}
 			break;
 
-		case CONTEXT_MENU_ITEM_SMS_LIST:
-		case CONTEXT_MENU_ITEM_SMS_MAP:
-			Toast.makeText(this, R.string.missing_feature_sms, 3000).show();
+		case CONTEXT_MENU_ITEM_SMS_LIST:{
+			ArrayList<String> participantIds =  (ArrayList<String>) contactsListView
+			.getAllSelectedItems();
+			Intent i = new Intent();
+			i.setClass(this, SendSMSActivity.class);
+			i.putExtra(SendSMSActivity.SMS_ADDRESS_LIST, participantIds);
+			startActivity(i);
+		}
+			
+			break;
+			
+		case CONTEXT_MENU_ITEM_SMS_MAP:{
+			ArrayList<String> participantIds =  (ArrayList<String>) overlay.getSelectedItems();
+			//SMSDialog smsDialog = new SMSDialog(this,participantIds);
+			Intent i = new Intent();
+			i.setClass(this, SendSMSActivity.class);
+			i.putExtra(SendSMSActivity.SMS_ADDRESS_LIST, participantIds);
+			startActivity(i);
+		}
+			
 			break;
 		default:
 		}
@@ -762,10 +779,6 @@ public class ContactListActivity extends MapActivity implements
 		//Add a notification for the new session
 		ChatSessionNotificationManager.getInstance().addNewSessionNotification(sessionId);
 
-		//Add to the intent a mean to return a result back to the start activity
-		ActivityPendingResult activityResult = createActivityPendingResult(
-				CHAT_ACTIVITY_CLOSED, false);
-
 		//packet an intent. We'll try to add the session ID in the intent data in URI form
 		//We use intent resolution here, cause the ChatActivity should be selected matching ACTION and CATEGORY
 		Intent it = new Intent(Intent.VIEW_ACTION);
@@ -783,10 +796,12 @@ public class ContactListActivity extends MapActivity implements
 	 * (new contacts or removed ones).
 	 * 
 	 * @param changes the list of changes (new contacts or contacts that went offline and must be removed)
+	 * @param contactMap copy of the contact map that shall be used for this update (to avoid racing conditions issues)
+	 * @param contactLocMap copy of the location map that shall be used for this update (to avoid racing conditions issues)
 	 */
-	private void updateListAdapter(ContactListChanges changes) {
+	private void updateListAdapter(ContactListChanges changes, Map<String,Contact> contactMap, Map<String,ContactLocation> contactLocMap) {
 		ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
-		adapter.update(changes);
+		adapter.update(changes, contactMap, contactLocMap);
 	}
 
 	/**
@@ -844,8 +859,12 @@ public class ContactListActivity extends MapActivity implements
 			
 			if (eventName.equals(MsnEvent.VIEW_REFRESH_EVENT)){
 				ContactListChanges changes = (ContactListChanges) event.getParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES);
-				updateListAdapter(changes);
-				overlay.update(changes);
+				Map<String,Contact> cMap = (Map<String,Contact>) event.getParam(MsnEvent.VIEW_REFRESH_CONTACTSMAP);
+				Map<String,ContactLocation> cLocMap = (Map<String,ContactLocation>) event.getParam(MsnEvent.VIEW_REFRESH_PARAM_LOCATIONMAP);
+				myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":GUI thread retrieves this list of changes from the event: " +  changes.toString());
+				
+				updateListAdapter(changes, cMap, cLocMap);
+				overlay.update(changes, cMap, cLocMap);
 				mapView.invalidate();
 				int selPos = contactsListView.getSelectedItemPosition();
 				ContactListAdapter adapter = ContactManager.getInstance()
@@ -853,7 +872,7 @@ public class ContactListActivity extends MapActivity implements
 				contactsListView.setAdapter(adapter);
 				contactsListView.setSelection(selPos);
 			} else if (eventName.equals(MsnEvent.INCOMING_MESSAGE_EVENT)){
-				myLogger.log(Logger.FINE, "Contact List activity received an INCOMING MSG EVENT!!!");
+				myLogger.log(Logger.FINE, "Thread "+ Thread.currentThread().getId() + ":Contact List activity received an INCOMING MSG EVENT!!!");
 				MsnSessionMessage msnMsg = (MsnSessionMessage) event.getParam(MsnEvent.INCOMING_MESSAGE_PARAM_MSG);
 				String sessionId = (String) event.getParam(MsnEvent.INCOMING_MESSAGE_PARAM_SESSIONID);	
 				//if the incoming msg is not for our session, post a notification

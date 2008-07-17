@@ -78,7 +78,13 @@ public class MsnEventMgr {
 	public synchronized void fireEvent(MsnEvent event){
 		String eventName = event.getName();
 		myLogger.log(Logger.FINE, "Firing event " + event.getName() );
-		eventMap.get(eventName).handleEvent(event);
+		IEventHandler handler = eventMap.get(eventName);
+		
+		if (handler != null){
+			handler.handleEvent(event);
+		} else {
+			myLogger.log(Logger.SEVERE, "WARNING: an event was fired but no handler was registered!");
+		}
 		
 	}
 

@@ -15,6 +15,9 @@ import jade.lang.acl.ACLMessage;
 import jade.proto.SubscriptionInitiator;
 import jade.util.Logger;
 import jade.util.leap.Iterator;
+
+import java.util.Map;
+
 import android.location.Location;
 
 
@@ -82,9 +85,18 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		updateContactList(onlineContacts);
 
 		MsnEvent event = MsnEventMgr.getInstance().createEvent(MsnEvent.VIEW_REFRESH_EVENT);
-		event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES, ContactManager.getInstance().getModifications());
+		
+		Map<String,Contact> cMap = ContactManager.getInstance().getAllContacts();
+		Map<String,ContactLocation> cLocMap = ContactManager.getInstance().getAllContactLocations();
+		ContactListChanges changes = ContactManager.getInstance().getModifications();
+		
+		myLogger.log(Logger.INFO,"Thread "+ Thread.currentThread().getId() + "After reading local contacts and first df query: " +
+				"Adding to VIEW_REFRESH_EVENT this list of changes: " + changes.toString());
+		event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES, changes);
+		event.addParam(MsnEvent.VIEW_REFRESH_CONTACTSMAP, cMap);
+		event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LOCATIONMAP, cLocMap);
 		MsnEventMgr.getInstance().fireEvent(event);
-
+		
 		DFUpdaterBehaviour updater = new DFUpdaterBehaviour(myAgent,msnUpdateTime);
 		MsnAgent agent = (MsnAgent) myAgent;
 		DFSubscriptionBehaviour subBh = new DFSubscriptionBehaviour(myAgent,agent.getSubscriptionMessage());
@@ -120,8 +132,9 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 				if (!cId.equals(myAgent.getAID())){
 					//Create an online contact (or update it)
 					String phoneNumber = cId.getLocalName();
-				    ContactManager.getInstance().addOrUpdateOnlineContact(phoneNumber, loc);
-					
+					if (loc.getLatitude() != Double.POSITIVE_INFINITY && loc.getLongitude()!=Double.POSITIVE_INFINITY){
+						ContactManager.getInstance().addOrUpdateOnlineContact(phoneNumber, loc);
+					}
 				}
 			}
 		}
@@ -194,7 +207,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		 */
 		protected void handleInform(ACLMessage inform) {
 		
-			myLogger.log(Logger.FINE, " Notification received from DF");
+			myLogger.log(Logger.FINE, "Thread "+ Thread.currentThread().getId() + ": Notification received from DF");
 			ContactManager.getInstance().resetModifications();
 			
 			try {
@@ -209,10 +222,12 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 						// Do something only if the notification deals with an agent different from the current one
 						if (!contactAID.equals(myAgent.getAID())){
 
+							myLogger.log(Logger.INFO,"Thread "+ Thread.currentThread().getId() + ":df says that agent "+myAgent.getAID().getLocalName() +"updates or registers" );
 							Iterator serviceIter = dfd.getAllServices();
 
 							//Registered or updated
 							if (serviceIter.hasNext()){
+								
 								ServiceDescription serviceDesc = (ServiceDescription) serviceIter.next();
 
 								Iterator propertyIt = serviceDesc.getAllProperties(); 
@@ -226,6 +241,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 								}
 								
 							} else {
+								myLogger.log(Logger.INFO,"Thread "+ Thread.currentThread().getId() + ":df says that agent "+myAgent.getAID().getLocalName() +"deregisters" );
 								String phoneNumber = contactAID.getLocalName();
 								Contact c = ContactManager.getInstance().getContact(phoneNumber);
 								ContactManager.getInstance().setContactOffline(phoneNumber);
@@ -237,7 +253,14 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 					}
 					
 					MsnEvent event = MsnEventMgr.getInstance().createEvent(MsnEvent.VIEW_REFRESH_EVENT);
-					event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES, ContactManager.getInstance().getModifications());
+					ContactListChanges changes = ContactManager.getInstance().getModifications();
+					Map<String,Contact> cMap = ContactManager.getInstance().getAllContacts();
+					Map<String,ContactLocation> cLocMap = ContactManager.getInstance().getAllContactLocations();
+					
+					myLogger.log(Logger.INFO,"Thread "+ Thread.currentThread().getId() + ":Adding to VIEW_REFRESH_EVENT this list of changes: " + changes.toString());
+					event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES, changes);
+					event.addParam(MsnEvent.VIEW_REFRESH_CONTACTSMAP, cMap);
+					event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LOCATIONMAP, cLocMap);
 					MsnEventMgr.getInstance().fireEvent(event);
 				}
 
@@ -309,15 +332,14 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 				//retrieve
 				ContactLocation curMyLoc = ContactManager.getInstance().getMyContactLocation();				
 
-				Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curMyLoc.getLatitude()));
-				serviceDescription.addProperties(p);
-				p = new Property(PROPERTY_NAME_LOCATION_LONG,new Double(curMyLoc.getLongitude()));
-				serviceDescription.addProperties(p);
-				p= new Property(PROPERTY_NAME_LOCATION_ALT,new Double(curMyLoc.getAltitude()));
-				serviceDescription.addProperties(p);
-
-				//update df entry				
-				if (curMyLoc.hasMoved()){						
+				if (curMyLoc.hasMoved() && curMyLoc.getLatitude() != Double.POSITIVE_INFINITY && curMyLoc.getLongitude() != Double.POSITIVE_INFINITY)
+				{		
+					Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curMyLoc.getLatitude()));
+					serviceDescription.addProperties(p);
+					p = new Property(PROPERTY_NAME_LOCATION_LONG,new Double(curMyLoc.getLongitude()));
+					serviceDescription.addProperties(p);
+					p= new Property(PROPERTY_NAME_LOCATION_ALT,new Double(curMyLoc.getAltitude()));
+					serviceDescription.addProperties(p);
 					DFService.modify(myAgent, description);
 				}
 

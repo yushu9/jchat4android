@@ -64,8 +64,8 @@ public class Contact  {
 	 * @param c the contact to be copied
 	 */
 	public Contact(Contact c){
-		this.name = new String(c.name);
-		this.phoneNumber = new String(c.phoneNumber);
+		this.name = c.name;
+		this.phoneNumber = c.phoneNumber;
 		this.isOnline = c.isOnline;
 		this.storedOnPhone = c.storedOnPhone;
 	}

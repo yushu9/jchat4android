@@ -3,6 +3,8 @@
  */
 package com.tilab.msn;
 
+import jade.util.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +22,7 @@ import java.util.Map;
  */
 public class MsnEvent {
 	
+		private Logger myLogger = Logger.getMyLogger(MsnEvent.class.getName());
 		
 		/**
 		 * Event that is fired each time an update should be performed
@@ -41,19 +44,27 @@ public class MsnEvent {
 		
 		//Parameters defined for INCOMING MSG EVENT
 		/**
-		 * Name of parameter 
+		 * Name for the incoming message parameter 
 		 */
 		public static final String INCOMING_MESSAGE_PARAM_MSG="INCOMING_MESSAGE_PARAM_MSG";
 		/**
-		 * Name of parameter 
+		 * Name for the session id parameter for an incoming message  
 		 */
 		public static final String INCOMING_MESSAGE_PARAM_SESSIONID="INCOMING_MESSAGE_PARAM_SESSIONID";
 		
 		//Parameters defined for VIEW REFRESH EVENT
 		/**
-		 * Name of parameter 
+		 * Name for the list of changes parameter at each refresh 
 		 */
 		public static final String VIEW_REFRESH_PARAM_LISTOFCHANGES="VIEW_REFRESH_PARAM_LISTOFCHANGES";
+		/**
+		 * Name of contacts map parameter at each refresh
+		 */
+		public static final String VIEW_REFRESH_CONTACTSMAP="VIEW_REFRESH_CONTACTSMAP";
+		/**
+		 * Name of location map parameter at each refresh
+		 */
+		public static final String VIEW_REFRESH_PARAM_LOCATIONMAP="VIEW_REFRESH_PARAM_LOCATIONMAP";
 		
 		//Parameters defined for CONTACT DISCONNECT EVENT
 		/**
@@ -88,6 +99,7 @@ public class MsnEvent {
 			this.name = name;
 		}
 		
+		
 		/**
 		 * Adds a parameter to the event using the given name
 		 * 
@@ -100,6 +112,7 @@ public class MsnEvent {
 			}
 			
 			paramsMap.put(name, value);
+			myLogger.log(Logger.INFO,"putting in event map parameter " + name +" having value "+ value.toString() );
 		}
 		
 		/**

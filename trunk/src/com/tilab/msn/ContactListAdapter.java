@@ -171,36 +171,48 @@ public class ContactListAdapter extends BaseAdapter {
 	 * Update the contact list adapter by using a list of changes. This method shall be called by the agent
 	 * (posted on the UI thread) with a list of all new contacts to add and all contacts to remove.
 	 * 
-	 * @param changes list of all changes (list of all new contacts and removed contacts)
+	 * @param changes list of all changes (list of all new contacts and removed contacts) 
+	 * @param cMap copy of the contact map that shall be used for this update (to avoid racing conditions issues)
+	 * @param cLocMap copy of the location map that shall be used for this update (to avoid racing conditions issues)
 	 */
-	public final void update(final ContactListChanges changes){
-		ContactLocation cMyLoc = ContactManager.getInstance().getMyContactLocation();
+	public final void update(final ContactListChanges changes, Map<String, Contact> cMap, Map<String, ContactLocation> cLocMap){
 		
-		Map<String,Contact> cMap = ContactManager.getInstance().getAllContacts();
-		Map<String,ContactLocation> cLocMap = ContactManager.getInstance().getAllContactLocations();
+		
+		ContactLocation cMyLoc = ContactManager.getInstance().getMyContactLocation();
 		
 		if (changes.contactsAdded.size() > 0 || changes.contactsDeleted.size() > 0) {
 			myLogger.log(Logger.INFO, "Modifications reported from updating thread...\n " +
-					"Contacts added: " + changes.contactsAdded.size() + 
-					"\nContacts deleted: " + changes.contactsDeleted.size());
-		}		
+					"Contacts added: " + changes.contactsAdded.size() + " " + changes.contactsAdded.toString() + 
+					"\nContacts deleted: " + changes.contactsDeleted.size() + " " + changes.contactsDeleted.toString());
+		} else {
+			myLogger.log(Logger.INFO, "Empty modification list received from updating thread! ");
+		}
 		
 		//Ok, now we should update the views
 		//For each newly added contact add it
 		for (String contactId : changes.contactsAdded) {
 			ContactViewInfo cvi = new ContactViewInfo(contactId);
 			contactViewInfoList.add(cvi);
+			myLogger.log(Logger.INFO, "New ContactViewInfo added!\n ContactViewInfo list is now: " + contactViewInfoList.toString() );
 		}
 		
 		//Now for all deleted contact delete it
 		for (String contactId : changes.contactsDeleted) {
 			ContactViewInfo cvi = new ContactViewInfo(contactId);
 			contactViewInfoList.remove(cvi);
+			myLogger.log(Logger.INFO, "ContactViewInfo removed!\n ContactViewInfo list is now: " + contactViewInfoList.toString() );
 		}
+		
 		
 		//At the end update all contacts
 		for (ContactViewInfo viewInfo : contactViewInfoList) {
-			viewInfo.updateView(cMap.get(viewInfo.contactId), cLocMap.get(viewInfo.contactId),  cMyLoc);
+			Contact ctn = cMap.get(viewInfo.contactId);
+			if (ctn == null){
+				myLogger.log(Logger.INFO, "DANGER: an update for a no more existent contact was require!!!! APPLICATION SHALL CRASH!!\n" +
+						"contact ID: " + viewInfo.contactId + " having " + contactViewInfoList.size() + " contact view infos and " +
+						cMap.size() +" contacts");
+			}
+			viewInfo.updateView(ctn, cLocMap.get(viewInfo.contactId),  cMyLoc);
 		}
 	}
 	
@@ -298,6 +310,10 @@ public class ContactListAdapter extends BaseAdapter {
 			}
 		}
 		
+		public String toString(){
+			return "ContactViewInfo for contact " + contactId;
+		}
+		
 		/**
 		 * Updates the content of this view, based on the parameters passed.
 		 * 
@@ -321,11 +337,18 @@ public class ContactListAdapter extends BaseAdapter {
 			if (c.isOnline()){
 				setStyle(ONLINE_STYLE);
 				float distInMeters  = cMyLoc.distanceTo(cloc);
-				float distInKm = distInMeters / 1000.0f;
-				String distKmAsString = String.valueOf(distInKm);
-				StringBuffer buf = new StringBuffer(distKmAsString);
-				buf.append(" km");
-				buf.append(" from me");
+				StringBuffer buf = new StringBuffer();
+				
+				if (cMyLoc.getLatitude() == Double.POSITIVE_INFINITY || cMyLoc.getLongitude() == Double.POSITIVE_INFINITY || 
+						cloc.getLatitude() == Double.POSITIVE_INFINITY || cloc.getLongitude() == Double.POSITIVE_INFINITY){
+					buf.append("Acquiring distance...");
+				} else {
+					float distInKm = distInMeters / 1000.0f;
+					String distKmAsString = String.valueOf(distInKm);
+					buf.append(distKmAsString);
+					buf.append(" km");
+					buf.append(" from me");
+				}
 				contactDistTxt.setText(buf.toString());
 			} else {
 				setStyle(OFFLINE_STYLE);

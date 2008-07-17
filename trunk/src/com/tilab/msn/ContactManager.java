@@ -152,7 +152,7 @@ public class ContactManager {
 				String phonenumber = c.getString(phonenumberCol);
 				String name = c.getString(nameCol);
 
-				myLogger.log(Logger.INFO, "Found contact "+ name + " with numtel " + phonenumber);
+				myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Found contact "+ name + " with numtel " + phonenumber);
 				Contact cont = new Contact(name, phonenumber,true);
 				contactsMap.put(phonenumber, cont);
 				
@@ -203,9 +203,11 @@ public class ContactManager {
 				ContactLocation oldLocation= new ContactLocation();
 				ContactLocation newLocation= oldLocation.changeLocation(loc);
 		
+				myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":New contact " +  cont.getName() + " was added with location " + newLocation.toString() );
 					contactLocationMap.put(phoneNumber,newLocation);
 					contactsMap.put(phoneNumber, cont);
 					modifications.contactsAdded.add(phoneNumber);
+					myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Contact map is now: " + contactsMap.toString() );
 			}
 		}
 	}
@@ -227,9 +229,11 @@ public class ContactManager {
 					c.setOffline();	
 				} else {
 					contactsMap.remove(phoneNumber);
+					myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Removing contact with phone number " + phoneNumber);
 					modifications.contactsDeleted.add(phoneNumber);
 				}		
 				contactLocationMap.remove(phoneNumber);
+				myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Contact map is now: " + contactsMap.toString() );
 			}
 	}
 
