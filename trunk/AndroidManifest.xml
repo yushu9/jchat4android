@@ -19,6 +19,12 @@
             </intent-filter>
         </activity>
         
+        <activity  android:label="@string/app_name" android:name=".SendSMSActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+        
         <activity android:label="@string/app_name" android:name=".ChatActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
