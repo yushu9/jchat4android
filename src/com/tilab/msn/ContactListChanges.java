@@ -1,4 +1,6 @@
 package com.tilab.msn;
+import jade.util.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +19,11 @@ import java.util.List;
 
 public class ContactListChanges {
 
+	/**
+	 * Instance of the Jade Logger for debugging
+	 */
+	private Logger myLogger = Logger.getMyLogger(ContactListChanges.class.getName());
+	
 	/** 
 	 * List of the contacts phone number that have been added since last update
 	 */
@@ -36,8 +43,9 @@ public class ContactListChanges {
 	 * @param changes the {@link ContactListChanges} that should be copied
 	 */
 	public ContactListChanges(ContactListChanges changes){
-		this.contactsAdded = new ArrayList<String>(changes.contactsAdded);
-		this.contactsDeleted = new ArrayList<String>(changes.contactsDeleted);
+		contactsAdded = new ArrayList<String>(changes.contactsAdded);
+		contactsDeleted = new ArrayList<String>(changes.contactsDeleted);
+		myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ": Copy constructor of ContactListChanges called!");
 	}
 	
 	/**
@@ -46,7 +54,9 @@ public class ContactListChanges {
 	public ContactListChanges(){
 		contactsAdded = new ArrayList<String>();
 		contactsDeleted = new ArrayList<String>();
+		myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Main constructor of ContactListChanges called!");
 	}
+	
 	
 	/**
 	 * Clears both the lists of changes
@@ -54,6 +64,14 @@ public class ContactListChanges {
 	public void resetChanges() {
 		contactsAdded.clear();
 		contactsDeleted.clear();
+		myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Reset changes of ContactListChanges was called!");
 	}
 	
+	/**
+	 * Overrides Object.toString() and provides a representation of a {@link ContactListChanges} by printing 
+	 * both the list of added and removed contacts 
+	 */
+	public String toString(){
+		return "Thread "+ Thread.currentThread().getId() + ":ContactListChanges: ADDED => " + contactsAdded.toString() + "\n REMOVED => " +contactsDeleted.toString();
+	}
 }

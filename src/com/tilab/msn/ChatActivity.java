@@ -12,7 +12,6 @@ import jade.util.leap.Properties;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.ActivityPendingResult;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -75,10 +74,6 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	
 	private ChatActivityHandler activityHandler;
 	
-	/** object used to report to the main activity (we need to know when a chat activity is closed to clear
-	 *  check on contacts list) 
-	 */
-	private ActivityPendingResult activityPendingResult;
 	
 	/**
 	 * Retrieves the id of the chat session this activity refers to.

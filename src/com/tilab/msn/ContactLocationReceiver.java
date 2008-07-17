@@ -21,7 +21,7 @@ import android.location.Location;
  * @version 1.0 
  * @see GeoNavigator
  */
-public class LocationReceiver extends IntentReceiver {
+public class ContactLocationReceiver extends IntentReceiver {
 	
 	/**
 	 * Instance of JADE Logger for debugging  
@@ -36,13 +36,14 @@ public class LocationReceiver extends IntentReceiver {
 	 * @param intent broadcasted intent
 	 */
 	public void onReceiveIntent(Context context, Intent intent) {		
-		Thread.currentThread().getId();
+		
+        String action = intent.getAction();
+       
         
-		if (intent.getAction().equals(GeoNavigator.LOCATION_UPDATE_ACTION)){
+		if (action.equals(GeoNavigator.LOCATION_UPDATE_ACTION)){
 			Location loc = (Location) intent.getParcelableExtra("location");
 			ContactManager.getInstance().updateMyContactLocation(loc);
 			this.abortBroadcast(); 
 		}
-		
 	}
 }

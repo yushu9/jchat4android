@@ -53,13 +53,9 @@ public abstract class GuiEventHandler implements IEventHandler {
 	 * 
 	 */
 	public void handleEvent(MsnEvent event){
-		if (event.getName().equals(MsnEvent.INCOMING_MESSAGE_EVENT)){
-			localHandler.post((new MyRunnable(event)));
-		} else {
-			localHandler.postDelayed(new MyRunnable(event),1000);
-		}
 		
-		myLogger.log(Logger.FINE, "Event " + event.getName() + "posted by thread " + Thread.currentThread().getId());
+		localHandler.postDelayed((new MyRunnable(event)),500);
+		
 	}
 	
 	/**
@@ -79,7 +75,7 @@ public abstract class GuiEventHandler implements IEventHandler {
 		 * Event to be stored 
 		 */
 		private MsnEvent parameter;
-	
+		
 		/**
 		 * Instantiates a new my runnable.
 		 * 
@@ -87,13 +83,15 @@ public abstract class GuiEventHandler implements IEventHandler {
 		 */
 		public MyRunnable(MsnEvent event){
 			parameter = event;
+			
 		}
 			
 	
 		/**
 		 * Code to be executed on the UI thread (simply calls the abstract method defined by subclasses)
 		 */
-		public void run() {			
+		public void run() {		
+		
 			GuiEventHandler.this.processEvent(parameter);
 		}
 		
