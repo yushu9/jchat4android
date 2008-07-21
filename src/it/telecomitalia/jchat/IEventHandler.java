@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.tilab.msn;
+package it.telecomitalia.jchat;
 
 /**
  * Generic interface for an event handler

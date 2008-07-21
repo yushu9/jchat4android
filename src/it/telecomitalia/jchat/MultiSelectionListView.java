@@ -1,4 +1,4 @@
-package com.tilab.msn;
+package it.telecomitalia.jchat;
 
 import java.util.List;
 import java.util.Map;

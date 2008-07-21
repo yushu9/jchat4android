@@ -1,4 +1,4 @@
-package com.tilab.msn;
+package it.telecomitalia.jchat;
 
 
 // TODO: Auto-generated Javadoc

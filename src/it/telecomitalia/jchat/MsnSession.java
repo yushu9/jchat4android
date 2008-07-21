@@ -1,4 +1,4 @@
-package com.tilab.msn;
+package it.telecomitalia.jchat;
 
 import jade.core.AID;
 import jade.util.Logger;
