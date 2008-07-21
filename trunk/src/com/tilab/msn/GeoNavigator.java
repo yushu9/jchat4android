@@ -1,5 +1,7 @@
 package com.tilab.msn;
 
+import java.io.FileNotFoundException;
+
 import jade.util.Logger;
 import android.content.Context;
 import android.content.Intent;
@@ -98,8 +100,9 @@ public class GeoNavigator {
 	 * @param c the application context
 	 * 
 	 * @return single instance of GeoNavigator
+	 * @throws FileNotFoundException 
 	 */
-	public static GeoNavigator getInstance(Context c){
+	public static GeoNavigator getInstance(Context c) {
 		if (navigator == null)
 			navigator = new GeoNavigator(c);
 		return navigator;
@@ -112,21 +115,14 @@ public class GeoNavigator {
 	 * 
 	 * @param c the application context
 	 */
-	private GeoNavigator(Context c){
+	private GeoNavigator(Context c) {
 		locationReceiver = new ContactLocationReceiver();
 		manager = (LocationManager)c.getSystemService(Context.LOCATION_SERVICE);
 		updateIntent = new Intent(LOCATION_UPDATE_ACTION);
 		filter = new IntentFilter(LOCATION_UPDATE_ACTION);
 		filter.addAction(SendSMSActivity.SMS_SENT_ACTION);
 		filter.addAction(SendSMSActivity.SMS_ERROR_ACTION);
-		myContext = c;
-		
-		if (locProviderName != null){
-			provider = manager.getProvider(locProviderName);
-		} else {
-			provider = manager.getProvider(DEFAULT_PROVIDER_NAME);
-		}
-		
+		myContext = c;	
 		
 	}
 	
@@ -161,10 +157,21 @@ public class GeoNavigator {
 	/**
 	 * Performs a registration of the IntentReceiver for broadcast intents as defined by the intent filter.
 	 * Please note that registration must precede the start of location updates
+	 * @throws FileNotFoundException 
 	 */
-	public void initialize(){
+	public void initialize() throws FileNotFoundException{
 		myLogger.log(Logger.INFO, "Registering the intent receiver....");
 		myContext.registerReceiver(locationReceiver,filter);
+		try {
+			if (locProviderName != null){
+				provider = manager.getProvider(locProviderName);
+			} else {
+				provider = manager.getProvider(DEFAULT_PROVIDER_NAME);
+			}
+		} catch (NullPointerException ex) {
+			throw new FileNotFoundException("Unable to retrieve the given location provider!");
+		}
+		
 	}
 	
 	/**

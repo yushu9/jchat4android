@@ -9,6 +9,7 @@ import jade.util.leap.Properties;
 import jade.wrapper.ControllerException;
 import jade.wrapper.StaleProxyException;
 
+import java.io.FileNotFoundException;
 import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.List;
@@ -429,17 +430,24 @@ public class ContactListActivity extends MapActivity implements
 		//start updating myContact
 		GeoNavigator.setLocationProviderName(getText(
 				R.string.location_provider_name).toString());
-		GeoNavigator.getInstance(this).initialize();
-		GeoNavigator.getInstance(this).startLocationUpdate();
-
-		//register an event for this activity to handle refresh of the views in this activity
-		activityHandler = new ContactListActivityUpdateHandler();
+		try {
+			GeoNavigator.getInstance(this).initialize();
+			GeoNavigator.getInstance(this).startLocationUpdate();
+	
+			//register an event for this activity to handle refresh of the views in this activity
+			activityHandler = new ContactListActivityUpdateHandler();
+			
+			//register a generic disconnection handler
+			MsnEventMgr.getInstance().registerEvent(MsnEvent.CONTACT_DISCONNECT_EVENT, new ContactDisconnectionHandler());
+			//Initialize the UI
+			initUI();
+			disableUI();
+		} catch (FileNotFoundException ex) {
+			
+			Toast.makeText(this, ex.getMessage(), 2000).show();
+			finish();
+		}
 		
-		//register a generic disconnection handler
-		MsnEventMgr.getInstance().registerEvent(MsnEvent.CONTACT_DISCONNECT_EVENT, new ContactDisconnectionHandler());
-		//Initialize the UI
-		initUI();
-		disableUI();
 	}
 	
 
@@ -542,11 +550,11 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	protected void onDestroy() {
 
+	
 		GeoNavigator.getInstance(this).stopLocationUpdate();
-
 		myLogger.log(Logger.INFO, "onDestroy called ...");
 		GeoNavigator.getInstance(this).shutdown();
-
+	
 		
 		ChatSessionNotificationManager.getInstance().removeAllNotifications();
 
