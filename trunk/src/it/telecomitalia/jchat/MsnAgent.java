@@ -1,4 +1,4 @@
-package com.tilab.msn;
+package it.telecomitalia.jchat;
 
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
