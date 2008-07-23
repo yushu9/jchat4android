@@ -2,7 +2,7 @@
 
 This page is intended to be used as a big discussion board on jChat application, collecting all audience comments.
 
-We are really interested in understanding what *YOU* think about jChat and JADE on Android in general, whether if you are an experienced programmer or a novice.  
+We are really interested in understanding what *YOU* think about jChat and JADE-on-Android in general, whether if you are an experienced programmer or a novice.  
 
 Ideally, your post should provide answers to the following questions:
  * _Do you like jChat? Which improvements you would be glad to see in next realeases?_
