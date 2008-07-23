@@ -14,7 +14,7 @@ To launch jChat follow these steps:
  * Launch Android emulator
  * Install jChat on the emulator by issuing the following command: 
    {{{ 
-      adb install <PATH_TO_APK>\jChat.apk 
+   adb install <PATH_TO_APK>\jChat.apk 
    }}}
  * Start a JADE Leap main container issuing the following command: {{{java -cp <PATH_TO_JADE_LEAP_JAR>\JadeLeap.jar -Djade_domain_df_autocleanup=true jade.Boot -gui}}}
  * Launch jChat application from Android emulator
