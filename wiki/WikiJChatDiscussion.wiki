@@ -9,7 +9,5 @@ Ideally, your post should provide answers to the following questions:
  * _What do you really hate about jChat?_ 
  * _Are you curious about JADE and agent driven development?_ 
  * _If you're an Android developer, do you think you could use JADE in your own Android application? Why? Why not?_
-
 Please post your comments down here 
-
 We all thank you for your contribution :)
