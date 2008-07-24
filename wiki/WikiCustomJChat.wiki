@@ -23,13 +23,11 @@ To add new tracks you should follow these steps:
  
  * Copy the kml file to the emulator issuing the command: `adb push <PATH_TO_KML> /data/misc/location/mygps`
  
- *
-   Copy the location and properties files (that you can find in jchat sources under `cfg/locations` folder or under the `/data/misc/location/gps` folder on the emulator) in  `/data/misc/location/mygps`
+ * Copy the location and properties files (that you can find in jchat sources under `cfg/locations` folder or under the `/data/misc/location/gps` folder on the emulator) in  `/data/misc/location/mygps`
  
  * Restart the Android emulator
  
- *  
-   Check the file strings.xml that you can find in `<JCHAT_ROOT>\res\values`. In particular you have to set the value of the `location_provider_name` variable like that `<string name="location_provider_name">mygps </string>`
+ *  Check the file strings.xml that you can find in `<JCHAT_ROOT>\res\values`. In particular you have to set the value of the `location_provider_name` variable like that `<string name="location_provider_name">mygps </string>`
  
  * Rebuild the `jChat apk` file with the new data
  
