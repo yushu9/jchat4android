@@ -11,8 +11,8 @@ To add new tracks you should follow these steps:
  * Choose _Save place as_ and then _kml_ as file format
  * Rename your file to simply "kml" (no extension)
  * Launch Android emulator
- * Run a shell on the emulator with _adb shell_ command
- * Go to `/data/misc/location` and create a directory that shall have the same name of the Android location provider. You can choose whatever name you want (let's say "mygps"). To do so issue the command: `mkdir /data/misc/location/mygps`
+ * Run a shell on the emulator with _adb shell_ command.
+ * Go to _/data/misc/location_ and create a directory that shall have the same name of the Android location provider. You can choose whatever name you want (let's say "mygps"). To do so issue the command: `mkdir /data/misc/location/mygps`
  * Exit from the adb shell
  * Copy the kml file to the emulator issuing the command: `adb push <PATH_TO_KML> /data/misc/location/mygps`
  * Copy the location and properties files (that you can find in jchat sources under `cfg/locations` folder or under the `/data/misc/location/gps` folder on the emulator) in  `/data/misc/location/mygps`
