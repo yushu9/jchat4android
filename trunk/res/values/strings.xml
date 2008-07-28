@@ -24,10 +24,9 @@
    	<string name="menu_item_call">Call</string>
    	<string name="menu_item_sms">SMS</string>
    
-    <string name="menuitem_zoom">Zoom Dialog</string>
     
     <!-- LOCATION PROVIDER NAME -->
-    <string name="location_provider_name">mygps </string>
+    <string name="location_provider_name">gps </string>
     
 	<!-- JADE PLATFORM CONNECTION PARAMETERS -->    
     <string name="jade_platform_host">10.0.2.2</string>
@@ -45,7 +44,4 @@
     <string name="error_msg_multiple_phonecalls">You cannot call more than one contact a time </string>
     <string name="error_sms_empty"> Cannot send SMS with empty body! </string>
 
-	<!-- MISSING FEATURES -->
-	<string name="missing_feature_sms">Sending SMS is not supported at the moment!</string>
-    <string name="Hello">HELLO!!!!!</string>
 </resources>
