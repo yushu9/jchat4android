@@ -25,7 +25,9 @@ package it.telecomitalia.jchat;
 
 
 import jade.lang.acl.ACLMessage;
-import android.util.DateUtils;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 
 /**
@@ -168,9 +170,22 @@ public class MsnSessionMessage {
 	 * @return the time received as string
 	 */
 	public String getTimeReceivedAsString(){
-		return DateUtils.timeString(time).toString();
+		Calendar calend = new GregorianCalendar();
+		calend.setTimeInMillis(time);
+		int hour = calend.get(Calendar.HOUR_OF_DAY);
+		int minutes = calend.get(Calendar.MINUTE);
+		return pad(hour) + ":" + pad(minutes);
+		
 	}
 
+	/**
+	 * Formats date and time correctly
+	 * 
+	 * @return the time received as string
+	 */
+	private String pad(int c) {
+		return (c<10)?"0"+String.valueOf(c):String.valueOf(c);
+	}
 	
 	/**
 	 * Overrides Object.toString(). Provides a string representation for a message

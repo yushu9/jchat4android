@@ -38,10 +38,13 @@
 	  <string name="label_toggle_map">Toggle map mode</string>
 	  <string name="label_params_title">Jade Connection settings</string>
 	  <string name="label_sms_title">Send SMS </string>
+	  <string name="label_map_tab_indicator"> Map </string>
+	  <string name="label_contacts_tab_indicator"> Contacts </string>
 
     <!-- ERROR MESSAGES -->
     <string name="error_msg_jadegw_connection">Error connecting to Jade Gateway</string>
     <string name="error_msg_multiple_phonecalls">You cannot call more than one contact a time </string>
     <string name="error_sms_empty"> Cannot send SMS with empty body! </string>
 
+	
 </resources>

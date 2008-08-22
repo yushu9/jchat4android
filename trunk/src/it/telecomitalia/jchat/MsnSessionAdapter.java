@@ -28,10 +28,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import android.content.Resources;
+import android.content.res.Resources;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewInflate;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
@@ -56,7 +56,7 @@ public class MsnSessionAdapter extends BaseAdapter {
 	/** 
 	 * The inflater used to transform custom layout xml files in View object  
 	 */
-	private ViewInflate theInflater;
+	private LayoutInflater theInflater;
 	
 	/** 
 	 * the conversation session this adapter refers to. 
@@ -74,7 +74,7 @@ public class MsnSessionAdapter extends BaseAdapter {
 	 * @param vi the inflater that shall be used for inflating views
 	 * @param res provides an access to xml layout resource files
 	 */
-	public MsnSessionAdapter(ViewInflate vi, Resources res){
+	public MsnSessionAdapter(LayoutInflater vi, Resources res){
 		theInflater = vi;
 		messageViews = new LinkedList<View>();
 		colorGenerator = new ContactColorGenerator(res);
@@ -114,7 +114,7 @@ public class MsnSessionAdapter extends BaseAdapter {
 	 * @param msg the message for which we need to create a new view
 	 */
 	public void addMessageView(MsnSessionMessage msg){
-		View messageView = theInflater.inflate(R.layout.session_msg_layout, null, null);
+		View messageView = theInflater.inflate(R.layout.session_msg_layout, null);
 	
 		TextView senderNameTxtView = (TextView) messageView.findViewById(R.id.sender_name);
 		senderNameTxtView.setText(msg.getSenderName());

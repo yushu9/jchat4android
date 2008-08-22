@@ -24,9 +24,9 @@ package it.telecomitalia.jchat;
 
 
 import jade.util.Logger;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentReceiver;
 import android.location.Location;
 
 
@@ -43,7 +43,7 @@ import android.location.Location;
  * @version 1.0 
  * @see GeoNavigator
  */
-public class ContactLocationReceiver extends IntentReceiver {
+public class ContactLocationReceiver extends BroadcastReceiver {
 	
 	/**
 	 * Instance of JADE Logger for debugging  
@@ -57,15 +57,17 @@ public class ContactLocationReceiver extends IntentReceiver {
 	 * @param context application context
 	 * @param intent broadcasted intent
 	 */
-	public void onReceiveIntent(Context context, Intent intent) {		
+	public void onReceive(Context context, Intent intent) {		
 		
         String action = intent.getAction();
        
         
 		if (action.equals(GeoNavigator.LOCATION_UPDATE_ACTION)){
 			Location loc = (Location) intent.getParcelableExtra("location");
-			ContactManager.getInstance().updateMyContactLocation(loc);
+			
 			this.abortBroadcast(); 
 		}
 	}
+
+
 }

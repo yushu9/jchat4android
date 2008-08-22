@@ -121,8 +121,6 @@ public class JadeParameterDialog extends Dialog {
 	 */
 	private View initUI(Context ctx){
 		RelativeLayout layout = new RelativeLayout(ctx);
-		layout.setPreferredHeight(LayoutParams.WRAP_CONTENT);
-		layout.setPreferredWidth(LayoutParams.WRAP_CONTENT);
 		
 		TextView jadeAddress = new TextView(ctx);
 		jadeAddress.setText("Jade platform address");
@@ -131,21 +129,21 @@ public class JadeParameterDialog extends Dialog {
 		
 		jadeAddressEdt = new EditText(ctx);
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		params.addRule(RelativeLayout.POSITION_BELOW, 1);
+		params.addRule(RelativeLayout.BELOW, 1);
 		jadeAddressEdt.setId(2);
 		layout.addView(jadeAddressEdt,params);
 		
 		TextView jadePort = new TextView(ctx);
 		jadePort.setText("Jade platform port");
 		params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		params.addRule(RelativeLayout.POSITION_BELOW, 2);
+		params.addRule(RelativeLayout.BELOW, 2);
 		jadePort.setId(3);
 		layout.addView(jadePort,params);
 		
 		jadePortEdt = new EditText(ctx);
 		jadePortEdt.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		params.addRule(RelativeLayout.POSITION_BELOW, 3);
+		params.addRule(RelativeLayout.BELOW, 3);
 		jadePortEdt.setId(4);
 		layout.addView(jadePortEdt,params);
 		
@@ -153,7 +151,7 @@ public class JadeParameterDialog extends Dialog {
 		Button closeButton = new Button(ctx);
 		params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		params.addRule(RelativeLayout.POSITION_BELOW, 4);
+		params.addRule(RelativeLayout.BELOW, 4);
 		closeButton.setText("Close");
 		closeButton.setOnClickListener(new View.OnClickListener(){
 			/**

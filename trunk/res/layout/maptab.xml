@@ -22,7 +22,6 @@ android:layout_height="fill_parent"
 		android:id="@+id/contactBtn"
 		style="@style/ButtonStyle"
 		android:layout_width="wrap_content"
-		android:background="@android:drawable/button_background"
 		android:layout_height="fill_parent"
 		android:text="Contacts"
 		/>
