@@ -183,15 +183,7 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	private MapView mapView;
 
-	/** 
-	 * The view inside the contact tab. 
-	 */
-	private View contactView;
 
-	/** 
-	 * The view inside map tab. 
-	 */
-	private View mapViewTab;
 
 	/**
 	 *  Custom dialog containing Jade connection parameters entered by the user. 
@@ -222,18 +214,19 @@ public class ContactListActivity extends MapActivity implements
 		setContentView(R.layout.homepage);
 		mainTabHost = (TabHost) findViewById(R.id.main_tabhost);
 		mainTabHost.setup();
+		mainTabHost.setEnabled(false);
 
 		//Fill the contacts tab
 		TabSpec contactsTabSpecs = mainTabHost.newTabSpec(CONTACTS_TAB_TAG);
 		TabSpec mapTabSpecs = mainTabHost.newTabSpec(MAPVIEW_TAB_TAG);
 
-		LayoutInflater inflater;
-		inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-		contactsTabSpecs.setIndicator("");
-		mapTabSpecs.setIndicator(getText(R.string.label_contacts_tab_indicator));
-		contactsTabSpecs.setContent(R.id.content1);
-		mapTabSpecs.setContent(R.id.content2);
+		contactsTabSpecs.setIndicator(getText(R.string.label_contacts_tab_indicator), getResources().getDrawable(R.drawable.contact));
+		contactsTabSpecs.setContent(R.id.contactstabview);
+		
+		mapTabSpecs.setIndicator(getText(R.string.label_map_tab_indicator), getResources().getDrawable(R.drawable.globemap));
+		mapTabSpecs.setContent(R.id.maptabview);
+		
+		
 		mainTabHost.addTab(contactsTabSpecs);
 		mainTabHost.addTab(mapTabSpecs);
 		Resources res = getResources();
@@ -241,38 +234,21 @@ public class ContactListActivity extends MapActivity implements
 		int[] colors = new int[] { res.getColor(R.color.white),
 				res.getColor(R.color.blue) };
 		
-		int[] selectedTabColors = new int[] { res.getColor(R.color.white),
-				res.getColor(R.color.blue) };
-		int[] outOfFocusTabColors = new int[] { res.getColor(R.color.white),
-				res.getColor(R.color.dark_grey) };
-
+	
 		GradientDrawable contentGradient = new GradientDrawable(
 				Orientation.LEFT_RIGHT, colors);
 
-		
-		outOfFocusTabGradient = new GradientDrawable(Orientation.LEFT_RIGHT,
-				outOfFocusTabColors);
-		outOfFocusTabGradient.setCornerRadii(new float[] { 10.0f, 10.0f, 10.0f,
-				10.0f, 0.0f, 0.0f, 0.0f, 0.0f });
 
-		selectedTabGradient = new GradientDrawable(Orientation.LEFT_RIGHT,
-				selectedTabColors);
-		selectedTabGradient.setCornerRadii(new float[] { 10.0f, 10.0f, 10.0f,
-				10.0f, 0.0f, 0.0f, 0.0f, 0.0f });
-
-		mapViewTab.setBackgroundDrawable(outOfFocusTabGradient);
-		contactView.setBackgroundDrawable(selectedTabGradient);
-
-		View homeTab = (View) findViewById(R.id.content1);
+		View homeTab = (View) findViewById(R.id.contactstabview);
 		homeTab.setBackgroundDrawable(contentGradient);
-		View homeTab1 = (View) findViewById(R.id.content2);
+		View homeTab1 = (View) findViewById(R.id.maptabview);
 		homeTab1.setBackgroundDrawable(contentGradient);
 
 		mainTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
 
 			@Override
 			public void onTabChanged(String arg0) {
-				if (arg0 == null) {
+	/*			if (arg0 == null) {
 					contactView
 							.setBackgroundDrawable(ContactListActivity.this.selectedTabGradient);
 					mapViewTab
@@ -282,7 +258,7 @@ public class ContactListActivity extends MapActivity implements
 							.setBackgroundDrawable(ContactListActivity.this.selectedTabGradient);
 					contactView
 							.setBackgroundDrawable(ContactListActivity.this.outOfFocusTabGradient);
-				}
+				}*/
 			}
 
 		});
@@ -318,7 +294,8 @@ public class ContactListActivity extends MapActivity implements
 
 		
 		List<Overlay> overlayList = mapView.getOverlays();
-		overlayList.add(new ContactsPositionOverlay(mapView, getResources()));
+		overlay = new ContactsPositionOverlay(mapView, getResources());
+		overlayList.add(overlay);
 
 		//Button for switching map mode
 		switchButton = (Button) findViewById(R.id.switchMapBtn);
@@ -490,8 +467,8 @@ public class ContactListActivity extends MapActivity implements
 	private void enableUI() {
 		View v = findViewById(R.id.main_view);
 		contactsListView.setEnabled(true);
-		contactView.setEnabled(true);
-		mapViewTab.setEnabled(true);
+//		contactView.setEnabled(true);
+//		mapViewTab.setEnabled(true);
 
 		v.setEnabled(true);
 	}
@@ -502,8 +479,8 @@ public class ContactListActivity extends MapActivity implements
 	private void disableUI() {
 		View v = findViewById(R.id.main_view);
 		contactsListView.setEnabled(false);
-		contactView.setEnabled(false);
-		mapViewTab.setEnabled(false);
+//		contactView.setEnabled(false);
+//		mapViewTab.setEnabled(false);
 
 		v.setEnabled(false);
 	}
@@ -630,11 +607,9 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, MENUITEM_ID_CONNECT, R.string.menuitem_connect,
-				R.drawable.connect);
-		menu.add(0, MENUITEM_ID_SETTINGS, R.string.menuitem_settings,
-				R.drawable.settings);
-		menu.add(0, MENUITEM_ID_EXIT, R.string.menuitem_exit, R.drawable.stop);
+		menu.add(Menu.NONE, MENUITEM_ID_CONNECT, Menu.NONE, R.string.menuitem_connect);
+		menu.add(Menu.NONE, MENUITEM_ID_SETTINGS, Menu.NONE, R.string.menuitem_settings);
+		menu.add(Menu.NONE, MENUITEM_ID_EXIT, Menu.NONE, R.string.menuitem_exit);
 		return true;
 	}
 
