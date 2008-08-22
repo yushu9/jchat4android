@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.ActivityPendingResult;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
@@ -148,24 +148,15 @@ class ChatSessionNotificationManager {
 			int numberOfParticipants = session.getParticipantCount();
 			String title = session.toString();
 			
-			Intent viewChatIntent = new Intent(Intent.VIEW_ACTION);
-			viewChatIntent.addCategory(Intent.DEFAULT_CATEGORY);
-			viewChatIntent.setLaunchFlags(Intent.NEW_TASK_LAUNCH | Intent.SINGLE_TOP_LAUNCH);
+			Intent viewChatIntent = new Intent(Intent.ACTION_VIEW);
+			viewChatIntent.addCategory(Intent.CATEGORY_DEFAULT);
+			viewChatIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK  | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			viewChatIntent.setData(session.getSessionIdAsUri());
 			
-			ActivityPendingResult result = activity.createActivityPendingResult(ContactListActivity.CHAT_ACTIVITY_CLOSED, false);
-			viewChatIntent.putExtra(ContactListActivity.ID_ACTIVITY_PENDING_RESULT, result);
+			PendingIntent pi = PendingIntent.getActivity(activity, 0, viewChatIntent, PendingIntent.FLAG_CANCEL_CURRENT );
 			
-			Notification notif = new Notification(activity,
-						 R.drawable.incoming,
-						 "",
-						 System.currentTimeMillis(),
-						 title,
-						 numberOfParticipants + " participants",
-						 viewChatIntent,
-						 android.R.drawable.app_icon_background,
-						 null,
-						 null);
+			Notification notif = new Notification(R.drawable.incoming,"",System.currentTimeMillis());
+			notif.setLatestEventInfo(activity, title, numberOfParticipants + " participants", pi);
 			return notif;
 		}
 		
@@ -182,24 +173,19 @@ class ChatSessionNotificationManager {
 			MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
 			String title = session.toString();
 			
-			Intent viewChatIntent = new Intent(Intent.VIEW_ACTION);
-			viewChatIntent.addCategory(Intent.DEFAULT_CATEGORY);
-			viewChatIntent.setLaunchFlags(Intent.NEW_TASK_LAUNCH | Intent.SINGLE_TOP_LAUNCH);
+			Intent viewChatIntent = new Intent(Intent.ACTION_VIEW);
+			viewChatIntent.addCategory(Intent.CATEGORY_DEFAULT);
+			viewChatIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP );
 			viewChatIntent.setData(session.getSessionIdAsUri());
+		
 			
-			ActivityPendingResult result = activity.createActivityPendingResult(ContactListActivity.CHAT_ACTIVITY_CLOSED, false);
-			viewChatIntent.putExtra(ContactListActivity.ID_ACTIVITY_PENDING_RESULT, result);
+			Notification notif = new Notification(R.drawable.chat,"A Message is arrived",System.currentTimeMillis());
 			
-			Notification notif = new Notification(activity,
-						 R.drawable.chat,
-						 "A Message is arrived",
-						 System.currentTimeMillis(),
-						 title,
-						 "Msg from " + msg.getSenderName(),
-						 viewChatIntent,
-						 android.R.drawable.app_icon_background,
-						 null,
-						 null);		
+			PendingIntent pi = PendingIntent.getActivity(activity, 0, viewChatIntent, PendingIntent.FLAG_CANCEL_CURRENT );
+			
+			notif.setLatestEventInfo(activity, title, "Msg from " + msg.getSenderName(), pi);
+			
+						 		
 			return notif;
 		}
 		

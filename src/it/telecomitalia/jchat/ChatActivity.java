@@ -118,7 +118,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	    setContentView(R.layout.chat);
 	    setFeatureDrawable(Window.FEATURE_LEFT_ICON, getResources().getDrawable(R.drawable.chat));		
 		myLogger.log(Logger.INFO, "onCreate called ...");
-		sessionAdapter = new MsnSessionAdapter(getViewInflate(), getResources());	
+		sessionAdapter = new MsnSessionAdapter(getWindow().getLayoutInflater(), getResources());	
 		sendButton = (ImageButton) findViewById(R.id.sendBtn);		
 		sendButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {

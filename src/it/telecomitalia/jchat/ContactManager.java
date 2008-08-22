@@ -95,7 +95,10 @@ public class ContactManager {
 	 */
 	private final String MY_CONTACT_NAME="Me";
 	
-	
+	/**
+	 * Name of the location provider
+	 */
+	private String providerName;
 
 	/**
 	 * Checks if any contact is currently moving.
@@ -159,16 +162,19 @@ public class ContactManager {
 	 * @param act reference to an activity
 	 */
 	public void readPhoneContacts(ContactListActivity act){
+		
+		providerName = act.getText(R.string.location_provider_name).toString();
+		
 		//perform a query on contacts database returning all contacts data in name ascending order
 		Cursor c = act.getContentResolver().query(People.CONTENT_URI, null, null, null, People.NAME + " DESC");
 
 		act.startManagingCursor(c);
 
-		int nameCol = c.getColumnIndex(People.NAME);
-		int phonenumberCol = c.getColumnIndex(People.NUMBER);
+		int nameCol = c.getColumnIndexOrThrow(People.NAME);
+		int phonenumberCol = c.getColumnIndexOrThrow(People.NUMBER);
 
 		//Let's get contacts data
-		if (c.first()){
+		if (c.moveToFirst()){
 			do {
 
 				String phonenumber = c.getString(phonenumberCol);
@@ -178,7 +184,7 @@ public class ContactManager {
 				Contact cont = new Contact(name, phonenumber,true);
 				contactsMap.put(phonenumber, cont);
 				
-			} while(c.next());			
+			} while(c.moveToNext());			
 		}		
 	}	
 	
@@ -212,7 +218,8 @@ public class ContactManager {
 					contactLocationMap.put(phoneNumber, newloc);				
 				}
 				else {
-					ContactLocation oldLocation= new ContactLocation();
+					
+					ContactLocation oldLocation= new ContactLocation(providerName);
 					ContactLocation newLocation= oldLocation.changeLocation(loc);
 					
 						cont.setOnline();						
@@ -222,7 +229,7 @@ public class ContactManager {
 			}else {
 				cont= new Contact(phoneNumber, phoneNumber,false);
 				cont.setOnline();
-				ContactLocation oldLocation= new ContactLocation();
+				ContactLocation oldLocation= new ContactLocation(providerName);
 				ContactLocation newLocation= oldLocation.changeLocation(loc);
 		
 				myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":New contact " +  cont.getName() + " was added with location " + newLocation.toString() );
@@ -356,7 +363,7 @@ public class ContactManager {
 		// TODO Auto-generated method stub
 		myContact = new Contact(MY_CONTACT_NAME,phoneNumber,true);
 		myContact.setOnline();
-		myContactLocation = new ContactLocation();
+		myContactLocation = new ContactLocation(providerName);
 		
 	}
 	

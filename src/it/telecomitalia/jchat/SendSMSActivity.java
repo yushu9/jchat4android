@@ -22,13 +22,17 @@
 
 package it.telecomitalia.jchat;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.google.android.mms.pdu.DeliveryInd;
+
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentReceiver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.telephony.gsm.SmsManager;
@@ -69,6 +73,11 @@ public class SendSMSActivity extends Activity {
 	 * Name of SMS address parameter
 	 */
 	public static final String SMS_ADDRESS_PARAM="SMS_ADDRESS_PARAM";
+	
+	/**
+	 * Name of SMS delivery message parameter
+	 */
+	public static final String SMS_DELIVERY_MSG_PARAM="SMS_DELIVERY_MSG_PARAM";
 	/**
 	 * Name of SMS address list
 	 */
@@ -103,7 +112,7 @@ public class SendSMSActivity extends Activity {
 	/**
 	 * Customized intent receiver for receiving SMS
 	 */
-	private IntentReceiver smsReceiver;
+	private BroadcastReceiver smsReceiver;
 	
 
 	
@@ -150,7 +159,7 @@ public class SendSMSActivity extends Activity {
 					
 					ImageButton btn = (ImageButton)arg0;
 					btn.setEnabled(false);
-					List<String> messages = smsMgr.divideMessage(smsText);
+					ArrayList<String> messages = smsMgr.divideMessage(smsText);
 					StringBuffer buffer = new StringBuffer();
 					
 					if (messages.size() > 1) {
@@ -165,20 +174,21 @@ public class SendSMSActivity extends Activity {
 						timeBase=3000;
 					}
 					
-					messageCounter =(SendSMSActivity.this.addresses.size()) * (messages.size()); 
-					numberOfMessages= messageCounter;
+					
 					
 					for (String address : SendSMSActivity.this.addresses) {
+					
+						ArrayList<PendingIntent> listOfIntents = new ArrayList<PendingIntent>();
 						
-						Intent sentIntent = new Intent(SendSMSActivity.SMS_SENT_ACTION);
-						sentIntent.putExtra(SMS_ADDRESS_PARAM, address);
-						
-						Intent errorIntent = new Intent(SendSMSActivity.SMS_ERROR_ACTION);
-						errorIntent.putExtra(SMS_ADDRESS_PARAM, address);
-
-						for (String msg : messages){
-							smsMgr.sendTextMessage(address,null, msg,sentIntent,null,errorIntent);
+						for (int i=0; i < messages.size(); i++){
+							Intent sentIntent = new Intent(SendSMSActivity.SMS_SENT_ACTION);
+							sentIntent.putExtra(SMS_ADDRESS_PARAM, address);
+							sentIntent.putExtra(SMS_DELIVERY_MSG_PARAM, (messages.size() > 1)? "Part " +  i + " of SMS " : "SMS ");
+							PendingIntent pi = PendingIntent.getBroadcast(SendSMSActivity.this, 0, sentIntent, PendingIntent.FLAG_ONE_SHOT);
+							listOfIntents.add(pi);
 						}
+						
+						smsMgr.sendMultipartTextMessage(address, null, messages, listOfIntents, null);
 					}
 
 					dlg = new ProgressDialog(SendSMSActivity.this);
@@ -206,13 +216,7 @@ public class SendSMSActivity extends Activity {
 		});
 	}
 	
-	/**
-	 * Returns the current time base for showing Toasts
-	 * @return the current time base
-	 */
-	public long getTimeBase(){
-		return timeBase;
-	}
+
 	
 	/**
 	 * Unregisters the customized SMS Intent receiver
@@ -221,33 +225,8 @@ public class SendSMSActivity extends Activity {
 		super.onDestroy();
 		unregisterReceiver(smsReceiver);
 	}
-
-	/**
-	 * Checks if all messages have been sent
-	 * 
-	 * @return true if all SMS have been sent to all receivers, false otherwise
-	 */
-	public boolean allMessagesSent() {
-		return (messageCounter == 0);
-	}
 	
 
-	/**
-	 * Returns the number of messages to be sent to each contact
-	 * @return number of messages to be sent
-	 */
-	public  int getNumberOfMessages(){
-		return numberOfMessages;
-	}
-	
-	/**
-	 * Decreases the number of messages that still needs to be sent. 
-	 */
-	public   void notifyMessageSent(){
-		if (messageCounter > 0){
-			messageCounter--;
-		}
-	}
 
 	/**
 	 * Prepares a string chaining together all the phone numbers (SMS addresses) using ";" as a separator

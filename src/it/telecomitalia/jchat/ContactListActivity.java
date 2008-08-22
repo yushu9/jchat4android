@@ -41,30 +41,28 @@ import java.util.Random;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.Resources;
+import android.content.res.Resources;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.IServiceManager;
-import android.os.ServiceManagerNative;
 import android.os.SystemProperties;
-import android.telephony.IPhone;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewInflate;
-import android.view.Menu.Item;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TabHost;
 import android.widget.Toast;
-import android.widget.AdapterView.ContextMenuInfo;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.TabHost.TabSpec;
 
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
-import com.google.android.maps.OverlayController;
+import com.google.android.maps.Overlay;
 
 /**
  * The main activity. Shows two tabs: one with contact list (with distance from current contact)
@@ -173,10 +171,7 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	private MultiSelectionListView contactsListView;
 
-	/** 
-	 * Overlay controller instance. 
-	 */
-	private OverlayController overlayCtrl;
+
 
 	/** 
 	 * The customized overlay we use to draw on the map. 
@@ -232,12 +227,11 @@ public class ContactListActivity extends MapActivity implements
 		TabSpec contactsTabSpecs = mainTabHost.newTabSpec(CONTACTS_TAB_TAG);
 		TabSpec mapTabSpecs = mainTabHost.newTabSpec(MAPVIEW_TAB_TAG);
 
-		ViewInflate inflater;
-		inflater = (ViewInflate) getSystemService(Context.INFLATE_SERVICE);
-		contactView = inflater.inflate(R.layout.contact_tab, null, null);
-		contactsTabSpecs.setIndicator(contactView);
-		mapViewTab = inflater.inflate(R.layout.maptab, null, null);
-		mapTabSpecs.setIndicator(mapViewTab);
+		LayoutInflater inflater;
+		inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+		contactsTabSpecs.setIndicator("");
+		mapTabSpecs.setIndicator(getText(R.string.label_contacts_tab_indicator));
 		contactsTabSpecs.setContent(R.id.content1);
 		mapTabSpecs.setContent(R.id.content2);
 		mainTabHost.addTab(contactsTabSpecs);
@@ -266,13 +260,13 @@ public class ContactListActivity extends MapActivity implements
 		selectedTabGradient.setCornerRadii(new float[] { 10.0f, 10.0f, 10.0f,
 				10.0f, 0.0f, 0.0f, 0.0f, 0.0f });
 
-		mapViewTab.setBackground(outOfFocusTabGradient);
-		contactView.setBackground(selectedTabGradient);
+		mapViewTab.setBackgroundDrawable(outOfFocusTabGradient);
+		contactView.setBackgroundDrawable(selectedTabGradient);
 
 		View homeTab = (View) findViewById(R.id.content1);
-		homeTab.setBackground(contentGradient);
+		homeTab.setBackgroundDrawable(contentGradient);
 		View homeTab1 = (View) findViewById(R.id.content2);
-		homeTab1.setBackground(contentGradient);
+		homeTab1.setBackgroundDrawable(contentGradient);
 
 		mainTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
 
@@ -280,14 +274,14 @@ public class ContactListActivity extends MapActivity implements
 			public void onTabChanged(String arg0) {
 				if (arg0 == null) {
 					contactView
-							.setBackground(ContactListActivity.this.selectedTabGradient);
+							.setBackgroundDrawable(ContactListActivity.this.selectedTabGradient);
 					mapViewTab
-							.setBackground(ContactListActivity.this.outOfFocusTabGradient);
+							.setBackgroundDrawable(ContactListActivity.this.outOfFocusTabGradient);
 				} else {
 					mapViewTab
-							.setBackground(ContactListActivity.this.selectedTabGradient);
+							.setBackgroundDrawable(ContactListActivity.this.selectedTabGradient);
 					contactView
-							.setBackground(ContactListActivity.this.outOfFocusTabGradient);
+							.setBackgroundDrawable(ContactListActivity.this.outOfFocusTabGradient);
 				}
 			}
 
@@ -296,11 +290,10 @@ public class ContactListActivity extends MapActivity implements
 		//init the map view
 		mapView = (MapView) findViewById(R.id.myMapView);
 		
-		
-		
-		mapView.setOnLongPressListener(new MapView.OnLongPressListener() {
+		mapView.setOnLongClickListener(new View.OnLongClickListener () {
 
-			public boolean onLongPress(View v, float x, float y) {
+
+			public boolean onLongClick(View v) {
 				boolean retVal = false;
 
 				if (overlay.getSelectedItems().size() > 0) {
@@ -313,22 +306,19 @@ public class ContactListActivity extends MapActivity implements
 		});
 
 		mapView
-				.setOnPopulateContextMenuListener(new View.OnPopulateContextMenuListener() {
-					public void onPopulateContextMenu(ContextMenu menu, View v,
-							Object menuInfo) {
+				.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+					public void  onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo)  {
+						
 						//Let the menu appear
-						menu.add(0, CONTEXT_MENU_ITEM_CHAT_MAP,
-								R.string.menu_item_chat);
-						menu.add(0, CONTEXT_MENU_ITEM_CALL_MAP,
-								R.string.menu_item_call);
-						menu.add(0, CONTEXT_MENU_ITEM_SMS_MAP,
-								R.string.menu_item_sms);
+						menu.add(Menu.NONE, CONTEXT_MENU_ITEM_CHAT_MAP,Menu.NONE, R.string.menu_item_chat);
+						menu.add(Menu.NONE, CONTEXT_MENU_ITEM_CALL_MAP,Menu.NONE, R.string.menu_item_call);
+						menu.add(Menu.NONE, CONTEXT_MENU_ITEM_SMS_MAP,Menu.NONE, R.string.menu_item_sms);
 					}
 				});
 
-		overlayCtrl = mapView.createOverlayController();
-		overlay = new ContactsPositionOverlay(mapView, getResources());
-		overlayCtrl.add(overlay, true);
+		
+		List<Overlay> overlayList = mapView.getOverlays();
+		overlayList.add(new ContactsPositionOverlay(mapView, getResources()));
 
 		//Button for switching map mode
 		switchButton = (Button) findViewById(R.id.switchMapBtn);
@@ -339,14 +329,16 @@ public class ContactListActivity extends MapActivity implements
 				Button clickedBtn = (Button) arg0;
 
 
-				mapView.toggleSatellite();
+				
 				
 				if (mapView.isSatellite()) {
 					clickedBtn.setText(ContactListActivity.this
 							.getText(R.string.label_toggle_map));
+					mapView.setSatellite(false);
 				} else {
 					clickedBtn.setText(ContactListActivity.this
 							.getText(R.string.label_toggle_satellite));
+					mapView.setSatellite(true);
 				}
 
 
@@ -368,13 +360,15 @@ public class ContactListActivity extends MapActivity implements
 
 		//added ContextMenu
 		contactsListView
-				.setOnPopulateContextMenuListener(new View.OnPopulateContextMenuListener() {
-					public void onPopulateContextMenu(ContextMenu menu, View v,
-							Object menuInfo) {
-						MultiSelectionListView myLv = (MultiSelectionListView) v;
-						ContextMenuInfo info = (ContextMenuInfo) menuInfo;
-						myLv.setSelection(info.position);
+				.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
 
+					public void onCreateContextMenu(ContextMenu menu, View v,
+						android.view.ContextMenu.ContextMenuInfo menuInfo) {
+						
+						AdapterView.AdapterContextMenuInfo adaptMenuInfo = (AdapterContextMenuInfo) menuInfo;
+						MultiSelectionListView myLv = (MultiSelectionListView) v;
+						myLv.setSelection(adaptMenuInfo.position);
+						
 						String selectedCId = (String) myLv.getSelectedItem();
 						List<String> checkedContacts = myLv
 								.getAllSelectedItems();
@@ -384,14 +378,13 @@ public class ContactListActivity extends MapActivity implements
 							//Let the menu appear
 							Contact selectedC = ContactManager.getInstance()
 									.getContact(selectedCId);
-							if (selectedC.isOnline())
-								menu.add(0, CONTEXT_MENU_ITEM_CHAT_LIST,
-										R.string.menu_item_chat);
-							menu.add(0, CONTEXT_MENU_ITEM_CALL_LIST,
-									R.string.menu_item_call);
-							menu.add(0, CONTEXT_MENU_ITEM_SMS_LIST,
-									R.string.menu_item_sms);
+							if (selectedC.isOnline()) {
+								menu.add(Menu.NONE, CONTEXT_MENU_ITEM_CHAT_LIST, Menu.NONE, R.string.menu_item_chat);
+							}
+								menu.add(Menu.NONE, CONTEXT_MENU_ITEM_CALL_LIST, Menu.NONE, R.string.menu_item_call);
+								menu.add(Menu.NONE, CONTEXT_MENU_ITEM_SMS_LIST, Menu.NONE, R.string.menu_item_sms);
 						}
+	
 					}
 				});
 
@@ -452,23 +445,17 @@ public class ContactListActivity extends MapActivity implements
 		//start updating myContact
 		GeoNavigator.setLocationProviderName(getText(
 				R.string.location_provider_name).toString());
-		try {
-			GeoNavigator.getInstance(this).initialize();
-			GeoNavigator.getInstance(this).startLocationUpdate();
-	
-			//register an event for this activity to handle refresh of the views in this activity
-			activityHandler = new ContactListActivityUpdateHandler();
 			
-			//register a generic disconnection handler
-			MsnEventMgr.getInstance().registerEvent(MsnEvent.CONTACT_DISCONNECT_EVENT, new ContactDisconnectionHandler());
-			//Initialize the UI
-			initUI();
-			disableUI();
-		} catch (FileNotFoundException ex) {
-			
-			Toast.makeText(this, ex.getMessage(), 2000).show();
-			finish();
-		}
+		GeoNavigator.getInstance(this).startLocationUpdate();
+
+		//register an event for this activity to handle refresh of the views in this activity
+		activityHandler = new ContactListActivityUpdateHandler();
+		
+		//register a generic disconnection handler
+		MsnEventMgr.getInstance().registerEvent(MsnEvent.CONTACT_DISCONNECT_EVENT, new ContactDisconnectionHandler());
+		//Initialize the UI
+		initUI();
+		disableUI();
 		
 	}
 	
@@ -479,7 +466,6 @@ public class ContactListActivity extends MapActivity implements
 	 * Registers handlers for both the views.
 	 */
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		
 		myLogger.log(Logger.FINE, "On Resume was called!!!: setting event handler in ContactListActivity");
@@ -487,8 +473,11 @@ public class ContactListActivity extends MapActivity implements
 		MsnEventMgr.getInstance().registerEvent(MsnEvent.INCOMING_MESSAGE_EVENT, activityHandler);
 		
 		if (mapView.isSatellite()) {
-			mapView.toggleSatellite();
+			mapView.setSatellite(false);
 			switchButton.setText(getText(R.string.label_toggle_map));
+		} else {
+			mapView.setSatellite(true);
+			switchButton.setText(getText(R.string.label_toggle_satellite));
 		}
 			
 		this.overlay.uncheckAllContacts();
@@ -575,7 +564,6 @@ public class ContactListActivity extends MapActivity implements
 	
 		GeoNavigator.getInstance(this).stopLocationUpdate();
 		myLogger.log(Logger.INFO, "onDestroy called ...");
-		GeoNavigator.getInstance(this).shutdown();
 	
 		
 		ChatSessionNotificationManager.getInstance().removeAllNotifications();
@@ -584,10 +572,8 @@ public class ContactListActivity extends MapActivity implements
 			try {
 				gateway.shutdownJADE();
 			} catch (ConnectException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			gateway.disconnect(this);
@@ -658,10 +644,10 @@ public class ContactListActivity extends MapActivity implements
 	 * @see Activity
 	 */
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		Item menuItemConnect = menu.findItem(MENUITEM_ID_CONNECT);
-		menuItemConnect.setShown((gateway == null));
-		Item menuItemSettings = menu.findItem(MENUITEM_ID_SETTINGS);
-		menuItemSettings.setShown((gateway == null));
+		MenuItem menuItemConnect = menu.findItem(MENUITEM_ID_CONNECT);
+		menuItemConnect.setVisible(gateway == null);
+		MenuItem menuItemSettings = menu.findItem(MENUITEM_ID_SETTINGS);
+		menuItemSettings.setVisible((gateway == null));
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -670,10 +656,10 @@ public class ContactListActivity extends MapActivity implements
 	 * 
 	 * @see Activity
 	 */
-	public boolean onMenuItemSelected(int featureId, Item item) {
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		super.onMenuItemSelected(featureId, item);
 
-		switch (item.getId()) {
+		switch (item.getItemId()) {
 		case MENUITEM_ID_EXIT:
 			finish();
 			break;
@@ -710,9 +696,9 @@ public class ContactListActivity extends MapActivity implements
 	 * 
 	 * @see Activity
 	 */
-	public boolean onContextItemSelected(Item item) {
+	public boolean onContextItemSelected(MenuItem item) {
 
-		switch (item.getId()) {
+		switch (item.getItemId()) {
 		case CONTEXT_MENU_ITEM_CALL_LIST: {
 			List<String> selectedIds = contactsListView.getAllSelectedItems();
 			if (selectedIds.size() == 1) {
@@ -781,15 +767,26 @@ public class ContactListActivity extends MapActivity implements
 	 * 
 	 * @param selectedCPhoneNumber phone number of desired contact
 	 */
+	/**
+	 * FIXME: TRY TO UNDERSTAND HOW TO PERFORM A PHONE CALL!!!!
+	 */
+	
 	private void callContact(String selectedCPhoneNumber) {
-		IPhone phoneService = null;
+		
+		Intent i = new Intent(Intent.ACTION_DIAL);
+		Uri phoneUri = Uri.parse("tel:" +  selectedCPhoneNumber);
+		i.setData(phoneUri);
+		i.addCategory(Intent.CATEGORY_LAUNCHER);
+		this.sendBroadcast(i);
+		
+/*		IPhone phoneService = null;
 		try {
 			IServiceManager sm = ServiceManagerNative.getDefault();
 			phoneService = IPhone.Stub.asInterface(sm.getService("phone"));
 			phoneService.call(selectedCPhoneNumber);
 		} catch (Exception e) {
 			myLogger.log(Logger.SEVERE, e.getMessage(), e);
-		}
+		}*/
 	}
 
 	/**
@@ -811,11 +808,11 @@ public class ContactListActivity extends MapActivity implements
 
 		//packet an intent. We'll try to add the session ID in the intent data in URI form
 		//We use intent resolution here, cause the ChatActivity should be selected matching ACTION and CATEGORY
-		Intent it = new Intent(Intent.VIEW_ACTION);
+		Intent it = new Intent(Intent.ACTION_VIEW);
 		//set the data as an URI (content://sessionId#<sessionIdValue>)
 		it.setData(session.getSessionIdAsUri());
-		it.setLaunchFlags(Intent.NEW_TASK_LAUNCH | Intent.SINGLE_TOP_LAUNCH);
-		it.addCategory(Intent.DEFAULT_CATEGORY);
+		it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		it.addCategory(Intent.CATEGORY_DEFAULT);
 		startActivity(it);
 
 	}
@@ -911,6 +908,14 @@ public class ContactListActivity extends MapActivity implements
 			}			
 		}
 
+	}
+
+	/* 
+	 * This method is needed to tell the Google server if we're showing info ???? 
+	 * @see com.google.android.maps.MapActivity#isRouteDisplayed()
+	 */
+	protected boolean isRouteDisplayed() {
+		return false;
 	}
 
 }

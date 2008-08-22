@@ -32,22 +32,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import android.content.Resources;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Paint.FontMetrics;
 import android.location.Location;
 
+import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
-import com.google.android.maps.Point;
-import com.google.android.maps.MapView.DeviceType;
+import com.google.android.maps.Projection;
 
 /**
  * Defines the overlay used to draw information over the map view.
@@ -227,7 +228,7 @@ public class ContactsPositionOverlay extends Overlay {
 		for (Iterator<ContactLayoutData> iterator = pointList.iterator(); iterator.hasNext();) {
 			ContactLayoutData contactLayoutData =  iterator.next();
 			
-			if (contactLayoutData.isVisible && !scrollingArea.contains(contactLayoutData.positionOnScreen[0], contactLayoutData.positionOnScreen[1])){
+			if (contactLayoutData.isVisible && !scrollingArea.contains(contactLayoutData.positionOnScreen.x, contactLayoutData.positionOnScreen.y)){
 				return true;
 			}
 		} 
@@ -275,7 +276,7 @@ public class ContactsPositionOverlay extends Overlay {
 	 */
 	private void doScrolling(PointClusterParams params){
 
-		mapController.centerMapTo(params.midpointOnMap, true);
+		mapController.setCenter(params.midpointOnMap);
 	}
 	
 	/**
@@ -286,7 +287,7 @@ public class ContactsPositionOverlay extends Overlay {
 	 */
 	private void doZoom(PointClusterParams params, int howToZoom){
 		if (howToZoom == ZOOM_MAX)
-			mapController.zoomTo(16);
+			mapController.setZoom(16);
 		if (howToZoom == RECOMPUTE_ZOOM)
 			mapController.zoomToSpan(params.coordMaxSpan[0],params.coordMaxSpan[1]);
 	}	
@@ -325,26 +326,26 @@ public class ContactsPositionOverlay extends Overlay {
 					if (cData.isMyContact){	
 						color = Color.YELLOW;			
 						//myLogger.log(Logger.INFO, "Drawing my contact: position on screen (" + cData.positionOnScreen[0] + ";" + cData.positionOnScreen[1] + ")");
-						bitmapOriginX = cData.positionOnScreen[0] - ylwPaddleOffsetX;
-						bitmapOriginY = cData.positionOnScreen[1] - ylwPaddleOffsetY;
+						bitmapOriginX = cData.positionOnScreen.x - ylwPaddleOffsetX;
+						bitmapOriginY = cData.positionOnScreen.y - ylwPaddleOffsetY;
 						bitmapToBeDrawn = ylwPaddle;
 					} 
 					else {			
 						//Here blueBaloon for people you're chatting with				 
 						if(allParticipants.contains(cData.idContact)){																
-							bitmapOriginX = cData.positionOnScreen[0]-blueBaloonOffsetX;
-							bitmapOriginY = cData.positionOnScreen[1]-blueBaloonOffsetY;
+							bitmapOriginX = cData.positionOnScreen.x-blueBaloonOffsetX;
+							bitmapOriginY = cData.positionOnScreen.y-blueBaloonOffsetY;
 							bitmapToBeDrawn = blueBaloon;
 						}			    
 					    else{			
-					    	bitmapOriginX = cData.positionOnScreen[0]-bluePaddleOffsetX;
-							bitmapOriginY = cData.positionOnScreen[1]-bluePaddleOffsetY;
+					    	bitmapOriginX = cData.positionOnScreen.x-bluePaddleOffsetX;
+							bitmapOriginY = cData.positionOnScreen.y-bluePaddleOffsetY;
 					    	bitmapToBeDrawn = bluePaddle;
 					    }	    
 						color = Color.BLUE;
 					}
 					
-				  int textOriginX = cData.positionOnScreen[0];
+				  int textOriginX = cData.positionOnScreen.x;
 				  int textOriginY = bitmapOriginY - iconToTextOffsetY;
 				  
 				  
@@ -376,18 +377,16 @@ public class ContactsPositionOverlay extends Overlay {
 	/**
 	 * Overrides Overlay.draw() to draw the scene  
 	 */
-	public void draw(Canvas canvas, PixelCalculator calculator, boolean shadow) {		
-		super.draw(canvas, calculator, shadow);
+	public void draw(Canvas canvas, MapView mapView, boolean shadow) {		
+		Projection p = mapView.getProjection();
 		
-		//myLogger.log(Logger.INFO, "Starting a new draw cicle!");
-		
-		updateOnScreenPosition(calculator);
+		updateOnScreenPosition(p);
 		//Compute params needed for further computations on the point cluster
-		PointClusterParams params = extractParams(calculator);
+		PointClusterParams params = extractParams(p);
 		
 		//Things we do just the first time
 		if (WIDTH == -1){
-			initialize(calculator);
+			initialize(p, mapView.getWidth(), mapView.getHeight());
 			int howToZoom = zoomChangeIsNeeded(params);
 			doScrolling(params);
 			doZoom(params, howToZoom);
@@ -418,9 +417,9 @@ public class ContactsPositionOverlay extends Overlay {
 	 * 
 	 * @param calculator {@link PixelCalculator} needed for retrieving map view size and projecting map points on screen
 	 */
-	private void initialize( PixelCalculator calculator ) {
-			WIDTH = calculator.getMapWidth();
-			HEIGHT = calculator.getMapHeight();
+	private void initialize( Projection p, int width, int height ) {
+			WIDTH = width;
+			HEIGHT = height;
 			
 			
 			centerScreenX = WIDTH / 2;
@@ -442,7 +441,7 @@ public class ContactsPositionOverlay extends Overlay {
 			UPPER_THRESHOLD = tmpThresh * tmpThresh;
 			tmpThresh = (int) (WIDTH * LOWER_THRESHOLD_RATIO);
 			LOWER_THRESHOLD = tmpThresh * tmpThresh;
-			extractParams(calculator);
+			extractParams(p);
 	
 	}
 	
@@ -452,13 +451,10 @@ public class ContactsPositionOverlay extends Overlay {
 	 * 
 	 * @param calc the pixel calculator
 	 */
-	private void updateOnScreenPosition(PixelCalculator calc){
+	private void updateOnScreenPosition(Projection calc){
 		for (ContactLayoutData cData : contactPositionMap.values()) {
 			if (cData.isVisible){
-				//cData.positionOnScreen = new int[2];
-				//myLogger.log(Logger.INFO, "BEFORE: PixelCalculator will convert " + cData.latitudeE6 + ";" + cData.longitudeE6 +" to " + cData.positionOnScreen[0] + ";" + cData.positionOnScreen[1]);
-				calc.getPointXY(new Point(cData.latitudeE6, cData.longitudeE6), cData.positionOnScreen);
-				//myLogger.log(Logger.INFO, "AFTER: PixelCalculator converted " + cData.latitudeE6 + ";" + cData.longitudeE6 +" to " + cData.positionOnScreen[0] + ";" + cData.positionOnScreen[1]);
+				calc.toPixels(new GeoPoint(cData.latitudeE6, cData.longitudeE6),cData.positionOnScreen);
 			}
 		}
 	}
@@ -496,7 +492,7 @@ public class ContactsPositionOverlay extends Overlay {
 	 * 
 	 * @return class carrying results of computation
 	 */
-	private PointClusterParams extractParams(PixelCalculator calc){
+	private PointClusterParams extractParams(Projection p){
 		
 		int maxLat;
 		int minLat;
@@ -521,8 +517,8 @@ public class ContactsPositionOverlay extends Overlay {
 			
 			if (clData.isVisible){
 				
-				params.midpointOnScreen[0] += clData.positionOnScreen[0];
-				params.midpointOnScreen[1] += clData.positionOnScreen[1];
+				params.midpointOnScreen[0] += clData.positionOnScreen.x;
+				params.midpointOnScreen[1] += clData.positionOnScreen.y;
 				
 							
 	
@@ -547,7 +543,7 @@ public class ContactsPositionOverlay extends Overlay {
 		params.midpointOnScreen[0] /= contactsOnLine;
 		params.midpointOnScreen[1] /= contactsOnLine;
 		
-		params.midpointOnMap = screenToMap(params.midpointOnScreen);
+		params.midpointOnMap = p.fromPixels(params.midpointOnScreen[0], params.midpointOnScreen[1]);
 		
 		return params;
 	
@@ -569,8 +565,8 @@ public class ContactsPositionOverlay extends Overlay {
 		for (Iterator <ContactLayoutData>iterator = points.iterator(); iterator.hasNext();) {
 			ContactLayoutData contactLayoutData = iterator.next();
 			//Compute distance squared			
-			int distX = midpoint[0] - contactLayoutData.positionOnScreen[0];
-			int distY = midpoint[1] - contactLayoutData.positionOnScreen[1];
+			int distX = midpoint[0] - contactLayoutData.positionOnScreen.x;
+			int distY = midpoint[1] - contactLayoutData.positionOnScreen.y;
 			int distSq = distX*distX + distY*distY;
 			
 			if (distSq > maxDist)
@@ -585,10 +581,11 @@ public class ContactsPositionOverlay extends Overlay {
 	 * Callback method called at each click on the map to retrieve pointer position to check for click on contacts.
 	 * Overrides Overlay.onTap()
 	 */
-	public boolean onTap(DeviceType deviceType, Point p, PixelCalculator calculator) {
+	public  boolean  onTap(GeoPoint p, MapView mapView)  {
 
-		int[] pointOnScreen = new int[2];
-		calculator.getPointXY(p, pointOnScreen);
+		Point pointOnScreen = new Point();
+		Projection proj = mapView.getProjection();
+		proj.toPixels(p, pointOnScreen);
 		
 		checkClickedPosition(pointOnScreen); 
 		
@@ -638,7 +635,7 @@ public class ContactsPositionOverlay extends Overlay {
 		/** 
 		 * Midpoint on the map (computed as the back projection of the midpoint on screen)
 		 */
-		public Point midpointOnMap;
+		public GeoPoint midpointOnMap;
 		
 		/**
 		 *  The midpoint on screen obtained as the average of the contact's on-screen positions. 
@@ -656,7 +653,7 @@ public class ContactsPositionOverlay extends Overlay {
 		/** 
 		 * The position on screen in pixel. 
 		 */
-		public int[] positionOnScreen;
+		public Point positionOnScreen;
 		
 		/** 
 		 * The latitude in microdegrees. 
@@ -712,7 +709,7 @@ public class ContactsPositionOverlay extends Overlay {
 			this.name = cname;
 			this.idContact= idcontact;			
 			isMyContact = false;
-			positionOnScreen = new int[2];
+			positionOnScreen = new Point();
 			latitudeE6 = (int)(contactLoc.getLatitude() * 1E6);
 			longitudeE6 = (int) (contactLoc.getLongitude() * 1E6);
 			altitudeE6=(int)(contactLoc.getAltitude()*1E6);
@@ -763,7 +760,7 @@ public class ContactsPositionOverlay extends Overlay {
       * 
       * @param point the clicked point in screen coordinate
       */
-     private void checkClickedPosition (int[] point)
+     private void checkClickedPosition (Point point)
      { 
     	 
     	 
@@ -772,8 +769,8 @@ public class ContactsPositionOverlay extends Overlay {
     	 String myId = ContactManager.getInstance().getMyContact().getPhoneNumber();
     	 
     	 for (ContactLayoutData contact : contactPositionMap.values()){
-    		Rect r= new Rect(contact.positionOnScreen[0]- width/2, contact.positionOnScreen[1]-height, contact.positionOnScreen[0]+width/2, contact.positionOnScreen[1] );
-    		if(r.contains(point[0], point[1]) && !contact.idContact.equals(myId) ){    			
+    		Rect r= new Rect(contact.positionOnScreen.x- width/2, contact.positionOnScreen.y-height, contact.positionOnScreen.x+width/2, contact.positionOnScreen.y );
+    		if(r.contains(point.x, point.y) && !contact.idContact.equals(myId) ){    			
     		    contact.isChecked = !contact.isChecked;    		   
     		}
     		   		
@@ -828,7 +825,7 @@ public class ContactsPositionOverlay extends Overlay {
  			String phoneNum = contactEntry.getKey();
  			Contact currentC = contactEntry.getValue();
  			//empty location for invisible contact
- 			ContactLayoutData cdata = new ContactLayoutData(currentC.getName(),phoneNum,new ContactLocation(), false);
+ 			ContactLayoutData cdata = new ContactLayoutData(currentC.getName(),phoneNum,new ContactLocation(appRes.getText(R.string.location_provider_name).toString()) , false);
  			contactPositionMap.put(phoneNum, cdata);
  		}
  		

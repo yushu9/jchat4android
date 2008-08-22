@@ -48,7 +48,8 @@ public class ContactLocation extends Location {
 	 * Instantiates a new empty contact location.
 	 * Each component is initialized to positive infinity
 	 */
-	public ContactLocation(){
+	public ContactLocation(String providerName){
+		super(providerName);
 		hasMoved = false;
 		setLatitude(Double.POSITIVE_INFINITY);
 		setLongitude(Double.POSITIVE_INFINITY);
@@ -79,12 +80,14 @@ public class ContactLocation extends Location {
 	/**
 	 * Instantiates a new contact location using the separate values.
 	 * 
+	 * @param providerName name of the provider
 	 * @param latitude latitude value
 	 * @param longitude longitude value
 	 * @param altitude altitude value (not used on map)
 	 * @param moved true if the contact has moved, false otherwise
 	 */
-	private ContactLocation(double latitude, double longitude, double altitude, boolean moved){
+	private ContactLocation(String providerName, double latitude, double longitude, double altitude, boolean moved){
+		super(providerName);
 		setLatitude(latitude);
 		setLongitude(longitude);
 		setAltitude(altitude);
@@ -107,15 +110,16 @@ public class ContactLocation extends Location {
 	 * Changes the location of this contact and sets its internal state to moving
 	 * It creates a new object so this object remains immutable
 	 * 
+	 * @param providerName name of the provider
 	 * @param latitude the latitude value
 	 * @param longitude the longitude value
 	 * @param altitude the altitude value
 	 * 
 	 * @return new contact location object
 	 */
-	public ContactLocation changeLocation(double latitude, double longitude, double altitude)
+	public ContactLocation changeLocation(String providerName, double latitude, double longitude, double altitude)
 	{   boolean moved = ( (getLatitude() != latitude) || (getLongitude() != longitude) || (getAltitude() != altitude) );
-		return new ContactLocation(latitude, longitude, altitude ,moved);
+		return new ContactLocation(providerName, latitude, longitude, altitude ,moved);
 	}
 	
 	/**

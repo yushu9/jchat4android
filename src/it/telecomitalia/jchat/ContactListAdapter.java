@@ -29,11 +29,11 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
-import android.content.Resources;
+import android.content.res.Resources;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewInflate;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
@@ -70,7 +70,7 @@ public class ContactListAdapter extends BaseAdapter {
 	/** 
 	 * The system inflater used to inflate views from xml. 
 	 */
-	private ViewInflate inflater;	
+	private LayoutInflater inflater;	
 	
 	/**
 	 * Instantiates a new contact list adapter.
@@ -79,7 +79,7 @@ public class ContactListAdapter extends BaseAdapter {
 	 */
 	public ContactListAdapter(final Context c){
 		context = c;
-	    inflater = (ViewInflate)context.getSystemService(Context.INFLATE_SERVICE);		
+	    inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);		
 	    contactViewInfoList = new ArrayList<ContactViewInfo>();
 	}
 		
@@ -347,7 +347,7 @@ public class ContactListAdapter extends BaseAdapter {
 			//this contact is new and has no view
 			if (contactView == null){
 				//create a new view and start filling it
-				contactView = inflater.inflate(R.layout.element_layout, null, null);
+				contactView = inflater.inflate(R.layout.element_layout, null);
 				//Set the contact name
 				TextView contactNameTxt = (TextView) contactView.findViewById(R.id.contact_name);
 				contactNameTxt.setText(c.getName());

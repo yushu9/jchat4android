@@ -175,8 +175,12 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		 * @param it iterator over the list of properties
 		 * @return the location on the map described by this set of properties
 		 */
+		
+		/*
+		 * FIXME: USE THE REAL PROVIDER NAME!!!!
+		 */
 		public static Location extractLocation(Iterator it){
-			Location loc= new Location();
+			Location loc= new Location("mygps");
 
 			while (it.hasNext()){
 				Property p = (Property) it.next();

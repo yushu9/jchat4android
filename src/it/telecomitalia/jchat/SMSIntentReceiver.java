@@ -23,9 +23,9 @@
 package it.telecomitalia.jchat;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentReceiver;
 import android.os.Handler;
 import android.telephony.gsm.SmsManager;
 import android.widget.ImageButton;
@@ -42,7 +42,7 @@ import android.widget.Toast;
  * @author Tiziana Trucco
  * @version 1.0
  */
-public class SMSIntentReceiver extends IntentReceiver {
+public class SMSIntentReceiver extends BroadcastReceiver {
 
 	/**
 	 * Handler used for posting delayed UI updates, coming from {@link SendSMSActivity}
@@ -65,19 +65,24 @@ public class SMSIntentReceiver extends IntentReceiver {
 	 */
 	private ImageButton sendBtn;
 	
+	private StringBuffer messageBuf;
+	
 	/**
 	 *Creates a new instance of SMSIntentReceiver 
 	 * @param hndl handler for posting delayed GUI events
 	 */
 	public SMSIntentReceiver(Handler hndl){
 		recvHandler = hndl;
+		
 	}
 	
+
 	/**
 	 * Overrides IntentReceiver.onReceiveIntent() to show the necessary UI notification for handling SMS results (success or errors)
 	 * and stopping the progress bar once that all SMSs have been sent	 
+	 * FIXME: must check how to handle error conditions!
 	 */
-	public void onReceiveIntent(Context context, Intent intent) {
+	public void onReceive(Context context, Intent intent) {
 		
 		String action = intent.getAction();
 		SendSMSActivity activity = (SendSMSActivity) context;
@@ -86,41 +91,26 @@ public class SMSIntentReceiver extends IntentReceiver {
 		ctx = context;
 		
 		if (action.equals(SendSMSActivity.SMS_SENT_ACTION)){
+			messageBuf = new StringBuffer();
+			String statusMsg = intent.getStringExtra(SendSMSActivity.SMS_DELIVERY_MSG_PARAM);
+			String address = intent.getStringExtra(SendSMSActivity.SMS_ADDRESS_PARAM);
+			messageBuf.append(statusMsg);
+			messageBuf.append(" was delivered successfully to ");
+			messageBuf.append(address);
 			
-			//Decrease number of messages to be sent
-			activity.notifyMessageSent();
-			
-			//Check if all messages where sent
-			if (activity.allMessagesSent()){
-					//We simulate sending SMS with 2 seconds for each 
-					numberOfMsg = activity.getNumberOfMessages(); 
-					long delay =  numberOfMsg* (activity.getTimeBase()+2000);
-						recvHandler.postDelayed(new Runnable(){
+			recvHandler.postDelayed(new Runnable(){
 							
 							public void run() {
 									progDlg.dismiss();
-									Toast.makeText(ctx, "All the " +  numberOfMsg + " messages were successfully sent", 2000).show();
+									Toast.makeText(ctx, messageBuf.toString(), 2000).show();
 									sendBtn.setEnabled(true);
 							}
 							
-						}, delay);
+						}, 2000);
 								
-			}
-		
-			 
-		} else if (action.equals(SendSMSActivity.SMS_ERROR_ACTION)){
-			String address = intent.getStringExtra(SendSMSActivity.SMS_ADDRESS_PARAM);
-			int errorCode = intent.getIntExtra("error", 0);
-			String errorMsg = null;
-			if (errorCode == SmsManager.ERROR_RADIO_OFF){
-				errorMsg = new String("Error sending SMS to " + address + " : no radio available!");
-			} else if (errorCode == SmsManager.ERROR_GENERIC_FAILURE){
-				errorMsg = new String("Some error occurs sending SMS to " + address);
-			}
-			activity.getProgressDialog().dismiss();
-			Toast.makeText(context, errorMsg, 2000).show();
 		}
-
-	}
-
+		 
+	} 
 }
+
+

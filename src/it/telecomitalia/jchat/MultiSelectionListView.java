@@ -47,8 +47,8 @@ public class MultiSelectionListView extends ListView{
 	 * Instantiates a new multiple selection list view.
 	 * 
 	 */
-	public MultiSelectionListView(Context context, AttributeSet attrs, Map params) {
-		super(context, attrs, params);
+	public MultiSelectionListView(Context context, AttributeSet attrs) {
+		super(context, attrs);
 	}
 	
 	/**

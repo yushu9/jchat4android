@@ -22,15 +22,17 @@
 
 package it.telecomitalia.jchat;
 
+import jade.util.Logger;
+
 import java.io.FileNotFoundException;
 
-import jade.util.Logger;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentReceiver;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
+import android.os.Bundle;
 
 
 /**
@@ -59,7 +61,7 @@ public class GeoNavigator {
 	/** 
 	 * Minimum distance in meters for sending new location update
 	 */
-	private final long MINIMUM_DISTANCECHANGE_FOR_UPDATE = 0;  
+	private final float MINIMUM_DISTANCECHANGE_FOR_UPDATE = 0.0f;  
     
     /** 
      * Minimum time in milliseconds for between location updates
@@ -91,10 +93,6 @@ public class GeoNavigator {
 	 */
 	private static String locProviderName = DEFAULT_PROVIDER_NAME;
 	
-	/** 
-	 * The customized intent receiver to be registered 
-	 */
-	private IntentReceiver locationReceiver;
 	
 	/** 
 	 * The instance of the {@link GeoNavigator} object. 
@@ -110,11 +108,9 @@ public class GeoNavigator {
 	 * Instance of the Android location manager. 
 	 */
 	private LocationManager manager;
+
 	
-	/** 
-	 * Instance of the current location provider. 
-	 */
-	private LocationProvider provider;
+	private LocationListener listener;
 	
 	/**
 	 * Gets the single instance of GeoNavigator.
@@ -138,14 +134,9 @@ public class GeoNavigator {
 	 * @param c the application context
 	 */
 	private GeoNavigator(Context c) {
-		locationReceiver = new ContactLocationReceiver();
 		manager = (LocationManager)c.getSystemService(Context.LOCATION_SERVICE);
-		updateIntent = new Intent(LOCATION_UPDATE_ACTION);
-		filter = new IntentFilter(LOCATION_UPDATE_ACTION);
-		filter.addAction(SendSMSActivity.SMS_SENT_ACTION);
-		filter.addAction(SendSMSActivity.SMS_ERROR_ACTION);
 		myContext = c;	
-		
+		listener = new ContactsLocationListener();
 	}
 	
 	/**
@@ -153,7 +144,7 @@ public class GeoNavigator {
 	 */
 	public void startLocationUpdate(){
 		myLogger.log(Logger.INFO, "Starting location update...");
-		manager.requestUpdates(provider, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE, updateIntent);
+		manager.requestLocationUpdates(locProviderName, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE,listener );
 	}
 	
 	/**
@@ -173,36 +164,42 @@ public class GeoNavigator {
 	 */
 	public void stopLocationUpdate(){
 		myLogger.log(Logger.INFO, "Stopping location updates....");
-		manager.removeUpdates(updateIntent);
+		manager.removeUpdates(listener);
 	}
 	
-	/**
-	 * Performs a registration of the IntentReceiver for broadcast intents as defined by the intent filter.
-	 * Please note that registration must precede the start of location updates
-	 * @throws FileNotFoundException 
-	 */
-	public void initialize() throws FileNotFoundException{
-		myLogger.log(Logger.INFO, "Registering the intent receiver....");
-		myContext.registerReceiver(locationReceiver,filter);
-		try {
-			if (locProviderName != null){
-				provider = manager.getProvider(locProviderName);
-			} else {
-				provider = manager.getProvider(DEFAULT_PROVIDER_NAME);
-			}
-		} catch (NullPointerException ex) {
-			throw new FileNotFoundException("Unable to retrieve the given location provider!");
+	
+	
+	
+	private class ContactsLocationListener implements LocationListener {
+
+		
+		public void onLocationChanged(Location location) {
+			ContactManager.getInstance().updateMyContactLocation(location);
+		}
+
+		/* (non-Javadoc)
+		 * @see android.location.LocationListener#onProviderDisabled(java.lang.String)
+		 */
+		public void onProviderDisabled(String provider) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see android.location.LocationListener#onProviderEnabled(java.lang.String)
+		 */
+		public void onProviderEnabled(String provider) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see android.location.LocationListener#onStatusChanged(java.lang.String, int, android.os.Bundle)
+		 */
+		public void onStatusChanged(String provider, int status, Bundle extras) {
+			// TODO Auto-generated method stub
+			
 		}
 		
-	}
-	
-	/**
-	 * Retracts the receiver. Please note that this method should be called after location update has been stopped.
-	 * It seems an Android bug prevents this to happen correctly sometimes, because stopLocationUpdate() seems to behave 
-	 * asynchronously.
-	 */
-	public void shutdown(){
-		myLogger.log(Logger.INFO, "Unregistering the intent receiver....");
-		myContext.unregisterReceiver(locationReceiver);
 	}
 }

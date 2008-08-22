@@ -22,9 +22,8 @@
 	android:layout_height="50px"
 	android:layout_marginLeft="10px"
 	android:layout_width="wrap_content"		
-    android:layout_toRight="@id/titlelabel"
+    android:layout_toRightOf="@id/titlelabel"
    	style="@style/editStyle"
-   	android:background="@android:drawable/editbox_background"	   
 />
 
 <TextView
