@@ -26,7 +26,7 @@ android:layout_height="fill_parent"
 android:paddingTop="60px"
 >
 
-<LinearLayout android:id="@+id/content1"
+<LinearLayout android:id="@+id/contactstabview"
 android:orientation="vertical"
 android:layout_width="fill_parent"
 android:layout_height="fill_parent"
@@ -49,7 +49,7 @@ android:padding="10px"
 </LinearLayout>
 
 
-<LinearLayout android:id="@+id/content2"
+<LinearLayout android:id="@+id/maptabview"
 android:orientation="vertical"
 android:layout_width="fill_parent"
 android:layout_height="fill_parent"
