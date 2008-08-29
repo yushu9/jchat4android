@@ -25,6 +25,7 @@ package it.telecomitalia.jchat;
 import jade.util.Logger;
 
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +33,7 @@ import android.content.IntentFilter;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 
 
@@ -135,6 +137,7 @@ public class GeoNavigator {
 	 */
 	private GeoNavigator(Context c) {
 		manager = (LocationManager)c.getSystemService(Context.LOCATION_SERVICE);
+
 		myContext = c;	
 		listener = new ContactsLocationListener();
 	}
@@ -144,7 +147,8 @@ public class GeoNavigator {
 	 */
 	public void startLocationUpdate(){
 		myLogger.log(Logger.INFO, "Starting location update...");
-		manager.requestLocationUpdates(locProviderName, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE,listener );
+		List<String> providers = manager.getAllProviders();
+		manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE,listener );
 	}
 	
 	/**
