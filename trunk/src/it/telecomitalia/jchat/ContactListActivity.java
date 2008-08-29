@@ -50,10 +50,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
+import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.Toast;
@@ -249,7 +251,7 @@ public class ContactListActivity extends MapActivity implements
 			}
 		});
 
-		mapView
+		/*mapView
 				.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
 					public void  onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo)  {
 						
@@ -258,8 +260,9 @@ public class ContactListActivity extends MapActivity implements
 						menu.add(Menu.NONE, CONTEXT_MENU_ITEM_CALL_MAP,Menu.NONE, R.string.menu_item_call);
 						menu.add(Menu.NONE, CONTEXT_MENU_ITEM_SMS_MAP,Menu.NONE, R.string.menu_item_sms);
 					}
-				});
+				});*/
 
+		registerForContextMenu(mapView);
 		
 		List<Overlay> overlayList = mapView.getOverlays();
 		overlay = new ContactsPositionOverlay(mapView, getResources());
@@ -299,36 +302,8 @@ public class ContactListActivity extends MapActivity implements
 		GradientDrawable selectorDrawable = new GradientDrawable(
 				Orientation.TL_BR, selectorColors);
 		contactsListView.setSelector(selectorDrawable);
-
-		//added ContextMenu
-		contactsListView
-				.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-
-					public void onCreateContextMenu(ContextMenu menu, View v,
-						android.view.ContextMenu.ContextMenuInfo menuInfo) {
-						
-						AdapterView.AdapterContextMenuInfo adaptMenuInfo = (AdapterContextMenuInfo) menuInfo;
-						MultiSelectionListView myLv = (MultiSelectionListView) v;
-						myLv.setSelection(adaptMenuInfo.position);
-						
-						String selectedCId = (String) myLv.getSelectedItem();
-						List<String> checkedContacts = myLv
-								.getAllSelectedItems();
-
-						//If the selected item is also checked
-						if (checkedContacts.contains(selectedCId)) {
-							//Let the menu appear
-							Contact selectedC = ContactManager.getInstance()
-									.getContact(selectedCId);
-							if (selectedC.isOnline()) {
-								menu.add(Menu.NONE, CONTEXT_MENU_ITEM_CHAT_LIST, Menu.NONE, R.string.menu_item_chat);
-							}
-								menu.add(Menu.NONE, CONTEXT_MENU_ITEM_CALL_LIST, Menu.NONE, R.string.menu_item_call);
-								menu.add(Menu.NONE, CONTEXT_MENU_ITEM_SMS_LIST, Menu.NONE, R.string.menu_item_sms);
-						}
 	
-					}
-				});
+		registerForContextMenu(contactsListView);
 
 		contactsListView
 				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -353,6 +328,50 @@ public class ContactListActivity extends MapActivity implements
 
 	}
 
+	@Override	 
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		if(v instanceof MultiSelectionListView){
+			AdapterView.AdapterContextMenuInfo adaptMenuInfo = (AdapterContextMenuInfo) menuInfo;
+			MultiSelectionListView myLv = (MultiSelectionListView) v;
+			myLv.setSelection(adaptMenuInfo.position);
+			
+			List<String> checkedContacts = myLv.getAllSelectedItems();
+		
+			if(checkedContacts.size() > 0){
+				//Let the menu appear
+				if(checkedContacts.size() == 1){
+					//only one contact selected
+					Contact cc = ContactManager.getInstance().getContact(checkedContacts.get(0));
+					//verify is he is online --> add Chat 
+					if(cc.isOnline()){
+						menu.add(Menu.NONE, CONTEXT_MENU_ITEM_CHAT_LIST, Menu.NONE, R.string.menu_item_chat);
+						}
+					//add always sms and call
+					menu.add(Menu.NONE, CONTEXT_MENU_ITEM_CALL_LIST, Menu.NONE, R.string.menu_item_call);
+					menu.add(Menu.NONE, CONTEXT_MENU_ITEM_SMS_LIST, Menu.NONE, R.string.menu_item_sms);
+				}else{
+					//more elements selected
+					boolean allOnline = true;
+					for(String contactId : checkedContacts){
+						Contact cc = ContactManager.getInstance().getContact(contactId);
+						if(!cc.isOnline()){
+							allOnline = false;
+							break;
+						}
+					}
+					if(allOnline)
+						menu.add(Menu.NONE, CONTEXT_MENU_ITEM_CHAT_LIST, Menu.NONE, R.string.menu_item_chat);
+					//otherwise only sms
+					menu.add(Menu.NONE, CONTEXT_MENU_ITEM_SMS_LIST, Menu.NONE, R.string.menu_item_sms);
+				}
+			}	
+		}else if (v instanceof MapView){
+			menu.add(Menu.NONE, CONTEXT_MENU_ITEM_CHAT_MAP,Menu.NONE, R.string.menu_item_chat);
+			menu.add(Menu.NONE, CONTEXT_MENU_ITEM_CALL_MAP,Menu.NONE, R.string.menu_item_call);
+			menu.add(Menu.NONE, CONTEXT_MENU_ITEM_SMS_MAP,Menu.NONE, R.string.menu_item_sms);
+		}
+	}
+	 
 	/**
 	 * Retrieves a string as a replacement for the phone number if the phone number is not available 
 	 * (no <code>/data/local.prop</code> on emulator).
@@ -443,32 +462,6 @@ public class ContactListActivity extends MapActivity implements
 		
 		TabWidget widget = mainTabHost.getTabWidget();
 		widget.setEnabled(false);
-		widget.setClickable(false);
-		widget.setFocusable(false);
-		mainTabHost.setEnabled(false);
-		mainTabHost.setClickable(false);
-		mainTabHost.setFocusable(false);
-		FrameLayout frameLayout = mainTabHost.getTabContentView();
-		View homepageView = findViewById(R.id.main_view);
-		homepageView.setEnabled(false);
-		homepageView.setFocusable(false);
-		
-		homepageView.invalidate();
-		
-		frameLayout.setEnabled(false);
-		contactsListView.setEnabled(false);
-		
-		View contactTabView = findViewById(R.id.contactstabview);
-		View mapTabView = findViewById(R.id.maptabview);
-		
-		mapTabView.setEnabled(false);
-		mapTabView.setFocusable(false);
-		mapTabView.setClickable(false);
-		
-		contactTabView.setEnabled(false);
-		contactTabView.setClickable(false);
-		contactTabView.setFocusable(false);
-	
 	}
 
 	//Retrieve the JADE properties from Dialog or configuration file
@@ -598,6 +591,8 @@ public class ContactListActivity extends MapActivity implements
         inflater.inflate(R.menu.title_icon, menu);
 		return true;
 	}
+	
+	
 
 	/**
 	 * Called any time the application main menu is displayed
@@ -621,7 +616,6 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		super.onMenuItemSelected(featureId, item);
-		myLogger.log(Logger.INFO, item.getItemId() + " 1 clicked");
 		switch (item.getItemId()) {
 		case R.id.exit:
 			finish();
