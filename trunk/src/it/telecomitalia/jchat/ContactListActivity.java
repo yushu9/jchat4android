@@ -55,7 +55,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.FrameLayout;
 import android.widget.TabHost;
+import android.widget.TabWidget;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.TabHost.TabSpec;
@@ -244,25 +246,7 @@ public class ContactListActivity extends MapActivity implements
 		View homeTab1 = (View) findViewById(R.id.maptabview);
 		homeTab1.setBackgroundDrawable(contentGradient);
 
-		mainTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
-
-			@Override
-			public void onTabChanged(String arg0) {
-	/*			if (arg0 == null) {
-					contactView
-							.setBackgroundDrawable(ContactListActivity.this.selectedTabGradient);
-					mapViewTab
-							.setBackgroundDrawable(ContactListActivity.this.outOfFocusTabGradient);
-				} else {
-					mapViewTab
-							.setBackgroundDrawable(ContactListActivity.this.selectedTabGradient);
-					contactView
-							.setBackgroundDrawable(ContactListActivity.this.outOfFocusTabGradient);
-				}*/
-			}
-
-		});
-
+		
 		//init the map view
 		mapView = (MapView) findViewById(R.id.myMapView);
 		
@@ -465,24 +449,45 @@ public class ContactListActivity extends MapActivity implements
 	 * Enables the main view after the application is connected to JADE
 	 */
 	private void enableUI() {
-		View v = findViewById(R.id.main_view);
-		contactsListView.setEnabled(true);
-//		contactView.setEnabled(true);
-//		mapViewTab.setEnabled(true);
-
-		v.setEnabled(true);
+			contactsListView.setEnabled(true);
+		
+		TabWidget widget = mainTabHost.getTabWidget();
+		widget.setEnabled(true);
 	}
 
 	/**
 	 * Disables the UI at the beginning
 	 */
 	private void disableUI() {
-		View v = findViewById(R.id.main_view);
+		
+		TabWidget widget = mainTabHost.getTabWidget();
+		widget.setEnabled(false);
+		widget.setClickable(false);
+		widget.setFocusable(false);
+		mainTabHost.setEnabled(false);
+		mainTabHost.setClickable(false);
+		mainTabHost.setFocusable(false);
+		FrameLayout frameLayout = mainTabHost.getTabContentView();
+		View homepageView = findViewById(R.id.main_view);
+		homepageView.setEnabled(false);
+		homepageView.setFocusable(false);
+		
+		homepageView.invalidate();
+		
+		frameLayout.setEnabled(false);
 		contactsListView.setEnabled(false);
-//		contactView.setEnabled(false);
-//		mapViewTab.setEnabled(false);
-
-		v.setEnabled(false);
+		
+		View contactTabView = findViewById(R.id.contactstabview);
+		View mapTabView = findViewById(R.id.maptabview);
+		
+		mapTabView.setEnabled(false);
+		mapTabView.setFocusable(false);
+		mapTabView.setClickable(false);
+		
+		contactTabView.setEnabled(false);
+		contactTabView.setClickable(false);
+		contactTabView.setFocusable(false);
+	
 	}
 
 	//Retrieve the JADE properties from Dialog or configuration file
