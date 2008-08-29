@@ -31,7 +31,6 @@ import jade.util.leap.Properties;
 import jade.wrapper.ControllerException;
 import jade.wrapper.StaleProxyException;
 
-import java.io.FileNotFoundException;
 import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +38,6 @@ import java.util.Map;
 import java.util.Random;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.GradientDrawable;
@@ -48,8 +46,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemProperties;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -82,50 +80,36 @@ import com.google.android.maps.Overlay;
 public class ContactListActivity extends MapActivity implements
 		ConnectionListener {
 
-	/** 
-	 * Id of the menu exit item. 
-	 */
-	private final int MENUITEM_ID_EXIT = Menu.FIRST;
-
-	/**
-	 *  Id of the menu settings item.  
-	 */
-	private final int MENUITEM_ID_SETTINGS = Menu.FIRST + 1;
-
-	/** 
-	 * Id of the menu connect item. 
-	 */
-	private final int MENUITEM_ID_CONNECT = Menu.FIRST + 2;
-
+	
 	/** 
 	 * Id of the context menu chat item. 
 	 */
-	private final int CONTEXT_MENU_ITEM_CHAT_LIST = Menu.FIRST + 3;
+	private final int CONTEXT_MENU_ITEM_CHAT_LIST = Menu.FIRST ;
 
 	/** 
 	 * Id of the context menu call item. 
 	 */
-	private final int CONTEXT_MENU_ITEM_CALL_LIST = Menu.FIRST + 4;
+	private final int CONTEXT_MENU_ITEM_CALL_LIST = Menu.FIRST + 1;
 
 	/**
 	 *  Id of the context menu sms item. 
 	 */
-	private final int CONTEXT_MENU_ITEM_SMS_LIST = Menu.FIRST + 5;
+	private final int CONTEXT_MENU_ITEM_SMS_LIST = Menu.FIRST + 2;
 
 	/**
 	 *  Id of the map context menu chat item. 
 	 */
-	private final int CONTEXT_MENU_ITEM_CHAT_MAP = Menu.FIRST + 6;
+	private final int CONTEXT_MENU_ITEM_CHAT_MAP = Menu.FIRST + 3;
 
 	/** 
 	 * Id of the map context menu call item. 
 	 */
-	private final int CONTEXT_MENU_ITEM_CALL_MAP = Menu.FIRST + 7;
+	private final int CONTEXT_MENU_ITEM_CALL_MAP = Menu.FIRST + 4;
 
 	/** 
 	 * Id of the map context menu sms item. 
 	 */
-	private final int CONTEXT_MENU_ITEM_SMS_MAP = Menu.FIRST + 8;
+	private final int CONTEXT_MENU_ITEM_SMS_MAP = Menu.FIRST + 5;
 
 	/** 
 	 * Id of contact tab
@@ -285,12 +269,9 @@ public class ContactListActivity extends MapActivity implements
 		switchButton = (Button) findViewById(R.id.switchMapBtn);
 		switchButton.setOnClickListener(new View.OnClickListener() {
 
-			@Override
+			
 			public void onClick(View arg0) {
 				Button clickedBtn = (Button) arg0;
-
-
-				
 				
 				if (mapView.isSatellite()) {
 					clickedBtn.setText(ContactListActivity.this
@@ -612,9 +593,9 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(Menu.NONE, MENUITEM_ID_CONNECT, Menu.NONE, R.string.menuitem_connect);
-		menu.add(Menu.NONE, MENUITEM_ID_SETTINGS, Menu.NONE, R.string.menuitem_settings);
-		menu.add(Menu.NONE, MENUITEM_ID_EXIT, Menu.NONE, R.string.menuitem_exit);
+		 // Inflate the currently selected menu XML resource.
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.title_icon, menu);
 		return true;
 	}
 
@@ -624,11 +605,13 @@ public class ContactListActivity extends MapActivity implements
 	 * @see Activity
 	 */
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuItem menuItemConnect = menu.findItem(MENUITEM_ID_CONNECT);
+		
+		MenuItem menuItemConnect = menu.findItem(R.id.connect);
 		menuItemConnect.setVisible(gateway == null);
-		MenuItem menuItemSettings = menu.findItem(MENUITEM_ID_SETTINGS);
+		MenuItem menuItemSettings = menu.findItem(R.id.settings);
 		menuItemSettings.setVisible((gateway == null));
 		return super.onPrepareOptionsMenu(menu);
+		
 	}
 
 	/**
@@ -638,15 +621,15 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		super.onMenuItemSelected(featureId, item);
-
+		myLogger.log(Logger.INFO, item.getItemId() + " 1 clicked");
 		switch (item.getItemId()) {
-		case MENUITEM_ID_EXIT:
+		case R.id.exit:
 			finish();
 			break;
-		case MENUITEM_ID_SETTINGS:
+		case R.id.settings:
 			parameterDialog.show();
 			break;
-		case MENUITEM_ID_CONNECT:
+		case R.id.connect:
 			//try to get a JadeGateway
 			try {
 				//fill Jade connection properties
@@ -663,14 +646,11 @@ public class ContactListActivity extends MapActivity implements
 				myLogger.log(Logger.SEVERE, "Error in onCreate", e);
 				e.printStackTrace();
 			}
-
 			break;
-
 		}
-
 		return true;
 	}
-
+	
 	/**
 	 * Handles the context menu selection both in map and in contact view
 	 * 
