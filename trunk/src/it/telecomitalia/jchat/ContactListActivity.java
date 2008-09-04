@@ -235,23 +235,17 @@ public class ContactListActivity extends MapActivity implements
 		
 		//init the map view
 		mapView = (MapView) findViewById(R.id.myMapView);
-		
-		mapView.setOnLongClickListener(new View.OnLongClickListener () {
 
+		mapView.setOnLongClickListener(new View.OnLongClickListener(){
 
 			public boolean onLongClick(View v) {
-				boolean retVal = false;
-
-				if (overlay.getSelectedItems().size() > 0) {
-					v.getParent().showContextMenuForChild(v);
-					retVal = true;
-				}
-
-				return retVal;
+				mapView.showContextMenu();
+				return true;
 			}
+			
 		});
 
-		/*mapView
+		mapView
 				.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
 					public void  onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo)  {
 						
@@ -260,7 +254,7 @@ public class ContactListActivity extends MapActivity implements
 						menu.add(Menu.NONE, CONTEXT_MENU_ITEM_CALL_MAP,Menu.NONE, R.string.menu_item_call);
 						menu.add(Menu.NONE, CONTEXT_MENU_ITEM_SMS_MAP,Menu.NONE, R.string.menu_item_sms);
 					}
-				});*/
+				});
 
 		registerForContextMenu(mapView);
 		
