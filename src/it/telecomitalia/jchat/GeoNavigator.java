@@ -26,16 +26,19 @@ import jade.util.Logger;
 
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Random;
+
+import com.google.android.maps.MyLocationOverlay;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.GpsStatusListener;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
-
 
 /**
  * Handles the operations of starting/stopping My Contact location update by location provider. It also allows specifying 
@@ -142,18 +145,19 @@ public class GeoNavigator {
 		listener = new ContactsLocationListener();
 	}
 	
+	
 	/**
 	 * Request the Location manager to start firing intents with location updates
 	 */
 	public void startLocationUpdate(){
 		myLogger.log(Logger.INFO, "Starting location update...");
-		List<String> providers = manager.getAllProviders();
-		manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE,listener );
+			
+		manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, MINIMUM_DISTANCECHANGE_FOR_UPDATE,listener );
+
 	}
 	
 	/**
 	 * Sets the location provider name.
-	 * 
 	 * @param provName the new location provider name
 	 */
 	public static void setLocationProviderName(String provName) {
@@ -178,6 +182,7 @@ public class GeoNavigator {
 
 		
 		public void onLocationChanged(Location location) {
+			myLogger.log(Logger.INFO, "Location listener has received location update for location " + location);
 			ContactManager.getInstance().updateMyContactLocation(location);
 		}
 
