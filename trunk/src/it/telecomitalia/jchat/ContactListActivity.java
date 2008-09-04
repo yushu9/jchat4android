@@ -236,6 +236,8 @@ public class ContactListActivity extends MapActivity implements
 		//init the map view
 		mapView = (MapView) findViewById(R.id.myMapView);
 
+		mapView.setSatellite(false);
+		
 		mapView.setOnLongClickListener(new View.OnLongClickListener(){
 
 			public boolean onLongClick(View v) {
@@ -272,11 +274,11 @@ public class ContactListActivity extends MapActivity implements
 				
 				if (mapView.isSatellite()) {
 					clickedBtn.setText(ContactListActivity.this
-							.getText(R.string.label_toggle_map));
+							.getText(R.string.label_toggle_satellite));
 					mapView.setSatellite(false);
 				} else {
 					clickedBtn.setText(ContactListActivity.this
-							.getText(R.string.label_toggle_satellite));
+							.getText(R.string.label_toggle_map));
 					mapView.setSatellite(true);
 				}
 
@@ -427,13 +429,6 @@ public class ContactListActivity extends MapActivity implements
 		MsnEventMgr.getInstance().registerEvent(MsnEvent.VIEW_REFRESH_EVENT, activityHandler);
 		MsnEventMgr.getInstance().registerEvent(MsnEvent.INCOMING_MESSAGE_EVENT, activityHandler);
 		
-		if (mapView.isSatellite()) {
-			mapView.setSatellite(false);
-			switchButton.setText(getText(R.string.label_toggle_map));
-		} else {
-			mapView.setSatellite(true);
-			switchButton.setText(getText(R.string.label_toggle_satellite));
-		}
 			
 		this.overlay.uncheckAllContacts();
 		this.contactsListView.uncheckAllSelectedItems();

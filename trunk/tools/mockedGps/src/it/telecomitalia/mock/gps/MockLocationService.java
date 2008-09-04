@@ -60,7 +60,9 @@ public class MockLocationService extends Service {
 			Log.i(MockLocationService.class.getName(), "Starting position sender thread.");
 			updateThread.start();
 			Notification serviceActiveNotif = new Notification(R.drawable.map,"Mocked Location Provider service is running!",System.currentTimeMillis());
-			PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(Intent.ACTION_DEFAULT), PendingIntent.FLAG_ONE_SHOT);
+			Intent i = new Intent();
+			i.setClass(this, LocationProviderLauncher.class);
+			PendingIntent pi = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
 			serviceActiveNotif.setLatestEventInfo(this, "Mocked Location Provider service is running", "", pi);
 			manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);	
 			manager.notify(SERVICE_NOTIFICATION_ID, serviceActiveNotif);
