@@ -40,6 +40,7 @@ import java.util.Random;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.net.Uri;
@@ -49,8 +50,10 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -62,9 +65,11 @@ import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.TabHost.TabSpec;
 
+import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
+import com.google.android.maps.Projection;
 
 /**
  * The main activity. Shows two tabs: one with contact list (with distance from current contact)
@@ -172,6 +177,15 @@ public class ContactListActivity extends MapActivity implements
 	private MapView mapView;
 
 
+	/**
+	 * Time a downClick was received 
+	 */
+	private long downClickTime; 
+	
+	/**
+	 * Time threshold to recognize long clicks 
+	 */
+	private final long LONG_CLICK_THRESHOLD_MS = 2500;
 
 	/**
 	 *  Custom dialog containing Jade connection parameters entered by the user. 
@@ -193,6 +207,8 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	private GuiEventHandler activityHandler;
 
+	private long downEventTime;
+	
 	/**
 	 * Initializes the activity's UI interface.
 	 */
@@ -202,7 +218,6 @@ public class ContactListActivity extends MapActivity implements
 		setContentView(R.layout.homepage);
 		mainTabHost = (TabHost) findViewById(R.id.main_tabhost);
 		mainTabHost.setup();
-		mainTabHost.setEnabled(false);
 
 		//Fill the contacts tab
 		TabSpec contactsTabSpecs = mainTabHost.newTabSpec(CONTACTS_TAB_TAG);
@@ -237,16 +252,23 @@ public class ContactListActivity extends MapActivity implements
 		mapView = (MapView) findViewById(R.id.myMapView);
 
 		mapView.setSatellite(false);
-		
-		mapView.setOnLongClickListener(new View.OnLongClickListener(){
+	
+		mapView.setOnTouchListener(new View.OnTouchListener(){
 
-			public boolean onLongClick(View v) {
-				mapView.showContextMenu();
+			public boolean onTouch(View v, MotionEvent event) {
+				//User has touched the screen, no action just take the time
+				if ( event.getAction() == MotionEvent.ACTION_DOWN ) {
+						int touchedX = (int) event.getX();
+						int touchedY = (int) event.getY();
+						overlay.checkClickedPosition(new Point(touchedX, touchedY));
+				}
+				
 				return true;
 			}
 			
 		});
-
+		
+		
 		mapView
 				.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
 					public void  onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo)  {
@@ -258,17 +280,15 @@ public class ContactListActivity extends MapActivity implements
 					}
 				});
 
-		registerForContextMenu(mapView);
 		
 		List<Overlay> overlayList = mapView.getOverlays();
-		overlay = new ContactsPositionOverlay(mapView, getResources());
+		overlay = new ContactsPositionOverlay(this, mapView, getResources());
 		overlayList.add(overlay);
 
 		//Button for switching map mode
 		switchButton = (Button) findViewById(R.id.switchMapBtn);
 		switchButton.setOnClickListener(new View.OnClickListener() {
 
-			
 			public void onClick(View arg0) {
 				Button clickedBtn = (Button) arg0;
 				
@@ -281,8 +301,6 @@ public class ContactListActivity extends MapActivity implements
 							.getText(R.string.label_toggle_map));
 					mapView.setSatellite(true);
 				}
-
-
 			}
 
 		});
@@ -301,6 +319,8 @@ public class ContactListActivity extends MapActivity implements
 	
 		registerForContextMenu(contactsListView);
 
+		registerForContextMenu(mapView);
+
 		contactsListView
 				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					public void onItemClick(AdapterView parent, View v,
@@ -312,8 +332,8 @@ public class ContactListActivity extends MapActivity implements
 						String selCId = (String) adapter.getItem(position);
 						Contact selC = ContactManager.getInstance().getContact(
 								selCId);
-						if (selC.isOnline())
-							cb.setChecked(!cb.isChecked());
+						
+						cb.setChecked(!cb.isChecked());
 					}
 				});
 
@@ -438,7 +458,6 @@ public class ContactListActivity extends MapActivity implements
 	 * Enables the main view after the application is connected to JADE
 	 */
 	private void enableUI() {
-			contactsListView.setEnabled(true);
 		
 		TabWidget widget = mainTabHost.getTabWidget();
 		widget.setEnabled(true);
@@ -716,20 +735,11 @@ public class ContactListActivity extends MapActivity implements
 	
 	private void callContact(String selectedCPhoneNumber) {
 		
-		Intent i = new Intent(Intent.ACTION_DIAL);
+		Intent i = new Intent(Intent.ACTION_CALL);
 		Uri phoneUri = Uri.parse("tel:" +  selectedCPhoneNumber);
 		i.setData(phoneUri);
-		i.addCategory(Intent.CATEGORY_LAUNCHER);
-		this.sendBroadcast(i);
+		startActivity(i);
 		
-/*		IPhone phoneService = null;
-		try {
-			IServiceManager sm = ServiceManagerNative.getDefault();
-			phoneService = IPhone.Stub.asInterface(sm.getService("phone"));
-			phoneService.call(selectedCPhoneNumber);
-		} catch (Exception e) {
-			myLogger.log(Logger.SEVERE, e.getMessage(), e);
-		}*/
 	}
 
 	/**

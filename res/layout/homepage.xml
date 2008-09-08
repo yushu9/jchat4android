@@ -44,7 +44,8 @@ android:padding="10px"
 			    class="it.telecomitalia.jchat.MultiSelectionListView"
 				android:id="@+id/contactsList"
 				android:layout_width="fill_parent"
-				android:layout_height="fill_parent"/>
+				android:layout_height="fill_parent"
+				/>
 			
 </LinearLayout>
 
@@ -57,18 +58,20 @@ android:layout_height="fill_parent"
 
 <Button
 	android:id="@+id/switchMapBtn"
+	android:focusable="false"
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
 	android:text="@string/label_toggle_satellite"
 />
 
+
 <view class="com.google.android.maps.MapView" 
           android:id="@+id/myMapView"
-          android:apiKey="myapikey"
-          android:focusable="false" 
+          android:apiKey="myapikey" 
+          android:longClickable="true"
+          android:focusableInTouchMode="true"
           android:layout_width="fill_parent" 
-          android:layout_height="fill_parent"/>
- 
+          android:layout_height="fill_parent"/> 
 
 
     	

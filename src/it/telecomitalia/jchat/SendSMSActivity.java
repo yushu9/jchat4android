@@ -170,9 +170,24 @@ public class SendSMSActivity extends Activity {
 					
 					
 					if (buffer.length() > 0){
-						Toast.makeText(SendSMSActivity.this, buffer.toString(), 3000).show();
-						timeBase=3000;
+						Toast.makeText(SendSMSActivity.this, buffer.toString(), 1000).show();
 					}
+					
+
+					
+					dlg = new ProgressDialog(SendSMSActivity.this);
+					dlg.setIndeterminate(true);
+					dlg.setCancelable(false);
+					dlg.setMessage("Sending  " + messages.size() + " messages to "  +  SendSMSActivity.this.addresses.size() + " contacts...");
+					
+					SendSMSActivity.this.handler.postDelayed(new Runnable(){
+
+						public void run() {
+							// TODO Auto-generated method stub
+							dlg.show();
+						}
+						
+					}, 2000);
 					
 					
 					
@@ -184,27 +199,14 @@ public class SendSMSActivity extends Activity {
 							Intent sentIntent = new Intent(SendSMSActivity.SMS_SENT_ACTION);
 							sentIntent.putExtra(SMS_ADDRESS_PARAM, address);
 							sentIntent.putExtra(SMS_DELIVERY_MSG_PARAM, (messages.size() > 1)? "Part " +  i + " of SMS " : "SMS ");
-							PendingIntent pi = PendingIntent.getBroadcast(SendSMSActivity.this, 0, sentIntent, PendingIntent.FLAG_ONE_SHOT);
+							PendingIntent pi = PendingIntent.getBroadcast(SendSMSActivity.this, 0, sentIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 							listOfIntents.add(pi);
 						}
 						
 						smsMgr.sendMultipartTextMessage(address, null, messages, listOfIntents, null);
 					}
 
-					dlg = new ProgressDialog(SendSMSActivity.this);
-					dlg.setIndeterminate(true);
-					dlg.setCancelable(false);
-					
-					dlg.setMessage("Sending  " + messages.size() + " messages to "  +  SendSMSActivity.this.addresses.size() + " contacts...");
-					
-					handler.postDelayed(
-							new Runnable(){
 
-								public void run() {
-									dlg.show();
-								}
-							}
-							, timeBase+1000);
 					
 					
 				} else {

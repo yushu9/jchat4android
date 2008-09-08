@@ -44,8 +44,7 @@
 	android:layout_height="200px"
 	android:layout_width="fill_parent"		
    	android:layout_below="@id/smsbodyTitle"
-   	style="@style/editStyle"
-   	android:background="@android:drawable/editbox_background"	   
+   	style="@style/editStyle"	   
 />
 
 <ImageButton
