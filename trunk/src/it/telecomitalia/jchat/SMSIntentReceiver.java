@@ -92,11 +92,7 @@ public class SMSIntentReceiver extends BroadcastReceiver {
 		
 		if (action.equals(SendSMSActivity.SMS_SENT_ACTION)){
 			messageBuf = new StringBuffer();
-			String statusMsg = intent.getStringExtra(SendSMSActivity.SMS_DELIVERY_MSG_PARAM);
-			String address = intent.getStringExtra(SendSMSActivity.SMS_ADDRESS_PARAM);
-			messageBuf.append(statusMsg);
-			messageBuf.append(" was delivered successfully to ");
-			messageBuf.append(address);
+			messageBuf.append("Message was delivered successfully");
 			
 			recvHandler.postDelayed(new Runnable(){
 							
@@ -106,7 +102,7 @@ public class SMSIntentReceiver extends BroadcastReceiver {
 									sendBtn.setEnabled(true);
 							}
 							
-						}, 2000);
+						}, 3000);
 								
 		}
 		 

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -43,6 +44,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Paint.FontMetrics;
 import android.location.Location;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
@@ -195,13 +197,16 @@ public class ContactsPositionOverlay extends Overlay {
 	 */
 	private Rect scrollingArea;
 	
+	private Context ctn;
+	
 	/**
 	 * Instantiates a new contacts position overlay.
 	 * 
 	 * @param myMapView the map view on which the overlay is drawn
 	 * @param ctn the file for accessing resources
 	 */
-	public ContactsPositionOverlay(MapView myMapView, Resources ctn){
+	public ContactsPositionOverlay(Context cont, MapView myMapView, Resources ctn){
+		this.ctn = cont; 
 		mapController = myMapView.getController();
 		appRes= ctn;
 		myPaint = new Paint();
@@ -577,21 +582,7 @@ public class ContactsPositionOverlay extends Overlay {
 	}	
 
 	
-	/**
-	 * Callback method called at each click on the map to retrieve pointer position to check for click on contacts.
-	 * Overrides Overlay.onTap()
-	 */
-	public  boolean  onTap(GeoPoint p, MapView mapView)  {
-
-		Point pointOnScreen = new Point();
-		Projection proj = mapView.getProjection();
-		proj.toPixels(p, pointOnScreen);
 		
-		checkClickedPosition(pointOnScreen); 
-		
-        return true;
-	}
-	
 	
 	
 	/**
@@ -751,7 +742,7 @@ public class ContactsPositionOverlay extends Overlay {
 		   sumvalues+= widthtext[n];		
 	   }
 	   return (int) sumvalues; 	    
-       }
+    }
 	
 		
 	
@@ -760,10 +751,9 @@ public class ContactsPositionOverlay extends Overlay {
       * 
       * @param point the clicked point in screen coordinate
       */
-     private void checkClickedPosition (Point point)
+     public void checkClickedPosition (Point point)
      { 
-    	 
-    	 
+    	 	 
     	 int width= bluePaddle.getWidth();
     	 int height= bluePaddle.getHeight();
     	 String myId = ContactManager.getInstance().getMyContact().getPhoneNumber();
@@ -772,10 +762,8 @@ public class ContactsPositionOverlay extends Overlay {
     		Rect r= new Rect(contact.positionOnScreen.x- width/2, contact.positionOnScreen.y-height, contact.positionOnScreen.x+width/2, contact.positionOnScreen.y );
     		if(r.contains(point.x, point.y) && !contact.idContact.equals(myId) ){    			
     		    contact.isChecked = !contact.isChecked;    		   
-    		}
-    		   		
-    	 }
-    	 	
+    		}	   		
+    	 } 	 	
      }
      
      /**
