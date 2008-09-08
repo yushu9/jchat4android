@@ -267,7 +267,17 @@ public class ContactListActivity extends MapActivity implements
 			}
 			
 		});
-		
+
+		mapView.setOnLongClickListener(new View.OnLongClickListener(){
+
+			public boolean onLongClick(View v) {
+				// TODO Auto-generated method stub
+				Toast.makeText(ContactListActivity.this, "LongClick recived", 2000).show();
+				v.showContextMenu();
+				return true;
+			}
+			
+		});
 		
 		mapView
 				.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
@@ -321,6 +331,8 @@ public class ContactListActivity extends MapActivity implements
 
 		registerForContextMenu(mapView);
 
+		
+		
 		contactsListView
 				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					public void onItemClick(AdapterView parent, View v,

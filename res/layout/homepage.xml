@@ -43,6 +43,8 @@ android:padding="10px"
 			<view xmlns:android="http://schemas.android.com/apk/res/android" 
 			    class="it.telecomitalia.jchat.MultiSelectionListView"
 				android:id="@+id/contactsList"
+				android:longClickable="true"
+                android:focusableInTouchMode="true"
 				android:layout_width="fill_parent"
 				android:layout_height="fill_parent"
 				/>
