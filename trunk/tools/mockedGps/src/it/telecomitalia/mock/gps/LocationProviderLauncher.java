@@ -31,7 +31,9 @@ public class LocationProviderLauncher extends Activity {
   private Button startBtn;
   private Button stopBtn;
   private EditText delayEdt;
-  //Key for retrieving file path from the intent
+
+  
+//Key for retrieving file path from the intent
   public static final String TRACK_FILE_PATH="TRACK_FILE_PATH";
 //Key for retrieving delay (speed) between locations in ms
   public static final String LOCATION_DELAY_MS="LOCATION_DELAY_MS";
@@ -111,6 +113,7 @@ public class LocationProviderLauncher extends Activity {
     	
     });   
     
+    
 
     //Stop button setup
     stopBtn = (Button) findViewById(R.id.stop_service_btn);
@@ -128,6 +131,15 @@ public class LocationProviderLauncher extends Activity {
     
   }
  
+  /**
+   * Destroy the service on close
+   */
+  protected void onDestroy() {
+		super.onDestroy();
+		Intent mockProvider = new Intent(LocationProviderLauncher.this, MockLocationService.class);
+		stopService(mockProvider);	
+  }
+  
   private List<String> getTrackList(){
 	  List<String> trackList = new ArrayList<String>();
 	  String[] files = trackDir.list();
