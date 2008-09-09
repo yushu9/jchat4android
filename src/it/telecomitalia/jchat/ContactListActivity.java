@@ -53,23 +53,19 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View.OnTouchListener;
+import android.view.animation.AlphaAnimation;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.FrameLayout;
-import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.TabHost.TabSpec;
 
-import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
-import com.google.android.maps.Projection;
 
 /**
  * The main activity. Shows two tabs: one with contact list (with distance from current contact)
@@ -155,6 +151,11 @@ public class ContactListActivity extends MapActivity implements
 	private TabHost mainTabHost;
 
 	/**
+	 * Alpha transformation performed when connecting to Jade
+	 */
+	private AlphaAnimation backDissolve;
+	
+	/**
 	 * The button for switching map/satellite mode in map view
 	 */
 	private Button switchButton;
@@ -186,16 +187,11 @@ public class ContactListActivity extends MapActivity implements
 	 * Time threshold to recognize long clicks 
 	 */
 	private final long LONG_CLICK_THRESHOLD_MS = 2500;
-
+	
 	/**
 	 *  Custom dialog containing Jade connection parameters entered by the user. 
 	 */
 	private static JadeParameterDialog parameterDialog;
-
-	/** 
-	 * GradientDrawable for the out of focus tab 
-	 */
-	private GradientDrawable outOfFocusTabGradient;
 
 	/** 
 	 * GradientDrawable for the in focus tab
@@ -263,17 +259,6 @@ public class ContactListActivity extends MapActivity implements
 						overlay.checkClickedPosition(new Point(touchedX, touchedY));
 				}
 				
-				return true;
-			}
-			
-		});
-
-		mapView.setOnLongClickListener(new View.OnLongClickListener(){
-
-			public boolean onLongClick(View v) {
-				// TODO Auto-generated method stub
-				Toast.makeText(ContactListActivity.this, "LongClick recived", 2000).show();
-				v.showContextMenu();
 				return true;
 			}
 			
@@ -358,6 +343,8 @@ public class ContactListActivity extends MapActivity implements
 
 	@Override	 
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		
+		
 		if(v instanceof MultiSelectionListView){
 			AdapterView.AdapterContextMenuInfo adaptMenuInfo = (AdapterContextMenuInfo) menuInfo;
 			MultiSelectionListView myLv = (MultiSelectionListView) v;
@@ -424,6 +411,7 @@ public class ContactListActivity extends MapActivity implements
 				"onReceiveIntent called: My currentThread has this ID: "
 						+ Thread.currentThread().getId());
 		super.onCreate(icicle);
+		
 		ContactListAdapter cla = new ContactListAdapter(this);
 		ContactManager.getInstance().addAdapter(cla);
 		ChatSessionNotificationManager.create(this);
@@ -446,6 +434,7 @@ public class ContactListActivity extends MapActivity implements
 		initUI();
 		disableUI();
 		
+
 	}
 	
 
@@ -455,13 +444,10 @@ public class ContactListActivity extends MapActivity implements
 	 * Registers handlers for both the views.
 	 */
 	protected void onResume() {
-		super.onResume();
-		
+		super.onResume();	
 		myLogger.log(Logger.FINE, "On Resume was called!!!: setting event handler in ContactListActivity");
 		MsnEventMgr.getInstance().registerEvent(MsnEvent.VIEW_REFRESH_EVENT, activityHandler);
 		MsnEventMgr.getInstance().registerEvent(MsnEvent.INCOMING_MESSAGE_EVENT, activityHandler);
-		
-			
 		this.overlay.uncheckAllContacts();
 		this.contactsListView.uncheckAllSelectedItems();
 	}
@@ -471,6 +457,13 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	private void enableUI() {
 		
+		View mainView = findViewById(R.id.main_view);
+		backDissolve = new AlphaAnimation(0.0f,1.0f);
+		backDissolve.setDuration(3000);
+	
+		mainView.setAnimation(backDissolve);
+		mainView.setVisibility(View.VISIBLE);
+		
 		TabWidget widget = mainTabHost.getTabWidget();
 		widget.setEnabled(true);
 	}
@@ -479,6 +472,9 @@ public class ContactListActivity extends MapActivity implements
 	 * Disables the UI at the beginning
 	 */
 	private void disableUI() {
+		
+		View mainView = findViewById(R.id.main_view);
+		mainView.setVisibility(View.INVISIBLE);
 		
 		TabWidget widget = mainTabHost.getTabWidget();
 		widget.setEnabled(false);
@@ -501,6 +497,7 @@ public class ContactListActivity extends MapActivity implements
 	public static Properties getJadeProperties() {
 		//fill Jade connection properties
 		Properties jadeProperties = new Properties();
+		
 
 		jadeProperties.setProperty(Profile.MAIN_HOST, parameterDialog
 				.getJadeAddress());
