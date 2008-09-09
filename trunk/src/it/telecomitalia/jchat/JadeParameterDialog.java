@@ -22,8 +22,9 @@
 
 package it.telecomitalia.jchat;
 
+import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
@@ -66,19 +67,27 @@ public class JadeParameterDialog extends Dialog {
 	private EditText jadePortEdt;
 	
 	
+	private final String JADE_DEFAULT_HOST="it.telecomitalia.jchat.JADE_DEFAULT_HOST";
+	private final String JADE_DEFAULT_PORT="it.telecomitalia.jchat.JADE_DEFAULT_PORT";
+	
+	/**
+	 * Main activity
+	 */
+	private Activity activity;
 	
 	/**
 	 * Instantiates a new jade parameter dialog.
 	 * 
-	 * @param context the current application context
+	 * @param act the current application context
 	 */
-	public JadeParameterDialog(Context context) {
-		super(context);
-		View v = initUI(context);
-		this.setTitle(context.getString(R.string.label_params_title));
+	public JadeParameterDialog(Activity act) {
+		super(act);
+		activity = act;
+		View v = initUI();
+		this.setTitle(act.getString(R.string.label_params_title));
 		this.setCancelable(false);
 		this.setContentView(v);
-		fillWithDefaults(context);
+		fillWithDefaults();
 	}
 	
 	/**
@@ -86,9 +95,11 @@ public class JadeParameterDialog extends Dialog {
 	 * 
 	 * @param ctx the application context
 	 */
-	private void fillWithDefaults(Context ctx){
-		jadeAddress = ctx.getString(R.string.jade_platform_host);
-		jadePort = ctx.getString(R.string.jade_platform_port);
+	private void fillWithDefaults(){
+		
+		SharedPreferences prefs = activity.getPreferences(Activity.MODE_PRIVATE);
+		jadeAddress = prefs.getString(JADE_DEFAULT_HOST, activity.getString(R.string.jade_platform_host));
+		jadePort = prefs.getString(JADE_DEFAULT_PORT, activity.getString(R.string.jade_platform_port));
 		jadeAddressEdt.setText(jadeAddress);
 		jadePortEdt.setText(jadePort);
 	}
@@ -119,28 +130,28 @@ public class JadeParameterDialog extends Dialog {
 	 * @param ctx the application context
 	 * @return the parent view
 	 */
-	private View initUI(Context ctx){
-		RelativeLayout layout = new RelativeLayout(ctx);
+	private View initUI(){
+		RelativeLayout layout = new RelativeLayout(activity);
 		
-		TextView jadeAddress = new TextView(ctx);
+		TextView jadeAddress = new TextView(activity);
 		jadeAddress.setText("Jade platform address");
 		jadeAddress.setId(1);
 		layout.addView(jadeAddress,new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		
-		jadeAddressEdt = new EditText(ctx);
+		jadeAddressEdt = new EditText(activity);
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.BELOW, 1);
 		jadeAddressEdt.setId(2);
 		layout.addView(jadeAddressEdt,params);
 		
-		TextView jadePort = new TextView(ctx);
+		TextView jadePort = new TextView(activity);
 		jadePort.setText("Jade platform port");
 		params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.BELOW, 2);
 		jadePort.setId(3);
 		layout.addView(jadePort,params);
 		
-		jadePortEdt = new EditText(ctx);
+		jadePortEdt = new EditText(activity);
 		jadePortEdt.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.BELOW, 3);
@@ -148,7 +159,7 @@ public class JadeParameterDialog extends Dialog {
 		layout.addView(jadePortEdt,params);
 		
 				
-		Button closeButton = new Button(ctx);
+		Button closeButton = new Button(activity);
 		params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		params.addRule(RelativeLayout.BELOW, 4);
@@ -159,15 +170,22 @@ public class JadeParameterDialog extends Dialog {
 			 */
 			public void onClick(View arg0) {
 					String tmpVar = JadeParameterDialog.this.jadeAddressEdt.getText().toString();
+					
+					SharedPreferences.Editor prefsEdt = activity.getPreferences(Activity.MODE_PRIVATE).edit();
+					
+					
 					if (tmpVar.length() > 0){
 						JadeParameterDialog.this.jadeAddress = tmpVar;
+						prefsEdt.putString(JADE_DEFAULT_HOST, tmpVar);
 					}
 					
 					tmpVar = JadeParameterDialog.this.jadePortEdt.getText().toString();
 					if (tmpVar.length() > 0){
 						JadeParameterDialog.this.jadePort = tmpVar;
+						prefsEdt.putString(JADE_DEFAULT_PORT, tmpVar);
 					}
 					
+					prefsEdt.commit();
 					JadeParameterDialog.this.dismiss();
 			}
 			
