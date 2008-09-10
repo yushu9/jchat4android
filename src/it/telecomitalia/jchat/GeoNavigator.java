@@ -91,7 +91,7 @@ public class GeoNavigator {
 	/** 
 	 * The default location provider name  
 	 */
-	private static final String DEFAULT_PROVIDER_NAME="gps";
+	private static final String DEFAULT_PROVIDER_NAME=LocationManager.GPS_PROVIDER;
 	
 	/** 
 	 * The name of the location provider to be used. 
@@ -140,7 +140,7 @@ public class GeoNavigator {
 	 */
 	private GeoNavigator(Context c) {
 		manager = (LocationManager)c.getSystemService(Context.LOCATION_SERVICE);
-
+		locProviderName= DEFAULT_PROVIDER_NAME;
 		myContext = c;	
 		listener = new ContactsLocationListener();
 	}
@@ -152,7 +152,7 @@ public class GeoNavigator {
 	public void startLocationUpdate(){
 		myLogger.log(Logger.INFO, "Starting location update...");
 			
-		manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, MINIMUM_DISTANCECHANGE_FOR_UPDATE,listener );
+		manager.requestLocationUpdates(locProviderName, 0, MINIMUM_DISTANCECHANGE_FOR_UPDATE,listener );
 
 	}
 	
