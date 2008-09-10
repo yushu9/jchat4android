@@ -34,6 +34,7 @@ import java.util.Map;
 import android.database.Cursor;
 import android.location.Location;
 import android.provider.Contacts.People;
+import android.telephony.PhoneNumberUtils;
 
 /**
  * Manages the list of contacts. 
@@ -177,7 +178,7 @@ public class ContactManager {
 		if (c.moveToFirst()){
 			do {
 
-				String phonenumber = c.getString(phonenumberCol);
+				String phonenumber =   PhoneNumberUtils.stripSeparators( c.getString(phonenumberCol) );
 				String name = c.getString(nameCol);
 
 				myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Found contact "+ name + " with numtel " + phonenumber);

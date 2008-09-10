@@ -324,12 +324,6 @@ public class ContactListActivity extends MapActivity implements
 							int position, long id) {
 						CheckBox cb = (CheckBox) v
 								.findViewById(R.id.contact_check_box);
-						ContactListAdapter adapter = (ContactListAdapter) parent
-								.getAdapter();
-						String selCId = (String) adapter.getItem(position);
-						Contact selC = ContactManager.getInstance().getContact(
-								selCId);
-						
 						cb.setChecked(!cb.isChecked());
 					}
 				});
