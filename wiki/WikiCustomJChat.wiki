@@ -1,7 +1,11 @@
 = Customizing jChat =
 After getting the sources, jChat can be easily customized in different ways. 
 
-== Adding new tracks for mocked GPS location provider ==
+== Adding new tracks for mocked GPS location provider in jChat 1.1==
+In jChat 1.1 the procedure for importing new tracks is changed, because the old mocked location provider is no more available.
+jChat 1.1 provides a service 
+
+== Adding new tracks for mocked GPS location provider in jChat 1.0==
 http://jchat4android.googlecode.com/files/kml.jpg
 
 To add new tracks you should follow these steps:
