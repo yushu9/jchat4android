@@ -45,7 +45,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemProperties;
+import android.telephony.TelephonyManager;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -389,8 +389,8 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	private String getRandomNumber() {
 		Random rnd = new Random();
-		int randInt = rnd.nextInt();
-		return "RND" + String.valueOf(randInt);
+		int randInt = rnd.nextInt(1000);
+		return String.valueOf(randInt);
 	}
 
 	/** 
@@ -511,15 +511,15 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	private String getMyPhoneNumber() {
 		//Get the phone number of my contact
-		String numTel = SystemProperties.get("numtel");
-		//if number is not available
-		if (numTel.equals("")) {
-			myLogger
-					.log(Logger.WARNING,
-							"Cannot access the numtel! A random number shall be used!!!");
-			numTel = getRandomNumber();
-		}
-		return numTel;
+		TelephonyManager telMgr = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
+		//get the phone number
+		StringBuffer numTel = new StringBuffer(telMgr.getLine1Number());
+		
+		//Add a random id just to be sure that different instances have different
+		//phone numbers
+		numTel.append(getRandomNumber());
+		myLogger.log(Logger.WARNING,"Generated numtel is " +  numTel.toString());
+		return numTel.toString();
 	}
 
 	/**

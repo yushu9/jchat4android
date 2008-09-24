@@ -25,8 +25,6 @@ package it.telecomitalia.jchat;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.android.mms.pdu.DeliveryInd;
-
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
