@@ -25,19 +25,13 @@ package it.telecomitalia.jchat;
 import jade.util.Logger;
 
 import java.io.FileNotFoundException;
-import java.util.List;
-import java.util.Random;
-
-import com.google.android.maps.MyLocationOverlay;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.location.GpsStatusListener;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Bundle;
 
 /**
