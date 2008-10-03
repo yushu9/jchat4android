@@ -275,19 +275,21 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 								event.addParam(MsnEvent.CONTACT_DISCONNECT_PARAM_CONTACTNAME, c.getName());
 								MsnEventMgr.getInstance().fireEvent(event);								
 							}
+							
+							MsnEvent event = MsnEventMgr.getInstance().createEvent(MsnEvent.VIEW_REFRESH_EVENT);
+							ContactListChanges changes = ContactManager.getInstance().getModifications();
+							Map<String,Contact> cMap = ContactManager.getInstance().getAllContacts();
+							Map<String,ContactLocation> cLocMap = ContactManager.getInstance().getAllContactLocations();
+							
+							myLogger.log(Logger.INFO,"Thread "+ Thread.currentThread().getId() + ":Adding to VIEW_REFRESH_EVENT this list of changes: " + changes.toString());
+							event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES, changes);
+							event.addParam(MsnEvent.VIEW_REFRESH_CONTACTSMAP, cMap);
+							event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LOCATIONMAP, cLocMap);
+							MsnEventMgr.getInstance().fireEvent(event);
 						}
 					}
 					
-					MsnEvent event = MsnEventMgr.getInstance().createEvent(MsnEvent.VIEW_REFRESH_EVENT);
-					ContactListChanges changes = ContactManager.getInstance().getModifications();
-					Map<String,Contact> cMap = ContactManager.getInstance().getAllContacts();
-					Map<String,ContactLocation> cLocMap = ContactManager.getInstance().getAllContactLocations();
-					
-					myLogger.log(Logger.INFO,"Thread "+ Thread.currentThread().getId() + ":Adding to VIEW_REFRESH_EVENT this list of changes: " + changes.toString());
-					event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES, changes);
-					event.addParam(MsnEvent.VIEW_REFRESH_CONTACTSMAP, cMap);
-					event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LOCATIONMAP, cLocMap);
-					MsnEventMgr.getInstance().fireEvent(event);
+				
 				}
 
 

@@ -25,6 +25,7 @@ package it.telecomitalia.jchat;
 import jade.util.Logger;
 
 import java.io.FileNotFoundException;
+import java.util.Map;
 
 import android.content.Context;
 import android.content.Intent;
@@ -65,7 +66,7 @@ public class GeoNavigator {
     /** 
      * Minimum time in milliseconds for between location updates
      */
-    private final long MINIMUM_TIME_BETWEEN_UPDATE = 0;  
+    private final long MINIMUM_TIME_BETWEEN_UPDATE = 2000000;  
 
     /** 
      * Instance of Jade Logger for debugging
@@ -146,7 +147,7 @@ public class GeoNavigator {
 	public void startLocationUpdate(){
 		myLogger.log(Logger.INFO, "Starting location update...");
 			
-		manager.requestLocationUpdates(locProviderName, 0, MINIMUM_DISTANCECHANGE_FOR_UPDATE,listener );
+		manager.requestLocationUpdates(locProviderName, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE,listener );
 
 	}
 	
@@ -178,6 +179,18 @@ public class GeoNavigator {
 		public void onLocationChanged(Location location) {
 			myLogger.log(Logger.INFO, "Location listener has received location update for location " + location);
 			ContactManager.getInstance().updateMyContactLocation(location);
+			
+			MsnEvent refresh = MsnEventMgr.getInstance().createEvent(MsnEvent.VIEW_REFRESH_EVENT);
+			
+			ContactListChanges changes = ContactManager.getInstance().getModifications();
+			Map<String,Contact> cMap = ContactManager.getInstance().getAllContacts();
+			Map<String,ContactLocation> cLocMap = ContactManager.getInstance().getAllContactLocations();
+			
+			refresh.addParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES, changes);
+			refresh.addParam(MsnEvent.VIEW_REFRESH_CONTACTSMAP, cMap);
+			refresh.addParam(MsnEvent.VIEW_REFRESH_PARAM_LOCATIONMAP, cLocMap);
+			MsnEventMgr.getInstance().fireEvent(refresh);
+			
 		}
 
 		/* (non-Javadoc)

@@ -187,6 +187,7 @@ public class ContactListAdapter extends BaseAdapter {
 			contactViewInfoList.add(cvi);
 		}
 		
+		
 	}
 	
 	/**
@@ -200,7 +201,7 @@ public class ContactListAdapter extends BaseAdapter {
 	public final void update(final ContactListChanges changes, Map<String, Contact> cMap, Map<String, ContactLocation> cLocMap){
 		
 		
-		ContactLocation cMyLoc = ContactManager.getInstance().getMyContactLocation();
+	
 		
 		if (changes.contactsAdded.size() > 0 || changes.contactsDeleted.size() > 0) {
 			myLogger.log(Logger.INFO, "Modifications reported from updating thread...\n " +
@@ -224,7 +225,17 @@ public class ContactListAdapter extends BaseAdapter {
 			contactViewInfoList.remove(cvi);
 			myLogger.log(Logger.INFO, "ContactViewInfo removed!\n ContactViewInfo list is now: " + contactViewInfoList.toString() );
 		}
-		
+	
+		refresh(cMap, cLocMap);
+	}
+
+	/**
+	 * @param cMap
+	 * @param cLocMap
+	 */
+	public void refresh(Map<String, Contact> cMap,
+			Map<String, ContactLocation> cLocMap) {
+		ContactLocation cMyLoc = ContactManager.getInstance().getMyContactLocation();
 		
 		//At the end update all contacts
 		for (ContactViewInfo viewInfo : contactViewInfoList) {
