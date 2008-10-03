@@ -107,6 +107,28 @@ public class MsnEventMgr {
 		
 	}
 
+	/**
+	 * This method issues an event after a delay and call its handler if any. 
+	 * It is called by the agent thread each time an event takes place 
+	 * @param event  the event to fire
+	 * @param amount of delay in milliseconds
+	 */
+	public  void fireEventDelayed(MsnEvent event, long delayMillis) {
+		String eventName = event.getName();
+		myLogger.log(Logger.FINE, "Firing event delayed " + event.getName() );
+		IEventHandler handler = eventMap.get(eventName);
+		
+		try {
+			Thread.sleep(delayMillis);
+			handler.handleEvent(event);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	
+	}
+	
 }
 
 
