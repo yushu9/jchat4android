@@ -66,7 +66,7 @@ public class GeoNavigator {
     /** 
      * Minimum time in milliseconds for between location updates
      */
-    private final long MINIMUM_TIME_BETWEEN_UPDATE = 2000000;  
+    private final long MINIMUM_TIME_BETWEEN_UPDATE = 0;  
 
     /** 
      * Instance of Jade Logger for debugging
