@@ -1,0 +1,85 @@
+<!-- ANT BUILD FILE FOR WADE TESTS -->
+
+<project name="LocationControlTool" default="run">
+
+	<property file="build.properties" />
+	<property environment="env" />
+	<property name="dependency-libs-path" location="${android-sdk-folder}/tools/lib"/>
+	<property name="src" location="src" />
+	<property name="bin" location="bin" />
+	
+
+	<path id="android-classpath">
+		<fileset dir="${dependency-libs-path}">
+			<include name="ddmlib.jar"/>
+			<include name="ddmuilib.jar"/>
+			<include name="org.eclipse.core.commands_3.2.0.I20060605-1400.jar"/>
+			<include name="org.eclipse.equinox.common_3.2.0.v20060603.jar"/>
+			<include name="org.eclipse.jface_3.2.0.I20060605-1400.jar"/>
+			<include name="swt.jar"/>
+		</fileset>
+	</path>
+
+
+
+	<!--   _______________________________________________
+	                    INIT
+         _______________________________________________ -->
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<echo>JAVA_HOME = ${env.JAVA_HOME} </echo>
+		<echo>ANDROID_SDK = ${android-sdk-folder} </echo>
+		<mkdir dir="${bin}"/>
+	</target>
+
+
+	<!--  __________________________________________________
+	                    COMPILE
+        __________________________________________________ -->
+	<target name="compile" depends="init" >
+		<javac srcdir="${src}" destdir="${bin}" debug="on" debuglevel="vars,lines,source" optimize="off" deprecation="true">
+			<classpath refid="android-classpath"/>
+		</javac>
+
+	</target>
+
+
+	
+
+	<!--  __________________________________________________
+	                    CLEAN
+        __________________________________________________ -->
+	<target name="clean" depends="init" description="clean up" >
+		<delete dir="${bin}" quiet="true"/>
+	</target>
+
+
+	<!--   _______________________________________________
+	                    RUN
+	__________________________________________________ -->
+	<target name="run" depends="compile">
+		
+		<java classname="it.telecomitalia.locationControl.CustomLocationControl" fork="yes">
+			<jvmarg line="-Djava.library.path=${dependency-libs-path}" />
+			<classpath>
+				<pathelement location="."/>
+				<pathelement location="${bin}"/>
+				<pathelement location="${dependency-libs-path}"/>
+				<fileset dir="${dependency-libs-path}">
+							<include name="ddmlib.jar"/> 
+							<include name="ddmuilib.jar"/>
+							<include name="org.eclipse.core.commands_3.2.0.I20060605-1400.jar"/>
+							<include name="org.eclipse.equinox.common_3.2.0.v20060603.jar"/>
+							<include name="org.eclipse.jface_3.2.0.I20060605-1400.jar"/>
+							<include name="swt.jar"/>
+				</fileset>
+			</classpath>
+		</java>	     		
+	</target>
+
+
+
+
+
+</project>

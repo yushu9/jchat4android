@@ -7,40 +7,24 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.CellEditor.LayoutData;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -51,13 +35,8 @@ import com.android.ddmlib.Client;
 import com.android.ddmlib.Device;
 import com.android.ddmlib.AndroidDebugBridge.IDeviceChangeListener;
 import com.android.ddmuilib.DevicePanel;
-import com.android.ddmuilib.IImageLoader;
 import com.android.ddmuilib.ImageLoader;
 import com.android.ddmuilib.DevicePanel.IUiSelectionListener;
-import com.android.ddmuilib.location.KmlParser;
-import com.android.ddmuilib.location.WayPoint;
-import com.android.ddmuilib.location.WayPointContentProvider;
-import com.android.ddmuilib.location.WayPointLabelProvider;
 
 /**
  * @author s.semeria
@@ -214,6 +193,7 @@ public class CustomLocationControlGUI  {
 			}
 			
 		});
+		
 		
 		String adbLocation = System.getProperty("com.android.ddms.bindir");
         if(adbLocation != null && adbLocation.length() != 0)
