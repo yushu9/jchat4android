@@ -77,27 +77,25 @@ public class CustomLocationControlGUI  {
 	private Text mDelayMillisecs;
 	private Map<String, LocationPlayer> mPlayerMap;
 	private LocationPlayer mCurrentPlayer;
-	
 	private static final String SHELL_TITLE = "Dalvik Debug Monitor ";
 	
 	private void populateUI(Shell mainWnd){
-		RowLayout shellLayout = new RowLayout();
+		FillLayout shellLayout = new FillLayout();
+		shellLayout.type = SWT.HORIZONTAL;
+		shellLayout.spacing = 5;
+		shellLayout.marginWidth=10;
+		shellLayout.marginHeight=10;
+		
 		mainWnd.setLayout(shellLayout);
-	    
-		Composite deviceComposite = new Composite(mainWnd,0);
-		GridLayout deviceGroupLayout  = new GridLayout(1,true);
-		deviceGroupLayout.marginRight=5;
-		deviceGroupLayout.marginLeft=5;
-		deviceComposite.setLayout(deviceGroupLayout);
-	    Label deviceLabel = new Label(deviceComposite,SWT.LEFT);		
-	    deviceLabel.setText("Available devices");
+	
+		SashForm form = new SashForm(mainWnd,SWT.HORIZONTAL);
+		
+		Group deviceGroup = new Group(form,SWT.NONE);
+		deviceGroup.setText("Available Devices");
 	    ImageLoader loader = new ImageLoader(CustomLocationControlGUI.class); 
-	    Composite devicePanel = new Composite(deviceComposite,0);
-	    
 	    mDevicePanel = new DevicePanel(loader, true);
-	    devicePanel.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.VERTICAL_ALIGN_FILL ));
-		Control c  =mDevicePanel.createPanel(devicePanel);
-		c.setSize(500,600);
+		mDevicePanel.createPanel(deviceGroup);
+		
 	
 		
 		mDevicePanel.addSelectionListener(new IUiSelectionListener(){
@@ -138,22 +136,47 @@ public class CustomLocationControlGUI  {
 			public void deviceDisconnected(Device arg0) {
 				// TODO Auto-generated method stub
 				if (mPlayerMap.containsKey(arg0.getSerialNumber())){
+					
+					if (mCurrentPlayer!= null && mCurrentPlayer.getSerialNumber().equals(arg0.getSerialNumber())){
+						
+						mDisplay.asyncExec(new Runnable(){
+
+							public void run() {
+								
+								if (AndroidDebugBridge.getBridge().getDevices().length == 0){
+									mKmlWayPointTable.removeAll();
+									disableLocationControls();
+								} else {
+									mKmlWayPointTable.removeAll();	
+									CustomLocationControlGUI.this.mDelayMillisecs.setText(String.valueOf(LocationPlayer.DEFAULT_DELAY_MS));
+									CustomLocationControlGUI.this.mLoopModeCheckButton.setSelection(true);
+									CustomLocationControlGUI.this.mKmlPlayButton.setEnabled(false);
+									CustomLocationControlGUI.this.mKmlStopButton.setEnabled(false);
+									CustomLocationControlGUI.this.mDelayMillisecs.setEnabled(false);
+									CustomLocationControlGUI.this.mLoopModeCheckButton.setEnabled(false);
+								}
+								 
+							}
+							
+						});
+						
+						if (mCurrentPlayer.isPlaying())
+							mCurrentPlayer.stop();
+						mCurrentPlayer = null;
+					}
+					
 					mPlayerMap.remove(arg0.getSerialNumber());
 					
-					if (mCurrentPlayer.getSerialNumber().equals(arg0.getSerialNumber())){
-						refreshUI();
-					}
 				}
 			}
 			
 		});
 		
-	//    mDevicePanel.
-		
-		Composite locationPanel = new Composite(mainWnd, 0);
-		GridLayout locationLayout = new GridLayout(1,false);
-		locationPanel.setLayout(locationLayout);
-		createLocationControls(locationPanel);
+		Group locationGroup = new Group(form,SWT.NONE);
+		locationGroup.setText("Location Controls");
+		GridLayout locationGroupLayout = new GridLayout(1,false);
+		locationGroup.setLayout(locationGroupLayout);
+		createLocationControls(locationGroup);
 	}
 	
 	public void runUI(){
@@ -162,8 +185,7 @@ public class CustomLocationControlGUI  {
 		mCurrentPlayer = null;
 		mDisplay = new Display();
 		
-		Shell mainWnd = new Shell(mDisplay);
-		
+		Shell mainWnd = new Shell(mDisplay,SWT.CLOSE | SWT.TITLE | SWT.MIN | SWT.MAX);
 		mainWnd.addShellListener(new ShellListener(){
 
 			public void shellActivated(ShellEvent arg0) {
@@ -224,20 +246,10 @@ public class CustomLocationControlGUI  {
 		mainWnd.setBounds(new Rectangle(50,50,800,600));
 	}
 
-	 private void createLocationControls(Composite kmlLocationComp)
+	 private void createLocationControls(Composite kmlLocationGroup)
 	 {
-	     Group g = new Group(kmlLocationComp,0);   
-	     g.setLayout(new GridLayout(1,false));
-	     GridData gd = new GridData();
-	     gd.horizontalAlignment = GridData.FILL_HORIZONTAL;
-	     gd.grabExcessHorizontalSpace = true;
-	     gd.grabExcessVerticalSpace = true;
-	     gd.verticalAlignment = GridData.FILL_VERTICAL;
-	     g.setData(gd);
-	     g.setText("Location Controls");
-
 	         
-	     mKmlUploadButton = new Button(g, SWT.PUSH);
+	     mKmlUploadButton = new Button(kmlLocationGroup, SWT.PUSH);
 	     mKmlUploadButton.setText("Load KML...");
 	     mKmlUploadButton.addSelectionListener(new SelectionAdapter(){
 
@@ -254,7 +266,9 @@ public class CustomLocationControlGUI  {
 	                    KmlTrackParser parser = new KmlTrackParser(fileName);
 	                    if(parser.parse())
 	                    {
-	                    	mCurrentPlayer.setRouteData(parser.getWayPoints());
+	                    	if (mCurrentPlayer != null){
+	                    	  mCurrentPlayer.setRouteData(parser.getWayPoints());
+	                    	}
 	                    	refreshUI();
 	                    }
 	            }	
@@ -263,7 +277,8 @@ public class CustomLocationControlGUI  {
 	     });
 	     
 	     
-	     mKmlWayPointTable = new Table(g, SWT.SINGLE | SWT.FULL_SELECTION | SWT.VIRTUAL); 
+	     mKmlWayPointTable = new Table(kmlLocationGroup, SWT.SINGLE | SWT.FULL_SELECTION | SWT.VIRTUAL );
+	 
 	     mKmlWayPointTable.setHeaderVisible(true);
          mKmlWayPointTable.setLinesVisible(true);
          mKmlWayPointTable.setItemCount(20);
@@ -276,19 +291,17 @@ public class CustomLocationControlGUI  {
          latitudeColumn.setResizable(true);
          TableColumn longitudeColumn = new TableColumn(mKmlWayPointTable,0);
          longitudeColumn.setText("Longitude");
-         longitudeColumn.setWidth(100);
+         longitudeColumn.setWidth(80);
          longitudeColumn.setResizable(true);
          TableColumn altitudeColumn = new TableColumn(mKmlWayPointTable,0);
          altitudeColumn.setText("Altitude");
-         altitudeColumn.setWidth(100);
-         altitudeColumn.setResizable(true);
-         	        
+         altitudeColumn.setWidth(80);
+         altitudeColumn.setResizable(true);        
          mKmlTableViewer = new TableViewer(mKmlWayPointTable);
          mKmlTableViewer.setContentProvider(new WaypointLocCProvider());
          WayPointLocLabelProvider labelProvider = new WayPointLocLabelProvider();
          mKmlTableViewer.setLabelProvider(labelProvider);
-         
-         Composite animationOptions = new Composite(g,0);
+         Composite animationOptions = new Composite(kmlLocationGroup,0);
          GridLayout animationOptionsLayout = new GridLayout(1,true);
          animationOptions.setLayout(animationOptionsLayout);
          mLoopModeCheckButton = new Button(animationOptions, SWT.CHECK);
@@ -297,7 +310,8 @@ public class CustomLocationControlGUI  {
          mLoopModeCheckButton.addSelectionListener(new SelectionAdapter(){
 
 			public void widgetSelected(SelectionEvent e) {
-				mCurrentPlayer.setLoopMode(mLoopModeCheckButton.getSelection());
+				if (mCurrentPlayer != null)
+				  mCurrentPlayer.setLoopMode(mLoopModeCheckButton.getSelection());
 			}
         	 
          });
@@ -306,7 +320,7 @@ public class CustomLocationControlGUI  {
          delayLabel.setText("Delay between positions (ms)");
          mDelayMillisecs = new Text(animationOptions,SWT.SINGLE);
          
-         Composite rowOfButtonPanel = new Composite(g,0);
+         Composite rowOfButtonPanel = new Composite(kmlLocationGroup,0);
          RowLayout rowOfButtonLayout = new RowLayout();
          rowOfButtonLayout.wrap= false;
          rowOfButtonLayout.marginWidth = 5;
@@ -368,9 +382,7 @@ public class CustomLocationControlGUI  {
 			 if (mCurrentPlayer.getRouteData() != null) {
 				 CustomLocationControlGUI.this.mKmlTableViewer.setInput(mCurrentPlayer.getRouteData());
 			 } else {
-				 WayPointLocation[] waypoints = (WayPointLocation[])CustomLocationControlGUI.this.mKmlTableViewer.getInput();
-				 if (waypoints != null)
-					 CustomLocationControlGUI.this.mKmlTableViewer.remove(waypoints);
+				mKmlWayPointTable.removeAll();
 			 }
 			 CustomLocationControlGUI.this.mDelayMillisecs.setText(String.valueOf(mCurrentPlayer.getDelay()));
 			 CustomLocationControlGUI.this.mLoopModeCheckButton.setSelection(mCurrentPlayer.getLoopMode());

@@ -31,7 +31,7 @@ public class LocationPlayer {
 	private String mSerialNum;
 	
 	
-	private static final long DEFAULT_DELAY_MS=2000;
+	public static final long DEFAULT_DELAY_MS=2000;
 	
 	LocationPlayer(Device d){
 		emuConsole = EmulatorConsole.getConsole(d);
@@ -97,10 +97,6 @@ public class LocationPlayer {
 		isStopped = false;
 		mPlayerThread = new Thread(routePlayerRunnable);
 		mPlayerThread.start();		
-	}
-	
-	public synchronized void resume(){
-		monitor.notify();
 	}
 	
 	
