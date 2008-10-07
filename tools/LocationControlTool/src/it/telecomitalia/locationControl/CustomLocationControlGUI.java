@@ -14,7 +14,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
@@ -46,7 +45,6 @@ public class CustomLocationControlGUI  {
 
 	private Display mDisplay;
 	private DevicePanel mDevicePanel;
-	private Composite mPanelArea;
 	private Button mKmlUploadButton;
 	private Table mKmlWayPointTable;
 	private TableViewer mKmlTableViewer;
@@ -56,7 +54,7 @@ public class CustomLocationControlGUI  {
 	private Text mDelayMillisecs;
 	private Map<String, LocationPlayer> mPlayerMap;
 	private LocationPlayer mCurrentPlayer;
-	private static final String SHELL_TITLE = "Dalvik Debug Monitor ";
+	private static final String SHELL_TITLE = "jChat 1.2 Location Control Tool";
 	
 	private void populateUI(Shell mainWnd){
 		FillLayout shellLayout = new FillLayout();

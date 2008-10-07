@@ -14,17 +14,11 @@ import org.eclipse.swt.graphics.Image;
  */
 public class WayPointLocLabelProvider implements ITableLabelProvider {
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java.lang.Object, int)
-	 */
 	public Image getColumnImage(Object arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang.Object, int)
-	 */
 	public String getColumnText(Object obj, int colIndex) {
 		// TODO Auto-generated method stub
 		StringBuilder wayPointData = new StringBuilder("");
@@ -45,33 +39,21 @@ public class WayPointLocLabelProvider implements ITableLabelProvider {
 		return wayPointData.toString();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#addListener(org.eclipse.jface.viewers.ILabelProviderListener)
-	 */
 	public void addListener(ILabelProviderListener arg0) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#dispose()
-	 */
 	public void dispose() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#isLabelProperty(java.lang.Object, java.lang.String)
-	 */
 	public boolean isLabelProperty(Object arg0, String arg1) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#removeListener(org.eclipse.jface.viewers.ILabelProviderListener)
-	 */
 	public void removeListener(ILabelProviderListener arg0) {
 		// TODO Auto-generated method stub
 		
