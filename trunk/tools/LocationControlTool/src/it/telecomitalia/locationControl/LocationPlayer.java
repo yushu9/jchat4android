@@ -3,7 +3,6 @@
  */
 package it.telecomitalia.locationControl;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -27,7 +26,6 @@ public class LocationPlayer {
 	private final Runnable routePlayerRunnable; 
 	private volatile boolean isLooping;
 	private long delayMs;
-	private Object monitor;
 	private String mSerialNum;
 	
 	
@@ -37,7 +35,6 @@ public class LocationPlayer {
 		emuConsole = EmulatorConsole.getConsole(d);
 		routeWayPoints = null;
 		isStopped = true;
-		monitor = new Object();
 		mSerialNum = d.getSerialNumber();
 		isLooping = true;
 		delayMs = DEFAULT_DELAY_MS;

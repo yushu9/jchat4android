@@ -4,7 +4,6 @@
 package it.telecomitalia.locationControl;
 
 import com.android.ddmlib.AndroidDebugBridge;
-import com.android.ddmlib.Log;
 
 /**
  * @author s.semeria
