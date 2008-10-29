@@ -145,7 +145,7 @@ public class GeoNavigator {
 	 * Request the Location manager to start firing intents with location updates
 	 */
 	public void startLocationUpdate(){
-		myLogger.log(Logger.INFO, "Starting location update...");
+		myLogger.log(Logger.INFO, "Starting location update... for provider " +  locProviderName);
 			
 		manager.requestLocationUpdates(locProviderName, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE,listener );
 
@@ -182,7 +182,7 @@ public class GeoNavigator {
 			
 			MsnEvent refresh = MsnEventMgr.getInstance().createEvent(MsnEvent.VIEW_REFRESH_EVENT);
 			
-			ContactListChanges changes = ContactManager.getInstance().getModifications();
+			ContactListChanges changes = new ContactListChanges();
 			Map<String,Contact> cMap = ContactManager.getInstance().getAllContacts();
 			Map<String,ContactLocation> cLocMap = ContactManager.getInstance().getAllContactLocations();
 			
@@ -198,7 +198,7 @@ public class GeoNavigator {
 		 */
 		public void onProviderDisabled(String provider) {
 			// TODO Auto-generated method stub
-			
+			myLogger.log(Logger.INFO, "Location provider " +  provider + " disabled!");
 		}
 
 		/* (non-Javadoc)
@@ -206,7 +206,7 @@ public class GeoNavigator {
 		 */
 		public void onProviderEnabled(String provider) {
 			// TODO Auto-generated method stub
-			
+			myLogger.log(Logger.INFO, "Location provider " +  provider + " enabled!");
 		}
 
 		/* (non-Javadoc)
@@ -214,7 +214,7 @@ public class GeoNavigator {
 		 */
 		public void onStatusChanged(String provider, int status, Bundle extras) {
 			// TODO Auto-generated method stub
-			
+			myLogger.log(Logger.INFO, "Status of provider " +  provider + " has changed and now is " + status);
 		}
 		
 	}
