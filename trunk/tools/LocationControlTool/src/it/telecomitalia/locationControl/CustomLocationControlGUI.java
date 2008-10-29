@@ -96,6 +96,7 @@ public class CustomLocationControlGUI  {
 
 			public void deviceChanged(Device arg0, int arg1) {
 				// TODO Auto-generated method stub
+				System.out.println("A new device having serial " +  arg0.getSerialNumber() + "changed state!");
 				if (!mPlayerMap.containsKey(arg0.getSerialNumber())){
 					LocationPlayer player = new LocationPlayer(arg0);
 					mPlayerMap.put(arg0.getSerialNumber(), player);
@@ -104,6 +105,7 @@ public class CustomLocationControlGUI  {
 
 			public void deviceConnected(Device arg0) {
 				// TODO Auto-generated method stub
+				System.out.println("A new device having serial " +  arg0.getSerialNumber() + "connected!");
 				if (!mPlayerMap.containsKey(arg0.getSerialNumber())){
 					LocationPlayer player = new LocationPlayer(arg0);
 					mPlayerMap.put(arg0.getSerialNumber(), player);
@@ -112,6 +114,7 @@ public class CustomLocationControlGUI  {
 
 			public void deviceDisconnected(Device arg0) {
 				// TODO Auto-generated method stub
+				System.out.println("A new device having serial " +  arg0.getSerialNumber() + "disconnected!");
 				if (mPlayerMap.containsKey(arg0.getSerialNumber())){
 					
 					if (mCurrentPlayer!= null && mCurrentPlayer.getSerialNumber().equals(arg0.getSerialNumber())){
@@ -307,12 +310,13 @@ public class CustomLocationControlGUI  {
          mKmlPlayButton.addSelectionListener(new SelectionAdapter(){
 
 			public void widgetSelected(SelectionEvent e) {
-				
+				System.out.println("Play button has been pushed!");
 				try{
 				if (mCurrentPlayer != null && mCurrentPlayer.getRouteData() != null){
+					System.out.println("Found a player and route data!");
 					mCurrentPlayer.setLoopMode(mLoopModeCheckButton.getSelection());
 					String delayStr = mDelayMillisecs.getText();
-					if (delayStr != null && !delayStr.isEmpty()){
+					if (delayStr != null && delayStr.length()>0){
 						long millisecs = Long.parseLong(delayStr);
 						mCurrentPlayer.setDelay(millisecs);
 					}
@@ -324,7 +328,7 @@ public class CustomLocationControlGUI  {
 					mCurrentPlayer.play();
 				}
 				} catch (NumberFormatException ex) {
-					
+					ex.printStackTrace();
 				}
 			}
         	 

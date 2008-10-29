@@ -39,6 +39,7 @@ import java.util.Random;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.drawable.GradientDrawable;
@@ -134,6 +135,11 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	public static final String ID_ACTIVITY_PENDING_RESULT = "ID_ACTIVITY_PENDING_RESULT";
 
+	/**
+	 * Key for retrieving the phone number
+	 */
+	public static final String PREFERENCE_PHONE_NUMBER="PREFERENCE_PHONE_NUMBER";
+	
 	/** 
 	 * The Jade gateway instance (retrieved after call to <code>JadeGateway.connect()</code>)
 	 */
@@ -510,16 +516,28 @@ public class ContactListActivity extends MapActivity implements
 	 * @return the phone number
 	 */
 	private String getMyPhoneNumber() {
-		//Get the phone number of my contact
-		TelephonyManager telMgr = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
-		//get the phone number
-		StringBuffer numTel = new StringBuffer(telMgr.getLine1Number());
 		
-		//Add a random id just to be sure that different instances have different
-		//phone numbers
-		numTel.append(getRandomNumber());
-		myLogger.log(Logger.WARNING,"Generated numtel is " +  numTel.toString());
-		return numTel.toString();
+		SharedPreferences prefs = getPreferences(Activity.MODE_PRIVATE);
+		SharedPreferences.Editor prefEditor = prefs.edit();
+		
+		String phoneNumber = prefs.getString(PREFERENCE_PHONE_NUMBER, "");
+		
+		
+		if (phoneNumber.equals("")){
+			//Get the phone number of my contact
+			TelephonyManager telMgr = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
+			//get the phone number
+			StringBuffer numTel = new StringBuffer(telMgr.getLine1Number());
+			numTel.append(getRandomNumber());
+			phoneNumber = numTel.toString();
+			prefEditor.putString(PREFERENCE_PHONE_NUMBER, phoneNumber);
+			prefEditor.commit();
+			myLogger.log(Logger.INFO,"Numtel generated randomly and stored in shared preferences! Value is " +  phoneNumber.toString());
+		} else {
+			myLogger.log(Logger.INFO,"Numtel retrieved from shared preferences! Value is " +  phoneNumber.toString());
+		}
+		
+		return phoneNumber;
 	}
 
 	/**
