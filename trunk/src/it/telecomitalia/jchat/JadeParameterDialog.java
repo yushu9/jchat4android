@@ -25,12 +25,17 @@ package it.telecomitalia.jchat;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.SharedPreferences;
+import android.location.LocationManager;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 
@@ -55,6 +60,11 @@ public class JadeParameterDialog extends Dialog {
 	 * The JADE main container host port.
 	 */
 	private String jadePort;
+
+	/**
+	 * The location provider to be used (can be GPS or NETWORK)
+	 */
+	private String locationProvider;
 	
 	/** 
 	 * GUI element containing the JADE address value
@@ -66,10 +76,15 @@ public class JadeParameterDialog extends Dialog {
 	 */
 	private EditText jadePortEdt;
 	
+	/**
+	 * Spinner for selecting provider
+	 */
+	private Spinner providerSpinner;
+
 	
 	private final String JADE_DEFAULT_HOST="it.telecomitalia.jchat.JADE_DEFAULT_HOST";
 	private final String JADE_DEFAULT_PORT="it.telecomitalia.jchat.JADE_DEFAULT_PORT";
-	
+	private final String LOCATION_PROVIDER="it.telecomitalia.jchat.LOCATION_PROVIDER";
 	/**
 	 * Main activity
 	 */
@@ -100,8 +115,20 @@ public class JadeParameterDialog extends Dialog {
 		SharedPreferences prefs = activity.getPreferences(Activity.MODE_PRIVATE);
 		jadeAddress = prefs.getString(JADE_DEFAULT_HOST, activity.getString(R.string.jade_platform_host));
 		jadePort = prefs.getString(JADE_DEFAULT_PORT, activity.getString(R.string.jade_platform_port));
+		locationProvider = prefs.getString(LOCATION_PROVIDER, LocationManager.GPS_PROVIDER);
+		providerSpinner.setSelection((locationProvider.equals(LocationManager.GPS_PROVIDER)? 0: 1));
 		jadeAddressEdt.setText(jadeAddress);
 		jadePortEdt.setText(jadePort);
+	}
+	
+
+	/**
+	 * Gets the current location provider.
+	 * 
+	 * @return the current location provider.
+	 */
+	public String getLocationProvider() {
+		return locationProvider;
 	}
 	
 	/**
@@ -112,6 +139,10 @@ public class JadeParameterDialog extends Dialog {
 	public String getJadeAddress(){
 		return jadeAddress;
 	}
+	
+	
+
+	
 	
 	/**
 	 * Gets the JADE main container host port.
@@ -157,12 +188,29 @@ public class JadeParameterDialog extends Dialog {
 		params.addRule(RelativeLayout.BELOW, 3);
 		jadePortEdt.setId(4);
 		layout.addView(jadePortEdt,params);
+	
+		TextView locProviderName = new TextView(activity);
+		locProviderName.setText("Location Provider");
+		locProviderName.setId(5);
+		params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		params.addRule(RelativeLayout.BELOW, 4);
+		layout.addView(locProviderName, params);
 		
+		providerSpinner = new Spinner(activity);
+		providerSpinner.setId(6);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_item,new String[]{LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER}); 
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		providerSpinner.setAdapter(adapter);
+		providerSpinner.setSelection(0);
+		params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+		params.addRule(RelativeLayout.BELOW, 5);
+		layout.addView(providerSpinner, params);
+
 				
 		Button closeButton = new Button(activity);
 		params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		params.addRule(RelativeLayout.BELOW, 4);
+		params.addRule(RelativeLayout.BELOW, 6);
 		closeButton.setText("Close");
 		closeButton.setOnClickListener(new View.OnClickListener(){
 			/**
@@ -185,6 +233,12 @@ public class JadeParameterDialog extends Dialog {
 						prefsEdt.putString(JADE_DEFAULT_PORT, tmpVar);
 					}
 					
+					tmpVar = (String) JadeParameterDialog.this.providerSpinner.getSelectedItem();
+					if (tmpVar.length() > 0){
+						JadeParameterDialog.this.locationProvider = tmpVar;
+						prefsEdt.putString(LOCATION_PROVIDER, tmpVar);
+					}
+					
 					prefsEdt.commit();
 					JadeParameterDialog.this.dismiss();
 			}
@@ -193,8 +247,13 @@ public class JadeParameterDialog extends Dialog {
 		
 		layout.addView(closeButton,params);
 		
-		return layout;
+		ScrollView scrollingView = new ScrollView(activity);
+		scrollingView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.FILL_PARENT));
+		scrollingView.addView(layout);
+		
+		return scrollingView;
 	}
+
 	
 	
 }

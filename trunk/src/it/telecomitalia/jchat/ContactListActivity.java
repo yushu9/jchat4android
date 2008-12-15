@@ -419,9 +419,9 @@ public class ContactListActivity extends MapActivity implements
 		String phoneNumber = getMyPhoneNumber();
 		ContactManager.getInstance().addMyContact(phoneNumber);
 
+		initUI();
 		//start updating myContact
-		GeoNavigator.setLocationProviderName(getText(
-				R.string.location_provider_name).toString());
+		GeoNavigator.setLocationProviderName(parameterDialog.getLocationProvider());
 			
 		GeoNavigator.getInstance(this).startLocationUpdate();
 
@@ -431,7 +431,7 @@ public class ContactListActivity extends MapActivity implements
 		//register a generic disconnection handler
 		MsnEventMgr.getInstance().registerEvent(MsnEvent.CONTACT_DISCONNECT_EVENT, new ContactDisconnectionHandler());
 		//Initialize the UI
-		initUI();
+		
 		disableUI();
 		
 
@@ -841,6 +841,10 @@ public class ContactListActivity extends MapActivity implements
 		
 		
 	}
+
+	
+
+	
 	
 	/**
 	 * Handler for all events handled by the main {@link ContactListActivity}
