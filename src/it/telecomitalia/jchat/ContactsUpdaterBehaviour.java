@@ -154,9 +154,9 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 				if (!cId.equals(myAgent.getAID())){
 					//Create an online contact (or update it)
 					String phoneNumber = cId.getLocalName();
-					if (loc.getLatitude() != Double.POSITIVE_INFINITY && loc.getLongitude()!=Double.POSITIVE_INFINITY){
+//					if (loc.getLatitude() != Double.POSITIVE_INFINITY && loc.getLongitude()!=Double.POSITIVE_INFINITY){
 						ContactManager.getInstance().addOrUpdateOnlineContact(phoneNumber, loc);
-					}
+//					}
 				}
 			}
 		}
