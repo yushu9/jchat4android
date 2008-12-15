@@ -185,8 +185,10 @@ public class ContactManager {
 				Contact cont = new Contact(name, phonenumber,true);
 				contactsMap.put(phonenumber, cont);
 				
-			} while(c.moveToNext());			
+			} while(c.moveToNext());	
 		}		
+		
+		c.close();
 	}	
 	
 	/**
