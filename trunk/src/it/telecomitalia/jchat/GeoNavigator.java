@@ -39,11 +39,7 @@ import android.os.Bundle;
  * Handles the operations of starting/stopping My Contact location update by location provider. It also allows specifying 
  * a custom location provider to be used. 
  * <p>
- * Location update is issued by the LocationManager and takes place by periodically firing a broadcast Intent
- * that is caught by a customized IntentReceiver.
- * Using a mocked GPS location provider, data shall be red from a file named kml inside 
- * <code> /data/misc/location/(locProviderName) </code> where locProviderName is the name of the location provider
- * read from the strings.xml file.
+ * Location update is issued by the LocationManager 
  * 
  * @author Cristina Cuccè
  * @author Marco Ughetti 
@@ -135,7 +131,6 @@ public class GeoNavigator {
 	 */
 	private GeoNavigator(Context c) {
 		manager = (LocationManager)c.getSystemService(Context.LOCATION_SERVICE);
-		locProviderName= DEFAULT_PROVIDER_NAME;
 		myContext = c;	
 		listener = new ContactsLocationListener();
 	}
