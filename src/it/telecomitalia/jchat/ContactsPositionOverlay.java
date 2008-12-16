@@ -44,7 +44,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Paint.FontMetrics;
 import android.location.Location;
-import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
