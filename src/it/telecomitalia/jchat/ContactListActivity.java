@@ -135,10 +135,6 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	public static final String ID_ACTIVITY_PENDING_RESULT = "ID_ACTIVITY_PENDING_RESULT";
 
-	/**
-	 * Key for retrieving the phone number
-	 */
-	public static final String PREFERENCE_PHONE_NUMBER="PREFERENCE_PHONE_NUMBER";
 	
 	/** 
 	 * The Jade gateway instance (retrieved after call to <code>JadeGateway.connect()</code>)
@@ -197,7 +193,7 @@ public class ContactListActivity extends MapActivity implements
 	/**
 	 *  Custom dialog containing Jade connection parameters entered by the user. 
 	 */
-	private static JadeParameterDialog parameterDialog;
+	private JadeParameterDialog parameterDialog;
 
 	/** 
 	 * GradientDrawable for the in focus tab
@@ -337,7 +333,7 @@ public class ContactListActivity extends MapActivity implements
 		ContactManager.getInstance().readPhoneContacts(this);
 		contactsListView.setAdapter(ContactManager.getInstance().getAdapter());
 		parameterDialog = new JadeParameterDialog(this);
-		initializeContactList();
+		//initializeContactList();
 
 	}
 
@@ -416,15 +412,9 @@ public class ContactListActivity extends MapActivity implements
 		ContactManager.getInstance().addAdapter(cla);
 		ChatSessionNotificationManager.create(this);
 
-		String phoneNumber = getMyPhoneNumber();
-		ContactManager.getInstance().addMyContact(phoneNumber);
-
 		initUI();
-		//start updating myContact
-		GeoNavigator.setLocationProviderName(parameterDialog.getLocationProvider());
-			
-		GeoNavigator.getInstance(this).startLocationUpdate();
-
+	
+		
 		//register an event for this activity to handle refresh of the views in this activity
 		activityHandler = new ContactListActivityUpdateHandler();
 		
@@ -494,51 +484,16 @@ public class ContactListActivity extends MapActivity implements
 	 * 
 	 * @return the jade properties
 	 */
-	public static Properties getJadeProperties() {
+	private Properties getJadeProperties() {
 		//fill Jade connection properties
 		Properties jadeProperties = new Properties();
-		
-
-		jadeProperties.setProperty(Profile.MAIN_HOST, parameterDialog
-				.getJadeAddress());
-		jadeProperties.setProperty(Profile.MAIN_PORT, parameterDialog
-				.getJadePort());
-
-		jadeProperties.setProperty(JICPProtocol.MSISDN_KEY, ContactManager
-				.getInstance().getMyContact().getPhoneNumber());
+		JChatApplication app = (JChatApplication)getApplication();
+		jadeProperties.setProperty(Profile.MAIN_HOST, app.getProperty(JChatApplication.JADE_DEFAULT_HOST));
+		jadeProperties.setProperty(Profile.MAIN_PORT, app.getProperty(JChatApplication.JADE_DEFAULT_PORT));
+		jadeProperties.setProperty(JICPProtocol.MSISDN_KEY, app.getProperty(JChatApplication.PREFERENCE_PHONE_NUMBER));
 		return jadeProperties;
 	}
 
-	/**
-	 * Gets the phone number of the contact. It does not read the "real" phone number because there's no way to change it among 
-	 * different emulators. Reads the numtel property from <code>/data/local.prop</code> file on the emulator or uses a random number.
-	 * 
-	 * @return the phone number
-	 */
-	private String getMyPhoneNumber() {
-		
-		SharedPreferences prefs = getPreferences(Activity.MODE_PRIVATE);
-		SharedPreferences.Editor prefEditor = prefs.edit();
-		
-		String phoneNumber = prefs.getString(PREFERENCE_PHONE_NUMBER, "");
-		
-		
-		if (phoneNumber.equals("")){
-			//Get the phone number of my contact
-			TelephonyManager telMgr = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
-			//get the phone number
-			StringBuffer numTel = new StringBuffer(telMgr.getLine1Number());
-			numTel.append(getRandomNumber());
-			phoneNumber = numTel.toString();
-			prefEditor.putString(PREFERENCE_PHONE_NUMBER, phoneNumber);
-			prefEditor.commit();
-			myLogger.log(Logger.INFO,"Numtel generated randomly and stored in shared preferences! Value is " +  phoneNumber.toString());
-		} else {
-			myLogger.log(Logger.INFO,"Numtel retrieved from shared preferences! Value is " +  phoneNumber.toString());
-		}
-		
-		return phoneNumber;
-	}
 
 	/**
 	 * Handles the shutdown of the application when exiting. Stops location update, 
@@ -655,6 +610,14 @@ public class ContactListActivity extends MapActivity implements
 		case R.id.connect:
 			//try to get a JadeGateway
 			try {
+				JChatApplication app = (JChatApplication)getApplication();
+				ContactManager.getInstance().addMyContact(app.getProperty(JChatApplication.PREFERENCE_PHONE_NUMBER));
+
+				GeoNavigator.setLocationProviderName(app.getProperty(JChatApplication.LOCATION_PROVIDER));
+				GeoNavigator.getInstance(this).startLocationUpdate();
+
+				initializeContactList();
+				
 				//fill Jade connection properties
 				Properties jadeProperties = getJadeProperties();
 				JadeGateway.connect(MsnAgent.class.getName(),

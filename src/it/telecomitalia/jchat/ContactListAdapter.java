@@ -177,7 +177,6 @@ public class ContactListAdapter extends BaseAdapter {
 	 */
 	public final void initialize(){
 		Map<String, Contact> localContactMap = ContactManager.getInstance().getAllContacts();
-		Contact myContact = ContactManager.getInstance().getMyContact();
 		Map<String, ContactLocation> contactLocMap = ContactManager.getInstance().getAllContactLocations();
 		ContactLocation myCloc = ContactManager.getInstance().getMyContactLocation();
 		
