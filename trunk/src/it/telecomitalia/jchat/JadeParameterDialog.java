@@ -24,7 +24,6 @@ package it.telecomitalia.jchat;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -66,6 +65,11 @@ public class JadeParameterDialog extends Dialog {
 	 */
 	private String locationProvider;
 	
+	/**
+	 * the phone number
+	 */
+	private String phoneNumber;
+	
 	/** 
 	 * GUI element containing the JADE address value
 	 */
@@ -80,11 +84,11 @@ public class JadeParameterDialog extends Dialog {
 	 * Spinner for selecting provider
 	 */
 	private Spinner providerSpinner;
+	/** 
+	 * GUI element containing the JADE port value
+	 */
+	private EditText phoneNbrEdt;
 
-	
-	private final String JADE_DEFAULT_HOST="it.telecomitalia.jchat.JADE_DEFAULT_HOST";
-	private final String JADE_DEFAULT_PORT="it.telecomitalia.jchat.JADE_DEFAULT_PORT";
-	private final String LOCATION_PROVIDER="it.telecomitalia.jchat.LOCATION_PROVIDER";
 	/**
 	 * Main activity
 	 */
@@ -112,13 +116,15 @@ public class JadeParameterDialog extends Dialog {
 	 */
 	private void fillWithDefaults(){
 		
-		SharedPreferences prefs = activity.getPreferences(Activity.MODE_PRIVATE);
-		jadeAddress = prefs.getString(JADE_DEFAULT_HOST, activity.getString(R.string.jade_platform_host));
-		jadePort = prefs.getString(JADE_DEFAULT_PORT, activity.getString(R.string.jade_platform_port));
-		locationProvider = prefs.getString(LOCATION_PROVIDER, LocationManager.GPS_PROVIDER);
+		JChatApplication app = (JChatApplication) activity.getApplication();
+		jadeAddress = app.getProperty(JChatApplication.JADE_DEFAULT_HOST);
+		jadePort = app.getProperty(JChatApplication.JADE_DEFAULT_PORT); 
+		locationProvider = app.getProperty(JChatApplication.LOCATION_PROVIDER); 
+		phoneNumber = app.getProperty(JChatApplication.PREFERENCE_PHONE_NUMBER);
 		providerSpinner.setSelection((locationProvider.equals(LocationManager.GPS_PROVIDER)? 0: 1));
 		jadeAddressEdt.setText(jadeAddress);
 		jadePortEdt.setText(jadePort);
+		phoneNbrEdt.setText(phoneNumber);
 	}
 	
 
@@ -189,28 +195,43 @@ public class JadeParameterDialog extends Dialog {
 		jadePortEdt.setId(4);
 		layout.addView(jadePortEdt,params);
 	
+		TextView phoneNbr = new TextView(activity);
+		phoneNbr.setText("Phone Number");
+		params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+		params.addRule(RelativeLayout.BELOW, 4);
+		phoneNbr.setId(5);
+		layout.addView(phoneNbr,params);
+		
+		phoneNbrEdt = new EditText(activity);
+		phoneNbrEdt.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+		params.addRule(RelativeLayout.BELOW, 5);
+		phoneNbrEdt.setId(6);
+		layout.addView(phoneNbrEdt,params);
+		
+		
 		TextView locProviderName = new TextView(activity);
 		locProviderName.setText("Location Provider");
-		locProviderName.setId(5);
+		locProviderName.setId(7);
 		params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		params.addRule(RelativeLayout.BELOW, 4);
+		params.addRule(RelativeLayout.BELOW, 6);
 		layout.addView(locProviderName, params);
 		
 		providerSpinner = new Spinner(activity);
-		providerSpinner.setId(6);
+		providerSpinner.setId(8);
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_item,new String[]{LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER}); 
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		providerSpinner.setAdapter(adapter);
 		providerSpinner.setSelection(0);
 		params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		params.addRule(RelativeLayout.BELOW, 5);
+		params.addRule(RelativeLayout.BELOW, 7);
 		layout.addView(providerSpinner, params);
 
 				
 		Button closeButton = new Button(activity);
 		params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		params.addRule(RelativeLayout.BELOW, 6);
+		params.addRule(RelativeLayout.BELOW, 8);
 		closeButton.setText("Close");
 		closeButton.setOnClickListener(new View.OnClickListener(){
 			/**
@@ -219,27 +240,32 @@ public class JadeParameterDialog extends Dialog {
 			public void onClick(View arg0) {
 					String tmpVar = JadeParameterDialog.this.jadeAddressEdt.getText().toString();
 					
-					SharedPreferences.Editor prefsEdt = activity.getPreferences(Activity.MODE_PRIVATE).edit();
-					
-					
 					if (tmpVar.length() > 0){
 						JadeParameterDialog.this.jadeAddress = tmpVar;
-						prefsEdt.putString(JADE_DEFAULT_HOST, tmpVar);
+						JChatApplication app = (JChatApplication) activity.getApplication();
+						app.setProperty(JChatApplication.JADE_DEFAULT_HOST, tmpVar);
 					}
 					
 					tmpVar = JadeParameterDialog.this.jadePortEdt.getText().toString();
 					if (tmpVar.length() > 0){
 						JadeParameterDialog.this.jadePort = tmpVar;
-						prefsEdt.putString(JADE_DEFAULT_PORT, tmpVar);
+						JChatApplication app = (JChatApplication) activity.getApplication();
+						app.setProperty(JChatApplication.JADE_DEFAULT_PORT, tmpVar);
+						
 					}
-					
+					tmpVar = JadeParameterDialog.this.phoneNbrEdt.getText().toString();
+					if (tmpVar.length() > 0){
+						JadeParameterDialog.this.phoneNumber = tmpVar;
+						JChatApplication app = (JChatApplication) activity.getApplication();
+						app.setProperty(JChatApplication.PREFERENCE_PHONE_NUMBER, tmpVar);
+					}
 					tmpVar = (String) JadeParameterDialog.this.providerSpinner.getSelectedItem();
 					if (tmpVar.length() > 0){
 						JadeParameterDialog.this.locationProvider = tmpVar;
-						prefsEdt.putString(LOCATION_PROVIDER, tmpVar);
+						JChatApplication app = (JChatApplication) activity.getApplication();
+						app.setProperty(JChatApplication.LOCATION_PROVIDER, tmpVar);
 					}
 					
-					prefsEdt.commit();
 					JadeParameterDialog.this.dismiss();
 			}
 			

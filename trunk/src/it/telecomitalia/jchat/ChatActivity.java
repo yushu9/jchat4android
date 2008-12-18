@@ -25,7 +25,9 @@ package it.telecomitalia.jchat;
 import jade.android.ConnectionListener;
 import jade.android.JadeGateway;
 import jade.core.AID;
+import jade.core.Profile;
 import jade.core.behaviours.OneShotBehaviour;
+import jade.imtp.leap.JICP.JICPProtocol;
 import jade.lang.acl.ACLMessage;
 import jade.util.Logger;
 import jade.util.leap.Properties;
@@ -147,7 +149,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		activityHandler = new ChatActivityHandler();
 		
 		//fill Jade connection properties
-        Properties jadeProperties = ContactListActivity.getJadeProperties();
+        Properties jadeProperties = getJadeProperties();
         
         //try to get a JadeGateway
         try {
@@ -163,6 +165,15 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		}
 	}
 	
+	private Properties getJadeProperties() {
+		//fill Jade connection properties
+		Properties jadeProperties = new Properties();
+		JChatApplication app = (JChatApplication)getApplication();
+		jadeProperties.setProperty(Profile.MAIN_HOST, app.getProperty(JChatApplication.JADE_DEFAULT_HOST));
+		jadeProperties.setProperty(Profile.MAIN_PORT, app.getProperty(JChatApplication.JADE_DEFAULT_PORT));
+		jadeProperties.setProperty(JICPProtocol.MSISDN_KEY, app.getProperty(JChatApplication.PREFERENCE_PHONE_NUMBER));
+		return jadeProperties;
+	}
 	
 	/**
 	 * Populates the GUI retrieving the sessionId from the intent that initiates the activity itself.
