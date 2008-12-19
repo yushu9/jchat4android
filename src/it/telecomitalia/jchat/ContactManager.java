@@ -74,7 +74,7 @@ public class ContactManager {
 	/**  
 	 * Location of the myContact
 	 */
-	private volatile ContactLocation myContactLocation;
+	private ContactLocation myContactLocation;
 	
 	/** 
 	 * Instance of the Jade logger for debugging 
@@ -106,16 +106,12 @@ public class ContactManager {
 	 * 
 	 * @return true if any contact is moving, false otherwise
 	 */
-	public boolean movingContacts(){
+	public  synchronized boolean movingContacts(){
 		boolean moving= true;
-		
-		synchronized (this) {
-			List<ContactLocation> locs = new ArrayList<ContactLocation>(contactLocationMap.values());
-			for (ContactLocation contactLocation : locs) {
-				moving = moving && contactLocation.hasMoved();
-			}
+		List<ContactLocation> locs = new ArrayList<ContactLocation>(contactLocationMap.values());
+		for (ContactLocation contactLocation : locs) {
+			moving = moving && contactLocation.hasMoved();
 		}
-		
 		return moving;
 	}
 
@@ -207,41 +203,41 @@ public class ContactManager {
 	 * @param phoneNumber of the new contact or of the contact that should be updated
 	 * @param loc current location of the new contact or new location if this is an update
 	 */
-	public void addOrUpdateOnlineContact(String phoneNumber, Location loc){
-			//Is the contact already there?
-		synchronized(this){	
+	public synchronized void addOrUpdateOnlineContact(String phoneNumber, Location loc){
+		//Is the contact already there?
+
 		Contact cont = contactsMap.get(phoneNumber);
 
-			//the new contact is available
-			if (cont != null){
-				
-				if (cont.isOnline()){
-					ContactLocation oldloc= contactLocationMap.get(phoneNumber);
-					ContactLocation newloc= oldloc.changeLocation(loc);				
-					contactLocationMap.put(phoneNumber, newloc);				
-				}
-				else {
-					
-					ContactLocation oldLocation= new ContactLocation(providerName);
-					ContactLocation newLocation= oldLocation.changeLocation(loc);
-					
-						cont.setOnline();						
-						contactLocationMap.put(phoneNumber,newLocation);
-				 }
-				
-			}else {
-				cont= new Contact(phoneNumber, phoneNumber,false);
-				cont.setOnline();
+		//the new contact is available
+		if (cont != null){
+
+			if (cont.isOnline()){
+				ContactLocation oldloc= contactLocationMap.get(phoneNumber);
+				ContactLocation newloc= oldloc.changeLocation(loc);				
+				contactLocationMap.put(phoneNumber, newloc);				
+			}
+			else {
+
 				ContactLocation oldLocation= new ContactLocation(providerName);
 				ContactLocation newLocation= oldLocation.changeLocation(loc);
-		
-				myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":New contact " +  cont.getName() + " was added with location " + newLocation.toString() );
-					contactLocationMap.put(phoneNumber,newLocation);
-					contactsMap.put(phoneNumber, cont);
-					modifications.contactsAdded.add(phoneNumber);
-					myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Contact map is now: " + contactsMap.toString() );
+
+				cont.setOnline();						
+				contactLocationMap.put(phoneNumber,newLocation);
 			}
+
+		}else {
+			cont= new Contact(phoneNumber, phoneNumber,false);
+			cont.setOnline();
+			ContactLocation oldLocation= new ContactLocation(providerName);
+			ContactLocation newLocation= oldLocation.changeLocation(loc);
+
+			myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":New contact " +  cont.getName() + " was added with location " + newLocation.toString() );
+			contactLocationMap.put(phoneNumber,newLocation);
+			contactsMap.put(phoneNumber, cont);
+			modifications.contactsAdded.add(phoneNumber);
+			myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Contact map is now: " + contactsMap.toString() );
 		}
+
 	}
 				
 				
@@ -250,23 +246,22 @@ public class ContactManager {
 	 * 
 	 * @param phoneNumber number of the contact 
 	 */
-	public void setContactOffline(String phoneNumber) {		 
+	public synchronized void setContactOffline(String phoneNumber) {		 
 			
+		//If a contact is local (It's in the phone contacts) it must be shown as offline
+		//If the contact is not local, remove it when it goes offline
 
-			//If a contact is local (It's in the phone contacts) it must be shown as offline
-			//If the contact is not local, remove it when it goes offline
-			synchronized (this) {
-				Contact c  = contactsMap.get(phoneNumber);
-				if (c.isStoredOnPhone()){
-					c.setOffline();	
-				} else {
-					contactsMap.remove(phoneNumber);
-					myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Removing contact with phone number " + phoneNumber);
-					modifications.contactsDeleted.add(phoneNumber);
-				}		
-				contactLocationMap.remove(phoneNumber);
-				myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Contact map is now: " + contactsMap.toString() );
-			}
+		Contact c  = contactsMap.get(phoneNumber);
+		if (c.isStoredOnPhone()){
+			c.setOffline();	
+		} else {
+			contactsMap.remove(phoneNumber);
+			myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Removing contact with phone number " + phoneNumber);
+			modifications.contactsDeleted.add(phoneNumber);
+		}		
+		contactLocationMap.remove(phoneNumber);
+		myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Contact map is now: " + contactsMap.toString() );
+			
 	}
 
 
@@ -315,6 +310,8 @@ public class ContactManager {
 	public void shutdown() {
 		contactsMap.clear();
 		contactsAdapter.clear();
+		modifications.resetChanges();
+		contactLocationMap.clear();
 	}
 
 
@@ -325,16 +322,11 @@ public class ContactManager {
 	 * 
 	 * @return map with online contact locations
 	 */
-	public Map<String, ContactLocation> getAllContactLocations(){
-		Map<String,ContactLocation> location = new HashMap<String, ContactLocation>();
-		
-		synchronized (this) {
-			for (String s : contactLocationMap.keySet()) {
-				location.put(new String(s), new ContactLocation(contactLocationMap.get(s)));
-			}
+	public synchronized Map<String, ContactLocation> getAllContactLocations(){
+		Map<String,ContactLocation> location = new HashMap<String, ContactLocation>(contactLocationMap.size());
+		for (String s : contactLocationMap.keySet()) {
+			location.put(new String(s), new ContactLocation(contactLocationMap.get(s)));
 		}
-		
-		
 		return location;
 	}
 	
@@ -344,13 +336,11 @@ public class ContactManager {
 	 * 
 	 * @return copy of the inner contact map 
 	 */
-	public Map<String, Contact> getAllContacts(){
-		Map<String,Contact> cMap = new HashMap<String, Contact>();
+	public synchronized Map<String, Contact> getAllContacts(){
+		Map<String,Contact> cMap = new HashMap<String, Contact>(contactsMap.size());
 
-		synchronized (this) {
-			for (String s : contactsMap.keySet()) {
+		for (String s : contactsMap.keySet()) {
 				cMap.put(new String(s), new Contact(contactsMap.get(s)));
-			}
 		}
 		
 		return cMap;
@@ -375,8 +365,9 @@ public class ContactManager {
 	 * 
 	 * @param loc new location of my contact
 	 */
-	public void updateMyContactLocation(Location loc) {
+	public synchronized boolean updateMyContactLocation(Location loc) {
 		myContactLocation = myContactLocation.changeLocation(loc);
+		return myContactLocation.hasMoved();
 	}
 	
 	/**
@@ -384,7 +375,7 @@ public class ContactManager {
 	 * 
 	 * @return the current my contact's location
 	 */
-	public ContactLocation getMyContactLocation(){
+	public synchronized ContactLocation getMyContactLocation(){
 		return new ContactLocation(myContactLocation);
 	}
 	

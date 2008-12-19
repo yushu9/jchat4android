@@ -232,7 +232,7 @@ public class ContactListAdapter extends BaseAdapter {
 	 * @param cMap
 	 * @param cLocMap
 	 */
-	public void refresh(Map<String, Contact> cMap,
+	private void refresh(Map<String, Contact> cMap,
 			Map<String, ContactLocation> cLocMap) {
 		ContactLocation cMyLoc = ContactManager.getInstance().getMyContactLocation();
 		

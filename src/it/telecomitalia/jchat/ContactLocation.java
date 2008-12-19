@@ -131,4 +131,8 @@ public class ContactLocation extends Location {
 		return hasMoved;
 	}
 	
+	public boolean equals(Location l){
+		return ((this.getAltitude()==l.getAltitude()) && (this.getLatitude()==l.getLatitude()) && (this.getLongitude()==l.getLongitude()));
+	}
+	
 }
