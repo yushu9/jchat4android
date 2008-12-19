@@ -154,9 +154,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 				if (!cId.equals(myAgent.getAID())){
 					//Create an online contact (or update it)
 					String phoneNumber = cId.getLocalName();
-//					if (loc.getLatitude() != Double.POSITIVE_INFINITY && loc.getLongitude()!=Double.POSITIVE_INFINITY){
-						ContactManager.getInstance().addOrUpdateOnlineContact(phoneNumber, loc);
-//					}
+					ContactManager.getInstance().addOrUpdateOnlineContact(phoneNumber, loc);
 				}
 			}
 		}
@@ -253,19 +251,11 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 
 							//Registered or updated
 							if (serviceIter.hasNext()){
-								
 								ServiceDescription serviceDesc = (ServiceDescription) serviceIter.next();
-
 								Iterator propertyIt = serviceDesc.getAllProperties(); 
 								Location loc = Helper.extractLocation(propertyIt);
-								
-								if (loc.getAltitude() != Double.POSITIVE_INFINITY && 
-									loc.getLongitude() != Double.POSITIVE_INFINITY && 
-									loc.getLatitude()!=Double.POSITIVE_INFINITY){
-									String phoneNum = contactAID.getLocalName();                                 
-									ContactManager.getInstance().addOrUpdateOnlineContact(phoneNum, loc);								
-								}
-								
+								String phoneNum = contactAID.getLocalName();                                 
+								ContactManager.getInstance().addOrUpdateOnlineContact(phoneNum, loc);								
 							} else {
 								myLogger.log(Logger.INFO,"Thread "+ Thread.currentThread().getId() + ":df says that agent "+myAgent.getAID().getLocalName() +"deregisters" );
 								String phoneNumber = contactAID.getLocalName();
@@ -360,17 +350,15 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 				//retrieve
 				ContactLocation curMyLoc = ContactManager.getInstance().getMyContactLocation();				
 
-				if (curMyLoc.hasMoved() && curMyLoc.getLatitude() != Double.POSITIVE_INFINITY && curMyLoc.getLongitude() != Double.POSITIVE_INFINITY)
-				{		
-					Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curMyLoc.getLatitude()));
-					serviceDescription.addProperties(p);
-					p = new Property(PROPERTY_NAME_LOCATION_LONG,new Double(curMyLoc.getLongitude()));
-					serviceDescription.addProperties(p);
-					p= new Property(PROPERTY_NAME_LOCATION_ALT,new Double(curMyLoc.getAltitude()));
-					serviceDescription.addProperties(p);
-					DFService.modify(myAgent, description);
-				}
-
+					
+				Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curMyLoc.getLatitude()));
+				serviceDescription.addProperties(p);
+				p = new Property(PROPERTY_NAME_LOCATION_LONG,new Double(curMyLoc.getLongitude()));
+				serviceDescription.addProperties(p);
+				p= new Property(PROPERTY_NAME_LOCATION_ALT,new Double(curMyLoc.getAltitude()));
+				serviceDescription.addProperties(p);
+				DFService.modify(myAgent, description);
+			
 			} catch (FIPAException fe) {
 				myLogger.log(Logger.SEVERE, "Error in updating DF", fe);
 			}

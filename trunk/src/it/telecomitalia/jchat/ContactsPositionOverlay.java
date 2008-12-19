@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -212,7 +213,6 @@ public class ContactsPositionOverlay extends Overlay {
 		this.myMapView = myMapView;
 		scrollingArea= new Rect();			
 		contactPositionMap = new HashMap<String,ContactLayoutData>() ;
-	
 		ylwPaddle = BitmapFactory.decodeResource(appRes,R.drawable.ylw_circle); 
 		highlight = BitmapFactory.decodeResource(appRes,R.drawable.checked);
 		blueBaloon = BitmapFactory.decodeResource(appRes,R.drawable.bluemessage);
@@ -386,31 +386,33 @@ public class ContactsPositionOverlay extends Overlay {
 		
 		updateOnScreenPosition(p);
 		//Compute params needed for further computations on the point cluster
-		PointClusterParams params = extractParams(p);
-		
-		//Things we do just the first time
-		if (WIDTH == -1){
-			initialize(p, mapView.getWidth(), mapView.getHeight());
-			int howToZoom = zoomChangeIsNeeded(params);
-			doScrolling(params);
-			doZoom(params, howToZoom);
-		} else {
-		
-			//if any pixel is out our scrolling area
-			if (scrollingIsNeeded()){
-				//change map center
+		int onlineContacts = getContactsOnline();
+		if (onlineContacts > 0){
+			PointClusterParams params = extractParams(p, onlineContacts);
+			
+			//Things we do just the first time
+			if (WIDTH == -1){
+				initialize(p, mapView.getWidth(), mapView.getHeight());
+				int howToZoom = zoomChangeIsNeeded(params);
 				doScrolling(params);
-			}
+				doZoom(params, howToZoom);
+			} else {
 			
-			int howToZoom = zoomChangeIsNeeded(params);
-			
-			if (howToZoom != NO_ZOOM)	{
-				doZoom(params,howToZoom);
+				//if any pixel is out our scrolling area
+				if (scrollingIsNeeded()){
+					//change map center
+					doScrolling(params);
+				}
+				
+				int howToZoom = zoomChangeIsNeeded(params);
+				
+				if (howToZoom != NO_ZOOM)	{
+					doZoom(params,howToZoom);
+				}
 			}
+			//Draw all the contacts
+			drawOnlineContacts(canvas, myPaint);
 		}
-		//Draw all the contacts
-		drawOnlineContacts(canvas, myPaint);
-	
 	}
 	
 	
@@ -445,7 +447,9 @@ public class ContactsPositionOverlay extends Overlay {
 			UPPER_THRESHOLD = tmpThresh * tmpThresh;
 			tmpThresh = (int) (WIDTH * LOWER_THRESHOLD_RATIO);
 			LOWER_THRESHOLD = tmpThresh * tmpThresh;
-			extractParams(p);
+			int onlineContacts = getContactsOnline();
+			if (onlineContacts > 0)
+				extractParams(p, onlineContacts);
 	
 	}
 	
@@ -496,7 +500,7 @@ public class ContactsPositionOverlay extends Overlay {
 	 * 
 	 * @return class carrying results of computation
 	 */
-	private PointClusterParams extractParams(Projection p){
+	private PointClusterParams extractParams(Projection p, int contactsOnLine){
 		
 		int maxLat;
 		int minLat;
@@ -512,7 +516,7 @@ public class ContactsPositionOverlay extends Overlay {
 		minLong = (int)(myContactLoc.getLongitude() * 1E6);
 		minLat = (int)(myContactLoc.getLatitude() * 1E6);
 		
-		int contactsOnLine = getContactsOnline();
+		
 		params.midpointOnScreen = new int[2];
 		params.coordMaxSpan = new int[2];
 		
@@ -806,13 +810,14 @@ public class ContactsPositionOverlay extends Overlay {
  		
  		ContactLayoutData myCl = new ContactLayoutData(myContact.getName(),myContact.getPhoneNumber(),myCloc,true);
  		myCl.isMyContact=true;
+ 		myCl.isVisible = isValid(myCloc);
  		contactPositionMap.put(myCl.idContact, myCl);
  		
  		for (Map.Entry<String,Contact> contactEntry : localContactMap.entrySet()) {
  			String phoneNum = contactEntry.getKey();
  			Contact currentC = contactEntry.getValue();
  			//empty location for invisible contact
- 			ContactLayoutData cdata = new ContactLayoutData(currentC.getName(),phoneNum,new ContactLocation(appRes.getText(R.string.location_provider_name).toString()) , false);
+ 			ContactLayoutData cdata = new ContactLayoutData(currentC.getName(),phoneNum,new ContactLocation( ((JChatApplication)((Activity) ctn).getApplication()).getProperty(JChatApplication.LOCATION_PROVIDER) ) , false);
  			contactPositionMap.put(phoneNum, cdata);
  		}
  		
@@ -836,12 +841,12 @@ public class ContactsPositionOverlay extends Overlay {
 	    	 contactPositionMap.remove(removedId);
 		 }
 	     
-	    
-	     
+	    	     
 	   //Added contacts
 	     for ( String addedId : changes.contactsAdded) {
 	    	 
 	    	 ContactLayoutData newData = new ContactLayoutData(contactMap.get(addedId).getName(),addedId,locationMap.get(addedId),true);
+	    	 newData.isVisible = isValid(locationMap.get(addedId));
 	    	 contactPositionMap.put(addedId, newData);
 	     }
 	      
@@ -854,15 +859,18 @@ public class ContactsPositionOverlay extends Overlay {
 		 
 		    	 //update contact visibility
 		    	 lastLocation = cMyLoc;
+		    	 cData.isVisible = isValid(lastLocation);
 		    	 //myLogger.log(Logger.INFO, "Ok... Ready to update location of my contact!!!!!");
 		    	 cData.updateLocation((int)(lastLocation.getLatitude()*1E6), (int)(lastLocation.getLongitude()*1E6), (int)(lastLocation.getAltitude()*1E6));
 	    	 
 	    	 } else {   	  
 	    		 curContact = contactMap.get(cData.idContact);
 	    		 if (curContact != null &&  curContact.isOnline()){
-	    			 cData.isVisible = true;
 	    			 lastLocation = locationMap.get(cData.idContact);
-	    			 cData.updateLocation((int)(lastLocation.getLatitude()*1E6), (int)(lastLocation.getLongitude()*1E6), (int)(lastLocation.getAltitude()*1E6));
+	    			 if (isValid(lastLocation)){
+	    				 cData.isVisible = true;
+	    				 cData.updateLocation((int)(lastLocation.getLatitude()*1E6), (int)(lastLocation.getLongitude()*1E6), (int)(lastLocation.getAltitude()*1E6));
+	    			 }
 	    		 } else {
 	    			 cData.isVisible = false;
 	    		 }
@@ -872,4 +880,10 @@ public class ContactsPositionOverlay extends Overlay {
        
 	
 	}
+     
+    private boolean isValid(Location loc){
+    	return !(loc.getLatitude() == Double.POSITIVE_INFINITY && 
+    			loc.getLongitude() == Double.POSITIVE_INFINITY && 
+    			loc.getAltitude() == Double.POSITIVE_INFINITY);
+    }
 }
