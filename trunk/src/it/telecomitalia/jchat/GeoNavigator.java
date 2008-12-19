@@ -173,19 +173,18 @@ public class GeoNavigator {
 		
 		public void onLocationChanged(Location location) {
 			myLogger.log(Logger.INFO, "Location listener has received location update for location " + location);
-			ContactManager.getInstance().updateMyContactLocation(location);
-			
-			MsnEvent refresh = MsnEventMgr.getInstance().createEvent(MsnEvent.VIEW_REFRESH_EVENT);
-			
-			ContactListChanges changes = new ContactListChanges();
-			Map<String,Contact> cMap = ContactManager.getInstance().getAllContacts();
-			Map<String,ContactLocation> cLocMap = ContactManager.getInstance().getAllContactLocations();
-			
-			refresh.addParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES, changes);
-			refresh.addParam(MsnEvent.VIEW_REFRESH_CONTACTSMAP, cMap);
-			refresh.addParam(MsnEvent.VIEW_REFRESH_PARAM_LOCATIONMAP, cLocMap);
-			MsnEventMgr.getInstance().fireEvent(refresh);
-			
+			boolean hasMoved = ContactManager.getInstance().updateMyContactLocation(location);
+			if(hasMoved){
+				MsnEvent refresh = MsnEventMgr.getInstance().createEvent(MsnEvent.VIEW_REFRESH_EVENT);
+				ContactListChanges changes = new ContactListChanges();
+				Map<String,Contact> cMap = ContactManager.getInstance().getAllContacts();
+				Map<String,ContactLocation> cLocMap = ContactManager.getInstance().getAllContactLocations();
+				
+				refresh.addParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES, changes);
+				refresh.addParam(MsnEvent.VIEW_REFRESH_CONTACTSMAP, cMap);
+				refresh.addParam(MsnEvent.VIEW_REFRESH_PARAM_LOCATIONMAP, cLocMap);
+				MsnEventMgr.getInstance().fireEvent(refresh);
+			}
 		}
 
 		/* (non-Javadoc)
