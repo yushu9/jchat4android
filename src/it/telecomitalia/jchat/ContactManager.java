@@ -367,6 +367,7 @@ public class ContactManager {
 	 */
 	public synchronized boolean updateMyContactLocation(Location loc) {
 		myContactLocation = myContactLocation.changeLocation(loc);
+		myLogger.log(Logger.INFO, "After updating current location is  " + myContactLocation);
 		return myContactLocation.hasMoved();
 	}
 	
