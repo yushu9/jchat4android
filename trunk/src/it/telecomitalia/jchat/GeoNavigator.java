@@ -172,7 +172,7 @@ public class GeoNavigator {
 
 		
 		public void onLocationChanged(Location location) {
-			myLogger.log(Logger.INFO, "Location listener has received location update for location " + location);
+			myLogger.log(Logger.INFO, ">>>>>>>>>>>>>>>>>>>> Location listener has received location update for location " + location );
 			boolean hasMoved = ContactManager.getInstance().updateMyContactLocation(location);
 			if(hasMoved){
 				MsnEvent refresh = MsnEventMgr.getInstance().createEvent(MsnEvent.VIEW_REFRESH_EVENT);
