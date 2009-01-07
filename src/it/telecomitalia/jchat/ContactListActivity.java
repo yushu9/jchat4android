@@ -745,11 +745,11 @@ public class ContactListActivity extends MapActivity implements
 
 		//packet an intent. We'll try to add the session ID in the intent data in URI form
 		//We use intent resolution here, cause the ChatActivity should be selected matching ACTION and CATEGORY
-		Intent it = new Intent(Intent.ACTION_VIEW);
+		Intent it = new Intent(Intent.ACTION_MAIN);
 		//set the data as an URI (content://sessionId#<sessionIdValue>)
 		it.setData(session.getSessionIdAsUri());
 		it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		it.addCategory(Intent.CATEGORY_DEFAULT);
+		it.setClass(this, ChatActivity.class);
 		startActivity(it);
 
 	}
