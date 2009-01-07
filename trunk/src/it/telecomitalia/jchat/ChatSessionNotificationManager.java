@@ -148,8 +148,8 @@ class ChatSessionNotificationManager {
 			int numberOfParticipants = session.getParticipantCount();
 			String title = session.toString();
 			
-			Intent viewChatIntent = new Intent(Intent.ACTION_VIEW);
-			viewChatIntent.addCategory(Intent.CATEGORY_DEFAULT);
+			Intent viewChatIntent = new Intent(Intent.ACTION_MAIN);
+			viewChatIntent.setClass(activity, ChatActivity.class);
 			viewChatIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK  | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			viewChatIntent.setData(session.getSessionIdAsUri());
 			
@@ -173,9 +173,9 @@ class ChatSessionNotificationManager {
 			MsnSession session = MsnSessionManager.getInstance().retrieveSession(sessionId);
 			String title = session.toString();
 			
-			Intent viewChatIntent = new Intent(Intent.ACTION_VIEW);
-			viewChatIntent.addCategory(Intent.CATEGORY_DEFAULT);
+			Intent viewChatIntent = new Intent(Intent.ACTION_MAIN);
 			viewChatIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP );
+			viewChatIntent.setClass(activity, ChatActivity.class);
 			viewChatIntent.setData(session.getSessionIdAsUri());
 		
 			
