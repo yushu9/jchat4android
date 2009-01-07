@@ -69,7 +69,7 @@ android:layout_height="fill_parent"
 
 <view class="com.google.android.maps.MapView" 
           android:id="@+id/myMapView"
-          android:apiKey="0fwt7cppD1pDxMoRoJC6KHHQo92zwY915bClvrw" 
+          android:apiKey="0Vk0txRWWbCHBS1WSX9jR2n3pk6SF1G-nhDN3eA"
           android:longClickable="true"
           android:focusableInTouchMode="true"
           android:layout_width="fill_parent" 
