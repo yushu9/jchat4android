@@ -131,7 +131,7 @@ public class MsnAgent extends GatewayAgent {
 		//subscribe to DF
 		subscriptionMessage = DFService.createSubscriptionMessage(this, this.getDefaultDF(), myDescription, null);
 		
-		Location curLoc = ContactManager.getInstance().getMyContactLocation();
+		ContactLocation curLoc = ContactManager.getInstance().getMyContactLocation();
 		
 		Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curLoc.getLatitude()));
 		msnServiceDescription.addProperties(p);
@@ -153,7 +153,7 @@ public class MsnAgent extends GatewayAgent {
 		addBehaviour(messageRecvB);
 		String[] args = (String[])getArguments();
 		myLogger.log(Logger.INFO, "UPDATE TIME: " + args[0]);
-		contactsUpdaterB = new ContactsUpdaterBehaviour(Long.parseLong(args[0]));
+		contactsUpdaterB = new ContactsUpdaterBehaviour(Long.parseLong(args[0]), curLoc);
 		addBehaviour(contactsUpdaterB);
 	}
 

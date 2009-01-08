@@ -42,7 +42,7 @@ public class ContactLocation extends Location {
 	/**
 	 * true if contact location has changed, false otherwise
 	 */
-	private final boolean hasMoved;
+	private boolean hasMoved;
 
 	/**
 	 * Instantiates a new empty contact location.
@@ -101,9 +101,13 @@ public class ContactLocation extends Location {
 	 * @param loc the new contact location
 	 * @return new contact location object
 	 */
-	public ContactLocation changeLocation(Location loc)
-	{   boolean moved = !this.equals(loc);
-		return new ContactLocation(loc,moved);
+	public void changeLocation(Location loc)
+	{   this.hasMoved = !this.equals(loc);
+		if(hasMoved){
+		    setLatitude(loc.getLatitude());
+		    setLongitude(loc.getLongitude());
+		    setAltitude(loc.getAltitude());
+	    }
 	}
 	
 	/**
