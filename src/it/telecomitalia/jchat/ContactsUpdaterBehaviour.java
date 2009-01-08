@@ -69,7 +69,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 	 */
 	private long msnUpdateTime;
 	
-	
+	private ContactLocation myContactLocation;
 
 	/** 
 	 * Instance of the Jade Logger for debugging 
@@ -81,8 +81,9 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 	 * 
 	 * @param updateTime the update time
 	 */
-	public ContactsUpdaterBehaviour(long updateTime){
+	public ContactsUpdaterBehaviour(long updateTime, ContactLocation myContactLocation){
 		msnUpdateTime = updateTime;
+		this.myContactLocation = myContactLocation;
 	}
 
 	/**
@@ -119,7 +120,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LOCATIONMAP, cLocMap);
 		MsnEventMgr.getInstance().fireEvent(event);
 		
-		DFUpdaterBehaviour updater = new DFUpdaterBehaviour(myAgent,msnUpdateTime);
+		DFUpdaterBehaviour updater = new DFUpdaterBehaviour(myAgent,msnUpdateTime, myContactLocation);
 		MsnAgent agent = (MsnAgent) myAgent;
 		DFSubscriptionBehaviour subBh = new DFSubscriptionBehaviour(myAgent,agent.getSubscriptionMessage());
 
@@ -321,6 +322,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		 */
 		public static final String PROPERTY_NAME_LOCATION_ALT="Altitude";
 
+		private ContactLocation myContactLocation;
 
 		/**
 		 * Instantiates a new dF updater behaviour.
@@ -328,8 +330,9 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		 * @param a instance of the agent
 		 * @param period update period in milliseconds
 		 */
-		public DFUpdaterBehaviour(Agent a, long period) {
+		public DFUpdaterBehaviour(Agent a, long period, ContactLocation contactLocation) {
 			super(a, period);
+			myContactLocation = contactLocation;
 		}
 
 		
@@ -348,17 +351,19 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 				serviceDescription.clearAllProperties();
 
 				//retrieve
-				ContactLocation curMyLoc = ContactManager.getInstance().getMyContactLocation();				
-
-					
-				Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curMyLoc.getLatitude()));
-				serviceDescription.addProperties(p);
-				p = new Property(PROPERTY_NAME_LOCATION_LONG,new Double(curMyLoc.getLongitude()));
-				serviceDescription.addProperties(p);
-				p= new Property(PROPERTY_NAME_LOCATION_ALT,new Double(curMyLoc.getAltitude()));
-				serviceDescription.addProperties(p);
-				DFService.modify(myAgent, description);
-			
+				ContactLocation curMyLoc = ContactManager.getInstance().getMyContactLocation();	
+				if(!curMyLoc.equals(myContactLocation)){
+				
+					Property p = new Property(PROPERTY_NAME_LOCATION_LAT,new Double(curMyLoc.getLatitude()));
+					serviceDescription.addProperties(p);
+					p = new Property(PROPERTY_NAME_LOCATION_LONG,new Double(curMyLoc.getLongitude()));
+					serviceDescription.addProperties(p);
+					p= new Property(PROPERTY_NAME_LOCATION_ALT,new Double(curMyLoc.getAltitude()));
+					serviceDescription.addProperties(p);
+					DFService.modify(myAgent, description);
+					myContactLocation = curMyLoc;
+				}
+				
 			} catch (FIPAException fe) {
 				myLogger.log(Logger.SEVERE, "Error in updating DF", fe);
 			}

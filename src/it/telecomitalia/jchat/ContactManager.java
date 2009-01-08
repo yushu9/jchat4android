@@ -106,7 +106,7 @@ public class ContactManager {
 	 * 
 	 * @return true if any contact is moving, false otherwise
 	 */
-	public  synchronized boolean movingContacts(){
+	public synchronized boolean movingContacts(){
 		boolean moving= true;
 		List<ContactLocation> locs = new ArrayList<ContactLocation>(contactLocationMap.values());
 		for (ContactLocation contactLocation : locs) {
@@ -213,26 +213,23 @@ public class ContactManager {
 
 			if (cont.isOnline()){
 				ContactLocation oldloc= contactLocationMap.get(phoneNumber);
-				ContactLocation newloc= oldloc.changeLocation(loc);				
-				contactLocationMap.put(phoneNumber, newloc);				
+				oldloc.changeLocation(loc);						
 			}
 			else {
-
-				ContactLocation oldLocation= new ContactLocation(providerName);
-				ContactLocation newLocation= oldLocation.changeLocation(loc);
-
+				ContactLocation location= new ContactLocation(providerName);
+				location.changeLocation(loc);
 				cont.setOnline();						
-				contactLocationMap.put(phoneNumber,newLocation);
+				contactLocationMap.put(phoneNumber,location);
 			}
 
 		}else {
 			cont= new Contact(phoneNumber, phoneNumber,false);
 			cont.setOnline();
-			ContactLocation oldLocation= new ContactLocation(providerName);
-			ContactLocation newLocation= oldLocation.changeLocation(loc);
+			ContactLocation location= new ContactLocation(providerName);
+			location.changeLocation(loc);
 
-			myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":New contact " +  cont.getName() + " was added with location " + newLocation.toString() );
-			contactLocationMap.put(phoneNumber,newLocation);
+			myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":New contact " +  cont.getName() + " was added with location " + location.toString() );
+			contactLocationMap.put(phoneNumber,location);
 			contactsMap.put(phoneNumber, cont);
 			modifications.contactsAdded.add(phoneNumber);
 			myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Contact map is now: " + contactsMap.toString() );
@@ -366,7 +363,7 @@ public class ContactManager {
 	 * @param loc new location of my contact
 	 */
 	public synchronized boolean updateMyContactLocation(Location loc) {
-		myContactLocation = myContactLocation.changeLocation(loc);
+		myContactLocation.changeLocation(loc);
 		myLogger.log(Logger.INFO, "After updating current location is  " + myContactLocation);
 		return myContactLocation.hasMoved();
 	}

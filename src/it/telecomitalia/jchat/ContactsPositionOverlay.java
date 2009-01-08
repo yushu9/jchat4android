@@ -882,8 +882,8 @@ public class ContactsPositionOverlay extends Overlay {
 	}
      
     private boolean isValid(Location loc){
-    	return !(loc.getLatitude() == Double.POSITIVE_INFINITY && 
-    			loc.getLongitude() == Double.POSITIVE_INFINITY && 
-    			loc.getAltitude() == Double.POSITIVE_INFINITY);
+    	return (loc.getLatitude() != Double.POSITIVE_INFINITY && 
+    			loc.getLongitude() != Double.POSITIVE_INFINITY && 
+    			loc.getAltitude() != Double.POSITIVE_INFINITY);
     }
 }
