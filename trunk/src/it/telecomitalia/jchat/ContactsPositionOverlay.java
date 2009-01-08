@@ -447,9 +447,6 @@ public class ContactsPositionOverlay extends Overlay {
 			UPPER_THRESHOLD = tmpThresh * tmpThresh;
 			tmpThresh = (int) (WIDTH * LOWER_THRESHOLD_RATIO);
 			LOWER_THRESHOLD = tmpThresh * tmpThresh;
-			int onlineContacts = getContactsOnline();
-			if (onlineContacts > 0)
-				extractParams(p, onlineContacts);
 	
 	}
 	
@@ -502,22 +499,18 @@ public class ContactsPositionOverlay extends Overlay {
 	 */
 	private PointClusterParams extractParams(Projection p, int contactsOnLine){
 		
-		int maxLat;
-		int minLat;
-		int maxLong;
-		int minLong;
+		int maxLat = Integer.MIN_VALUE;
+		int minLat= Integer.MAX_VALUE;;
+		int maxLong= Integer.MIN_VALUE;;
+		int minLong =Integer.MAX_VALUE;;
 		
 		PointClusterParams params = new PointClusterParams();
 		
-		//Compute needed params for my contact
-		Location myContactLoc = ContactManager.getInstance().getMyContactLocation(); 			
-		maxLat = (int)(myContactLoc.getLatitude() * 1E6);
-		maxLong = (int)(myContactLoc.getLongitude() * 1E6);
-		minLong = (int)(myContactLoc.getLongitude() * 1E6);
-		minLat = (int)(myContactLoc.getLatitude() * 1E6);
 		
 		
 		params.midpointOnScreen = new int[2];
+		params.midpointOnScreen[0] = 0;
+		params.midpointOnScreen[1] = 0;
 		params.coordMaxSpan = new int[2];
 		
 		for (Iterator<ContactLayoutData> iterator = contactPositionMap.values().iterator(); iterator.hasNext();) {
@@ -803,7 +796,7 @@ public class ContactsPositionOverlay extends Overlay {
  	 * for each item. Every other modification shall be incremental.
  	 * 
  	 */
- 	public final void initialize(){
+ 	public final void initializePositions(){
  		Map<String, Contact> localContactMap = ContactManager.getInstance().getAllContacts();
  		Contact myContact = ContactManager.getInstance().getMyContact();
  		ContactLocation myCloc = ContactManager.getInstance().getMyContactLocation();

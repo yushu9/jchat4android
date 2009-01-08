@@ -776,7 +776,7 @@ public class ContactListActivity extends MapActivity implements
 		ContactListAdapter adapter = ContactManager.getInstance().getAdapter();
 		adapter.initialize();
 		contactsListView.setAdapter(adapter);
-		overlay.initialize();
+		overlay.initializePositions();
 	}
 	
 
