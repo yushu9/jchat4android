@@ -179,6 +179,7 @@ public class JadeParameterDialog extends Dialog {
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.BELOW, 1);
 		jadeAddressEdt.setId(2);
+		jadeAddressEdt.setSingleLine();
 		layout.addView(jadeAddressEdt,params);
 		
 		TextView jadePort = new TextView(activity);
@@ -193,6 +194,7 @@ public class JadeParameterDialog extends Dialog {
 		params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.BELOW, 3);
 		jadePortEdt.setId(4);
+		jadePortEdt.setSingleLine();
 		layout.addView(jadePortEdt,params);
 	
 		TextView phoneNbr = new TextView(activity);
@@ -204,6 +206,7 @@ public class JadeParameterDialog extends Dialog {
 		
 		phoneNbrEdt = new EditText(activity);
 		phoneNbrEdt.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		phoneNbrEdt.setSingleLine();
 		params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.BELOW, 5);
 		phoneNbrEdt.setId(6);
