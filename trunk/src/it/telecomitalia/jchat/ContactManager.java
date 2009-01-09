@@ -177,7 +177,7 @@ public class ContactManager {
 				String phonenumber =   PhoneNumberUtils.stripSeparators( c.getString(phonenumberCol) );
 				String name = c.getString(nameCol);
 
-				myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Found contact "+ name + " with numtel " + phonenumber);
+				myLogger.log(Logger.FINE, "Thread "+ Thread.currentThread().getId() + ":Found contact "+ name + " with numtel " + phonenumber);
 				Contact cont = new Contact(name, phonenumber,true);
 				contactsMap.put(phonenumber, cont);
 				

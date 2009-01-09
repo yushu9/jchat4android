@@ -131,7 +131,7 @@ public class MsnEvent {
 			}
 			
 			paramsMap.put(name, value);
-			myLogger.log(Logger.INFO,"putting in event map parameter " + name +" having value "+ value.toString() );
+			myLogger.log(Logger.FINE,"putting in event map parameter " + name +" having value "+ value.toString() );
 		}
 		
 		/**

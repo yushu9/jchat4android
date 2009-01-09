@@ -32,7 +32,7 @@ import java.util.List;
  * <p> 
  * Used by the agent to store all modifications to the contacts lists that should be done also to the GUI
  * 
- * @author Cristina Cuccè
+ * @author Cristina Cucè
  * @author Marco Ughetti 
  * @author Stefano Semeria
  * @author Tiziana Trucco
@@ -67,7 +67,7 @@ public class ContactListChanges {
 	public ContactListChanges(ContactListChanges changes){
 		contactsAdded = new ArrayList<String>(changes.contactsAdded);
 		contactsDeleted = new ArrayList<String>(changes.contactsDeleted);
-		myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ": Copy constructor of ContactListChanges called!");
+		myLogger.log(Logger.FINE, "Thread "+ Thread.currentThread().getId() + ": Copy constructor of ContactListChanges called!");
 	}
 	
 	/**
@@ -76,7 +76,7 @@ public class ContactListChanges {
 	public ContactListChanges(){
 		contactsAdded = new ArrayList<String>();
 		contactsDeleted = new ArrayList<String>();
-		myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Main constructor of ContactListChanges called!");
+		myLogger.log(Logger.FINE, "Thread "+ Thread.currentThread().getId() + ":Main constructor of ContactListChanges called!");
 	}
 	
 	
@@ -86,7 +86,7 @@ public class ContactListChanges {
 	public void resetChanges() {
 		contactsAdded.clear();
 		contactsDeleted.clear();
-		myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Reset changes of ContactListChanges was called!");
+		myLogger.log(Logger.FINE, "Thread "+ Thread.currentThread().getId() + ":Reset changes of ContactListChanges was called!");
 	}
 	
 	/**

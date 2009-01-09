@@ -41,7 +41,7 @@ import android.content.Intent;
  * This class should be similar to the Android <code>NotificationManager</code> but provides the functionality of removing
  * all notifications
  * 
- * @author Cristina Cuccè
+ * @author Cristina Cucè
  * @author Marco Ughetti 
  * @author Stefano Semeria
  * @author Tiziana Trucco
@@ -230,7 +230,7 @@ class ChatSessionNotificationManager {
 			for (int i =0; i < notificationList.size(); i++) {
 				Integer index = notificationList.get(i);
 				manager.cancel(index.intValue());
-				myLogger.log(Logger.INFO, "Removing notification with ID " + index.intValue());
+				myLogger.log(Logger.FINE, "Removing notification with ID " + index.intValue());
 			}
 			notificationList.clear();
 		}

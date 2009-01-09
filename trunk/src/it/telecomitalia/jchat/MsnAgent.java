@@ -221,12 +221,12 @@ public class MsnAgent extends GatewayAgent {
 				ACLMessage msg = myAgent.receive(mt);
 				//If a message is received
 				if(msg != null){
-					myLogger.log(Logger.INFO, msg.toString());
+					myLogger.log(Logger.FINE, msg.toString());
 					MsnSessionManager sessionManager = MsnSessionManager.getInstance();
 
 					//retrieve the session id
 					String sessionId = msg.getConversationId();
-					myLogger.log(Logger.INFO, "Received Message... session ID is " + sessionId);
+					myLogger.log(Logger.FINE, "Received Message... session ID is " + sessionId);
 					String senderPhoneNum = msg.getSender().getLocalName();	
 			
 					//Create a session Message from the received ACLMessage
