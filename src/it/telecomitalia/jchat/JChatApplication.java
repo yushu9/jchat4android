@@ -21,19 +21,12 @@ public class JChatApplication extends Application {
 	private static final String EMULATOR_IMEI= "000000000000000";
 	
 	public void onCreate() {
-		
 		super.onCreate();
-		Log.v("JChatApplication", "Application created...");
-		
 		initializeParameters();
-		
 	}
 
 	public void onTerminate() {
-		
-		super.onTerminate();
-		Log.v("JChatApplication", "Application destroyed...");
-		
+		super.onTerminate();	
 	}
 	
 	private void initializeParameters(){
@@ -57,10 +50,10 @@ public class JChatApplication extends Application {
 		    String IMEI = telMgr.getDeviceId();
 		    if(EMULATOR_IMEI.equals(IMEI)){
 		    	numTel.append(getRandomNumber());
+		    	Log.v("JChatApplication", "Phone Number generated randomly and stored in shared preferences! Value is " +  phoneNumber.toString());
 			}
 			phoneNumber = numTel.toString();
 			prefEditor.putString(PREFERENCE_PHONE_NUMBER, phoneNumber);
-			Log.v("JChatApplication", "Numtel generated randomly and stored in shared preferences! Value is " +  phoneNumber.toString());
 		}
 		prefEditor.commit();
 	}
