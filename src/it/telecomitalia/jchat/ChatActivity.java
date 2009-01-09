@@ -60,7 +60,7 @@ import android.widget.Toast;
  * Implements the ConnectionListener interface to be able to connect to the MicroRuntime service for communication 
  * with agent.  
  *  
- * @author Cristina Cuccè
+ * @author Cristina Cucè
  * @author Marco Ughetti 
  * @author Stefano Semeria
  * @author Tiziana Trucco
@@ -114,18 +114,18 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	 */
 	protected void onCreate(Bundle icicle) {
 		Thread.currentThread().getId();
-        myLogger.log(Logger.INFO, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
+        myLogger.log(Logger.FINE, "onReceiveIntent called: My currentThread has this ID: " + Thread.currentThread().getId());
 		super.onCreate(icicle);
 	    requestWindowFeature(Window.FEATURE_LEFT_ICON); 
 	    setContentView(R.layout.chat);
 	    setFeatureDrawable(Window.FEATURE_LEFT_ICON, getResources().getDrawable(R.drawable.chat));		
-		myLogger.log(Logger.INFO, "onCreate called ...");
+		myLogger.log(Logger.FINE, "onCreate called ...");
 		sessionAdapter = new MsnSessionAdapter(getWindow().getLayoutInflater(), getResources());	
 		sendButton = (ImageButton) findViewById(R.id.sendBtn);		
 		sendButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
             	String msgContent = messageToBeSent.getText().toString().trim();
-            	myLogger.log(Logger.INFO,"onClick(): send message:" + msgContent);
+            	myLogger.log(Logger.FINE,"onClick(): send message:" + msgContent);
             	if(msgContent.length()>0){
             		sendMessageToParticipants(msgContent);
             		}
@@ -185,7 +185,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	 */
 	@Override
 	protected void onResume() {
-		myLogger.log(Logger.INFO, "onResume() was called!" );
+		myLogger.log(Logger.FINE, "onResume() was called!" );
 		Intent i = getIntent();
 		Uri sessionIdUri = i.getData();
 		sessionId = sessionIdUri.getFragment();
@@ -216,7 +216,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	 */
 	@Override
 	protected void onNewIntent(Intent intent) {
-		myLogger.log(Logger.INFO, "WOW: onNewIntent was called!! \n Intent received was: " + intent.toString());
+		myLogger.log(Logger.FINE, "WOW: onNewIntent was called!! \n Intent received was: " + intent.toString());
 		setIntent(intent);
 		super.onNewIntent(intent);
 	}
@@ -238,7 +238,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 				
 		if (gateway != null){
 			gateway.disconnect(this);
-			myLogger.log(Logger.FINER, "ChatActivity.onDestroy() : disconnected from MicroRuntimeService");
+			myLogger.log(Logger.INFO, "ChatActivity.onDestroy() : disconnected from MicroRuntimeService");
 		}		
 		
 	}
@@ -322,7 +322,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 		 * Sends the message. Executed by JADE agent.
 		 */
 		public void action() {
-			myLogger.log(Logger.INFO, "Sending msg " +  theMsg.toString());
+			myLogger.log(Logger.FINE, "Sending msg " +  theMsg.toString());
 			myAgent.send(theMsg);
 		}
 	}

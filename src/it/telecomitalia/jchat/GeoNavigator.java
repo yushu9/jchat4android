@@ -140,7 +140,7 @@ public class GeoNavigator {
 	 * Request the Location manager to start firing intents with location updates
 	 */
 	public void startLocationUpdate(){
-		myLogger.log(Logger.INFO, "Starting location update... for provider " +  locProviderName);
+		myLogger.log(Logger.FINE, "Starting location update... for provider " +  locProviderName);
 			
 		manager.requestLocationUpdates(locProviderName, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE,listener );
 
@@ -161,7 +161,7 @@ public class GeoNavigator {
 	 * Stop the firing of broadcast intents for location update.
 	 */
 	public void stopLocationUpdate(){
-		myLogger.log(Logger.INFO, "Stopping location updates....");
+		myLogger.log(Logger.FINE, "Stopping location updates....");
 		manager.removeUpdates(listener);
 	}
 	
@@ -172,7 +172,7 @@ public class GeoNavigator {
 
 		
 		public void onLocationChanged(Location location) {
-			myLogger.log(Logger.INFO, ">>>>>>>>>>>>>>>>>>>> Location listener has received location update for location " + location );
+			myLogger.log(Logger.FINE, ">>>>>>>>>>>>>>>>>>>> Location listener has received location update for location " + location );
 			boolean hasMoved = ContactManager.getInstance().updateMyContactLocation(location);
 			if(hasMoved){
 				MsnEvent refresh = MsnEventMgr.getInstance().createEvent(MsnEvent.VIEW_REFRESH_EVENT);
@@ -192,7 +192,7 @@ public class GeoNavigator {
 		 */
 		public void onProviderDisabled(String provider) {
 			// TODO Auto-generated method stub
-			myLogger.log(Logger.INFO, "Location provider " +  provider + " disabled!");
+			myLogger.log(Logger.FINE, "Location provider " +  provider + " disabled!");
 		}
 
 		/* (non-Javadoc)
@@ -200,7 +200,7 @@ public class GeoNavigator {
 		 */
 		public void onProviderEnabled(String provider) {
 			// TODO Auto-generated method stub
-			myLogger.log(Logger.INFO, "Location provider " +  provider + " enabled!");
+			myLogger.log(Logger.FINE, "Location provider " +  provider + " enabled!");
 		}
 
 		/* (non-Javadoc)
@@ -208,7 +208,7 @@ public class GeoNavigator {
 		 */
 		public void onStatusChanged(String provider, int status, Bundle extras) {
 			// TODO Auto-generated method stub
-			myLogger.log(Logger.INFO, "Status of provider " +  provider + " has changed and now is " + status);
+			myLogger.log(Logger.FINE, "Status of provider " +  provider + " has changed and now is " + status);
 		}
 		
 	}

@@ -31,7 +31,7 @@ import android.location.Location;
  * <p>
  * This object is immutable by design.
  * 
- * @author Cristina Cuccè
+ * @author Cristina Cucè
  * @author Marco Ughetti 
  * @author Stefano Semeria
  * @author Tiziana Trucco

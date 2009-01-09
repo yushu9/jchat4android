@@ -432,10 +432,10 @@ public class ContactsPositionOverlay extends Overlay {
 			centerScreenY = HEIGHT / 2;
 
 			
-			myLogger.log(Logger.INFO, "WIDTH = "+WIDTH);
-			myLogger.log(Logger.INFO, "HEIGHT = "+HEIGHT);
-			myLogger.log(Logger.INFO, "MapViev WIDTH = "+myMapView.getWidth());
-			myLogger.log(Logger.INFO, "Map View HEIGHT = "+myMapView.getHeight());
+			//myLogger.log(Logger.INFO, "WIDTH = "+WIDTH);
+			//myLogger.log(Logger.INFO, "HEIGHT = "+HEIGHT);
+			//myLogger.log(Logger.INFO, "MapViev WIDTH = "+myMapView.getWidth());
+			//myLogger.log(Logger.INFO, "Map View HEIGHT = "+myMapView.getHeight());
 			
 			SCROLL_AREA_HEIGHT = (int) (HEIGHT * SCROLL_AREA_HEIGHT_RATIO);
 			SCROLL_AREA_WIDTH = (int) (WIDTH * SCROLL_AREA_WIDTH_RATIO);

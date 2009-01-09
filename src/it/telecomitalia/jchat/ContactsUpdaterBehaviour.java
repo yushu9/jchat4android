@@ -113,7 +113,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		Map<String,ContactLocation> cLocMap = ContactManager.getInstance().getAllContactLocations();
 		ContactListChanges changes = ContactManager.getInstance().getModifications();
 		
-		myLogger.log(Logger.INFO,"Thread "+ Thread.currentThread().getId() + "After reading local contacts and first df query: " +
+		myLogger.log(Logger.FINE,"Thread "+ Thread.currentThread().getId() + "After reading local contacts and first df query: " +
 				"Adding to VIEW_REFRESH_EVENT this list of changes: " + changes.toString());
 		event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES, changes);
 		event.addParam(MsnEvent.VIEW_REFRESH_CONTACTSMAP, cMap);
@@ -247,7 +247,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 						// Do something only if the notification deals with an agent different from the current one
 						if (!contactAID.equals(myAgent.getAID())){
 
-							myLogger.log(Logger.INFO,"Thread "+ Thread.currentThread().getId() + ":df says that agent "+myAgent.getAID().getLocalName() +"updates or registers" );
+							myLogger.log(Logger.INFO,"Thread "+ Thread.currentThread().getId() + ":df says that agent "+myAgent.getAID().getLocalName() +" updates or registers" );
 							Iterator serviceIter = dfd.getAllServices();
 
 							//Registered or updated
@@ -258,7 +258,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 								String phoneNum = contactAID.getLocalName();                                 
 								ContactManager.getInstance().addOrUpdateOnlineContact(phoneNum, loc);								
 							} else {
-								myLogger.log(Logger.INFO,"Thread "+ Thread.currentThread().getId() + ":df says that agent "+myAgent.getAID().getLocalName() +"deregisters" );
+								myLogger.log(Logger.INFO,"Thread "+ Thread.currentThread().getId() + ":df says that agent "+myAgent.getAID().getLocalName() +" deregisters" );
 								String phoneNumber = contactAID.getLocalName();
 								Contact c = ContactManager.getInstance().getContact(phoneNumber);
 								ContactManager.getInstance().setContactOffline(phoneNumber);
@@ -272,7 +272,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 							Map<String,Contact> cMap = ContactManager.getInstance().getAllContacts();
 							Map<String,ContactLocation> cLocMap = ContactManager.getInstance().getAllContactLocations();
 							
-							myLogger.log(Logger.INFO,"Thread "+ Thread.currentThread().getId() + ":Adding to VIEW_REFRESH_EVENT this list of changes: " + changes.toString());
+							myLogger.log(Logger.FINE,"Thread "+ Thread.currentThread().getId() + ":Adding to VIEW_REFRESH_EVENT this list of changes: " + changes.toString());
 							event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LISTOFCHANGES, changes);
 							event.addParam(MsnEvent.VIEW_REFRESH_CONTACTSMAP, cMap);
 							event.addParam(MsnEvent.VIEW_REFRESH_PARAM_LOCATIONMAP, cLocMap);

@@ -403,7 +403,7 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	public void onCreate(Bundle icicle) {
 
-		myLogger.log(Logger.INFO,
+		myLogger.log(Logger.FINE,
 				"onReceiveIntent called: My currentThread has this ID: "
 						+ Thread.currentThread().getId());
 		super.onCreate(icicle);
