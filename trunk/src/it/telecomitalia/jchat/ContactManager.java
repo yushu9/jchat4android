@@ -249,13 +249,7 @@ public class ContactManager {
 		//If the contact is not local, remove it when it goes offline
 
 		Contact c  = contactsMap.get(phoneNumber);
-		if (c.isStoredOnPhone()){
-			c.setOffline();	
-		} else {
-			contactsMap.remove(phoneNumber);
-			myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Removing contact with phone number " + phoneNumber);
-			modifications.contactsDeleted.add(phoneNumber);
-		}		
+		c.setOffline();	
 		contactLocationMap.remove(phoneNumber);
 		myLogger.log(Logger.INFO, "Thread "+ Thread.currentThread().getId() + ":Contact map is now: " + contactsMap.toString() );
 			
