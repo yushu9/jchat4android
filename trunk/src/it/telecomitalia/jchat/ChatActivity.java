@@ -216,7 +216,7 @@ public class ChatActivity extends Activity implements ConnectionListener{
 	 */
 	@Override
 	protected void onNewIntent(Intent intent) {
-		myLogger.log(Logger.FINE, "WOW: onNewIntent was called!! \n Intent received was: " + intent.toString());
+		myLogger.log(Logger.FINE, "onNewIntent was called!! \n Intent received was: " + intent.toString());
 		setIntent(intent);
 		super.onNewIntent(intent);
 	}
