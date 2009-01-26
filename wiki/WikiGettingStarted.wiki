@@ -28,5 +28,6 @@ To launch jChat follow these steps:
  * Specify the host and port on which the JADE main container has been launched by choosing _MENU_ then _Jade Settings_
  * Choose _Connect to Jade!_ from jChat menu
 
-For any further problem, please refer to *Android jChat User Guide* or post a comment down here.
-  
+For any further problem, please refer to [http://jchat4android.googlecode.com/files/Android%20jChat.doc Android jChat User Guide] 
+
+If you need assistance, please post your questions on the JADE develop mailing list: mailto://jade-develop@avalon.tilab.com
