@@ -33,7 +33,6 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.util.Logger;
 import jade.wrapper.gateway.GatewayAgent;
-import android.location.Location;
 
 
 

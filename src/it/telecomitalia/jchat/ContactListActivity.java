@@ -39,14 +39,12 @@ import java.util.Random;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.net.Uri;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -179,33 +177,18 @@ public class ContactListActivity extends MapActivity implements
 	 */
 	private MapView mapView;
 
-
-	/**
-	 * Time a downClick was received 
-	 */
-	private long downClickTime; 
-	
-	/**
-	 * Time threshold to recognize long clicks 
-	 */
-	private final long LONG_CLICK_THRESHOLD_MS = 2500;
 	
 	/**
 	 *  Custom dialog containing Jade connection parameters entered by the user. 
 	 */
 	private JadeParameterDialog parameterDialog;
 
-	/** 
-	 * GradientDrawable for the in focus tab
-	 */
-	private GradientDrawable selectedTabGradient;
 
 	/** 
 	 * Updater for this activity. 
 	 */
 	private GuiEventHandler activityHandler;
 
-	private long downEventTime;
 	
 	/**
 	 * Initializes the activity's UI interface.
@@ -383,17 +366,6 @@ public class ContactListActivity extends MapActivity implements
 		}
 	}
 	 
-	/**
-	 * Retrieves a string as a replacement for the phone number if the phone number is not available 
-	 * (no <code>/data/local.prop</code> on emulator).
-	 * 
-	 * @return String formatted as "RND&ltRandom Number&gt"
-	 */
-	private String getRandomNumber() {
-		Random rnd = new Random();
-		int randInt = rnd.nextInt(1000);
-		return String.valueOf(randInt);
-	}
 
 	/** 
 	 * Executed at activity creation. Performs UI initialization, ContactManager initialization, 
@@ -712,9 +684,6 @@ public class ContactListActivity extends MapActivity implements
 	 * Android phone service is used 
 	 * 
 	 * @param selectedCPhoneNumber phone number of desired contact
-	 */
-	/**
-	 * FIXME: TRY TO UNDERSTAND HOW TO PERFORM A PHONE CALL!!!!
 	 */
 	
 	private void callContact(String selectedCPhoneNumber) {

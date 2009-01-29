@@ -44,6 +44,8 @@ public class MultiSelectionListView extends ListView{
 
 	/**
 	 * Instantiates a new multiple selection list view.
+	 * @param context current application context
+	 * @param attrs set of attributes neeeded by parent
 	 * 
 	 */
 	public MultiSelectionListView(Context context, AttributeSet attrs) {

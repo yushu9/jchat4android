@@ -80,6 +80,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 	 * Instantiates a new contacts updater behaviour.
 	 * 
 	 * @param updateTime the update time
+	 * @param myContactLocation location of the my contact
 	 */
 	public ContactsUpdaterBehaviour(long updateTime, ContactLocation myContactLocation){
 		msnUpdateTime = updateTime;
@@ -175,9 +176,6 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		 * @return the location on the map described by this set of properties
 		 */
 		
-		/*
-		 * FIXME: USE THE REAL PROVIDER NAME!!!!
-		 */
 		public static Location extractLocation(Iterator it){
 			Location loc= new Location("mygps");
 
@@ -329,6 +327,7 @@ public class ContactsUpdaterBehaviour extends OneShotBehaviour {
 		 * 
 		 * @param a instance of the agent
 		 * @param period update period in milliseconds
+		 * @param contactLocation location of the my contact
 		 */
 		public DFUpdaterBehaviour(Agent a, long period, ContactLocation contactLocation) {
 			super(a, period);

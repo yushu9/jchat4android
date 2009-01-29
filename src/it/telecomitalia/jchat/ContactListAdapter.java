@@ -139,8 +139,6 @@ public class ContactListAdapter extends BaseAdapter {
 	 */
 	public final View getView(final int position, final View convertView, final ViewGroup parent) {
 		View v= null;
-		//FIXME: sometimes I get -1 as position from the callback! Is this an Android bug?
-		//This try / catch should provide a quick and dirty workaround... 
 		try {
 			v = contactViewInfoList.get(position).contactView;
 		} catch(IndexOutOfBoundsException ex){

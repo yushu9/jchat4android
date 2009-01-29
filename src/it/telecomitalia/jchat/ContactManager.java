@@ -352,9 +352,10 @@ public class ContactManager {
 	}
 	
 	/**
-	 * Update location of my contact
+	 * Update location of my contact an check if it has moved
 	 * 
 	 * @param loc new location of my contact
+	 * @return true if contact has moved, false otherwise
 	 */
 	public synchronized boolean updateMyContactLocation(Location loc) {
 		myContactLocation.changeLocation(loc);
@@ -363,7 +364,7 @@ public class ContactManager {
 	}
 	
 	/**
-	 * Gets my contact location.
+	 * Gets location of my contact.
 	 * 
 	 * @return the current my contact's location
 	 */

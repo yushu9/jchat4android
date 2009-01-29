@@ -166,16 +166,6 @@ public class ContactsPositionOverlay extends Overlay {
 	 */
 	private int HEIGHT=-1;
 	
-	/** 
-	 *  The x coordinate of the screen center in screen coordinates
-	 */
-	private int centerScreenX;
-	
-	/** 
-	 * The y coordinate of the screen center in screen coordinates
-	 */
-	private int centerScreenY;
-	
 
 	/** 
 	 * Constant used to for choosing zoom level. It means that zoom to max level is required 
@@ -202,6 +192,7 @@ public class ContactsPositionOverlay extends Overlay {
 	/**
 	 * Instantiates a new contacts position overlay.
 	 * 
+	 * @param cont current application context
 	 * @param myMapView the map view on which the overlay is drawn
 	 * @param ctn the file for accessing resources
 	 */
@@ -354,8 +345,7 @@ public class ContactsPositionOverlay extends Overlay {
 				  
 				  
 				  RectF rect = new RectF(textOriginX - 2, textOriginY + (int) fm.top - 2, textOriginX +this.getStringLength(cData.name, myPaint) + 2,textOriginY + (int) fm.bottom + 2);		  
-				  int width = bluePaddle.getWidth();
-				  int height = bluePaddle.getHeight();
+			
 				  
 				  //Draws the debugging rct for collision
 				  //Draw the right bitmap icon
@@ -427,16 +417,7 @@ public class ContactsPositionOverlay extends Overlay {
 			WIDTH = width;
 			HEIGHT = height;
 			
-			
-			centerScreenX = WIDTH / 2;
-			centerScreenY = HEIGHT / 2;
-
-			
-			//myLogger.log(Logger.INFO, "WIDTH = "+WIDTH);
-			//myLogger.log(Logger.INFO, "HEIGHT = "+HEIGHT);
-			//myLogger.log(Logger.INFO, "MapViev WIDTH = "+myMapView.getWidth());
-			//myLogger.log(Logger.INFO, "Map View HEIGHT = "+myMapView.getHeight());
-			
+		
 			SCROLL_AREA_HEIGHT = (int) (HEIGHT * SCROLL_AREA_HEIGHT_RATIO);
 			SCROLL_AREA_WIDTH = (int) (WIDTH * SCROLL_AREA_WIDTH_RATIO);
 			scrollingArea.top = (HEIGHT - SCROLL_AREA_HEIGHT)/2;
@@ -578,34 +559,7 @@ public class ContactsPositionOverlay extends Overlay {
 	}	
 
 	
-		
 	
-	
-	/**
-	 * Converts a point on screen (pixel coordinates) into a point on the map (Latitude/Longitude coordinates)
-	 * 
-	 * @param point screen coordinates of the point
-	 * 
-	 * @return position of the point on map in microdegrees
-	 */
-	private Point screenToMap(int [] point) {
-		//Calculate ratio 
-		int latitudeSpan = myMapView.getLatitudeSpan();
-		int longitudeSpan = myMapView.getLongitudeSpan();
-
-		int microDegreePerPixelLatitude = latitudeSpan / HEIGHT;
-		int microDegreePerPixelLongitude = longitudeSpan / WIDTH;
-		int deltaX = centerScreenX - point[0];
-		int deltaY = centerScreenY - point[1];
-		int deltaLatitude = microDegreePerPixelLatitude * deltaY;
-		int deltaLongitude = microDegreePerPixelLongitude * deltaX;
-		int computedLocationLatitude = myMapView.getMapCenter().getLatitudeE6()
-		          + deltaLatitude;
-		int computedLocationLongitude = myMapView.getMapCenter().getLongitudeE6()
-		          - deltaLongitude;
-		
-		return  new Point(computedLocationLatitude,computedLocationLongitude);
-	}
 	
 	
 	/**
@@ -792,7 +746,7 @@ public class ContactsPositionOverlay extends Overlay {
      }
      
     /**
- 	 * Initialize the adapter by populating it with all available contacts and by creating the {@link ContactViewInfo}
+ 	 * Initialize the adapter by populating it with all available contacts and by creating the info
  	 * for each item. Every other modification shall be incremental.
  	 * 
  	 */

@@ -47,6 +47,7 @@ public class ContactLocation extends Location {
 	/**
 	 * Instantiates a new empty contact location.
 	 * Each component is initialized to positive infinity
+	 * @param providerName name of the location provider (gps/network)
 	 */
 	public ContactLocation(String providerName){
 		super(providerName);
@@ -79,10 +80,8 @@ public class ContactLocation extends Location {
 	
 	/**
 	 * Changes the location of this contact and sets its internal state to moving
-	 * It creates a new object so this object remains immutable
 	 * 
 	 * @param loc the new contact location
-	 * @return new contact location object
 	 */
 	public void changeLocation(Location loc)
 	{   this.hasMoved = !this.equals(loc);
@@ -102,6 +101,11 @@ public class ContactLocation extends Location {
 		return hasMoved;
 	}
 	
+	/**
+	 * Two Contact location are the same if they match their altitude, longitude and latitude
+	 * @param l location we have to compare
+	 * @return true if equals, false otherwise
+	 */
 	public boolean equals(Location l){
 		return ((this.getAltitude()==l.getAltitude()) && (this.getLatitude()==l.getLatitude()) && (this.getLongitude()==l.getLongitude()));
 	}

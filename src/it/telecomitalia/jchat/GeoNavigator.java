@@ -69,15 +69,7 @@ public class GeoNavigator {
      */
     private static final Logger myLogger = Logger.getMyLogger(GeoNavigator.class.getName());
     
-    /** 
-     * Intent fired for location updates 
-     */
-    private Intent updateIntent;
-    
-    /** 
-     * The intent filter to use when registering intent receiver. 
-     */
-    private IntentFilter filter;
+  
 	
 	/** 
 	 * The default location provider name  
@@ -113,8 +105,7 @@ public class GeoNavigator {
 	 * 
 	 * @param c the application context
 	 * 
-	 * @return single instance of GeoNavigator
-	 * @throws FileNotFoundException 
+	 * @return single instance of GeoNavigator 
 	 */
 	public static GeoNavigator getInstance(Context c) {
 		if (navigator == null)
