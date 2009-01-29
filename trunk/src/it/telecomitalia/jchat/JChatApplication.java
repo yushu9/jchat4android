@@ -7,12 +7,30 @@ import android.content.SharedPreferences;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+/**
+ * This class is accessibile directly by all activities and it is used to get stored preferences
+ * and useful data throughout the code
+ * 
+ * @author Stefano Semeria
+ * @author Tiziana Trucco
+ *
+ */
 public class JChatApplication extends Application {
 	
 	private static String SHARED_PREFERENCES_NAME= "properties";
 	
+	/**
+	 * Constant used for retrieving the last host for JADE main container
+	 */
 	public static final String JADE_DEFAULT_HOST="it.telecomitalia.jchat.JADE_DEFAULT_HOST";
+	
+	/**
+	 * Constant used for retrieving the last host for JADE main container
+	 */
 	public static final String JADE_DEFAULT_PORT="it.telecomitalia.jchat.JADE_DEFAULT_PORT";
+	/**
+	 * Constant used for the retrieving the last location provider
+	 */
 	public static final String LOCATION_PROVIDER="it.telecomitalia.jchat.LOCATION_PROVIDER";
 	/**
 	 * Key for retrieving the phone number
@@ -70,11 +88,21 @@ public class JChatApplication extends Application {
 		return String.valueOf(randInt);
 	}
 	
+	/**
+	 * Returns the last stored value for a property (uses Android persistent store)
+	 * @param key name of the property to be retrieved
+	 * @return value of the property from the persistent store
+	 */
 	public String getProperty(String key){
 		SharedPreferences prefs = getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE);
 		return prefs.getString(key, "");
 	}
-	
+
+	/**
+	 * Saves a property on persistent store (uses Android persistent store)
+	 * @param key name of the property to be saved
+	 * @param value value of the property to be saved
+	 */
 	public void setProperty(String key, String value){
 		SharedPreferences prefs = getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE);
 		SharedPreferences.Editor prefEditor = prefs.edit();

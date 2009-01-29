@@ -55,10 +55,7 @@ public class SMSIntentReceiver extends BroadcastReceiver {
 	 * Current context
 	 */
 	private Context ctx;
-	/**
-	 * Number of messages to be sent
-	 */
-	private int numberOfMsg;
+
 	/**
 	 * Instance of {@link SendSMSActivity} 's ImageButton
 	 */
@@ -79,7 +76,6 @@ public class SMSIntentReceiver extends BroadcastReceiver {
 	/**
 	 * Overrides IntentReceiver.onReceiveIntent() to show the necessary UI notification for handling SMS results (success or errors)
 	 * and stopping the progress bar once that all SMSs have been sent	 
-	 * FIXME: must check how to handle error conditions!
 	 */
 	public void onReceive(Context context, Intent intent) {
 		

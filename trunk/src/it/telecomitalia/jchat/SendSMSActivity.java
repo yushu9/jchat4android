@@ -86,23 +86,11 @@ public class SendSMSActivity extends Activity {
 	private List<String> addresses;
 
 	/**
-	 * Time in milliseconds used for targeting the display of toast and statusbar for the sending of SMS (nothing is really sent)
-	 * the system just simulates some work
-	 */
-	private long timeBase;
-	/**
 	 * Instance of progress dialog shown after sending SMS
 	 */
 	private ProgressDialog dlg;
 
-	/**
-	 * Counter of all messages that shall be sent to all contacts
-	 */
-	private int messageCounter=0;
-	/**
-	 * Number of messages that shall be sent to each contact
-	 */
-	private int numberOfMessages=0;
+
 	/**
 	 * Handler used to post delayed Toast (for simulating SMS sending)
 	 */
@@ -123,9 +111,7 @@ public class SendSMSActivity extends Activity {
 	protected void onCreate(Bundle icicle) {
 		// TODO Auto-generated method stub
 		super.onCreate(icicle);
-		timeBase=0;
 		setContentView(R.layout.sms_dialog);
-		messageCounter=0;
 		handler = new Handler();
 		
 		smsReceiver = new SMSIntentReceiver(handler);
