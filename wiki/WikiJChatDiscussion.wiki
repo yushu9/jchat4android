@@ -15,7 +15,7 @@ Please post your comments down here.
 We all thank you for your contribution since now  :)
 
 == jChat Mailing list ==
-jChat does not have an official mailing list to discuss issues. You can refer to the Jade  Develop mailing list for posting your question about it.
+*jChat does not have an official mailing list to discuss issues.*You can refer to the *Jade  Develop* mailing list for posting your question about it.
 Please check http://jade.tilab.com for mailing list subscription.
 
 Note that the mailing list is the quickest way you can get a feedback from the jChat team!
